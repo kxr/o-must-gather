@@ -7,7 +7,7 @@ dependencies = ['tabulate']
 
 setup(
     name='o-must-gather',
-    version='0.1',
+    version='0.2',
     url='https://github.com/kxr/o-must-gather',
     license='GPLv3',
     author='Khizer Naeem',

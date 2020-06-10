@@ -1,13 +1,13 @@
 import sys, argparse
-from .config import Config
 
-from .cmd_use import use
-from .cmd_project import project, projects
-from .cmd_get import get
-from .cmd_describe import describe
-from .cmd_log import log
-from .cmd_whoami import whoami
+from omg.cmd.use import use
+from omg.cmd.project import project, projects
+from omg.cmd.get_main import get_main
+from omg.cmd.describe import describe
+from omg.cmd.log import log
+from omg.cmd.whoami import whoami
 
+# Process the Arguments and call the respective functions
 def main():
     # Common parser, with shared arguments for all subcommands:
     common = argparse.ArgumentParser(add_help=False)
@@ -27,6 +27,7 @@ def main():
     # omg project
     p_project = subparsers.add_parser('project', parents=[common],
                                       help='Display information about the current active project and existing projects')
+    p_project.add_argument('project', nargs='?', type=str)
     p_project.set_defaults(func=project)
 
     # omg projects
@@ -40,7 +41,7 @@ def main():
     p_get.add_argument('objects', nargs='*', type=str)
     p_get.add_argument("-o", "--output", dest="output",
                        choices=['yaml', 'json', 'wide'] )
-    p_get.set_defaults(func=get)
+    p_get.set_defaults(func=get_main)
 
     # omg describe <object(s)>
     p_describe = subparsers.add_parser('describe', parents=[common],
@@ -49,8 +50,11 @@ def main():
     p_describe.set_defaults(func=describe)
 
     # omg log <pod>
-    p_log = subparsers.add_parser('log', parents=[common],
-                                  help='Display one or many resources')
+    p_log = subparsers.add_parser('log', aliases=['logs'], parents=[common],
+                                  help='Display logs')
+    p_log.add_argument('resource', type=str)
+    p_log.add_argument("-c", "--container", dest="container")
+    p_log.add_argument("-p", "--previous", dest="previous", action='store_true')
     p_log.set_defaults(func=log)
 
     # omg whoami
