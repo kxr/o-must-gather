@@ -1,19 +1,13 @@
 import sys, os, yaml
 
 from omg.common.config import Config
-import omg.common.resource_map as rm
-# from omg.common.helper import locate_ns
 
 # This function finds the respective yamls and returns the resouces that match
 # args = resource_type (e.g pod), namespace, resource_names (e.g, httpd)
-def from_yaml(rt, ns, names):
+def from_yaml(rt, ns, names, yaml_loc, need_ns):
     mg_path = Config().path
-
-    # Get info on this resource_type from resource_map
-    rt_info = rm.map_res(rt)
-    yaml_loc = os.path.join(mg_path, rm.map_res(rt)['yaml_loc'])
-
-    if rt_info['need_ns']:
+    yaml_path = os.path.join(mg_path, yaml_loc)
+    if need_ns:
         # Error out if it needs ns and its not set.
         if ns is None:
             print("[ERROR] Namespace not set. Select a project (omg project) or specify a namespace (-n)")
@@ -21,15 +15,15 @@ def from_yaml(rt, ns, names):
         # Get all namespace names if we need all
         elif ns == '_all':
             nses = os.listdir( os.path.join(mg_path, 'namespaces') )
-            yaml_paths = [ yaml_loc%(n) for n in nses if os.path.isfile(yaml_loc%(n)) ]
+            yaml_paths = [ yaml_path%(n) for n in nses if os.path.isfile(yaml_path%(n)) ]
         else:
-            yaml_paths = [ yaml_loc%(ns) ] if os.path.isfile(yaml_loc%(ns)) else []
+            yaml_paths = [ yaml_path%(ns) ] if os.path.isfile(yaml_path%(ns)) else []
     else:
         # if yaml_loc in resource_map is a dir, we will read all yamls from this dir
-        if os.path.isdir(yaml_loc):
-            yaml_paths = [ os.path.join(yaml_loc, y) for y in os.listdir(yaml_loc) if y.endswith('.yaml') ]
+        if os.path.isdir(yaml_path):
+            yaml_paths = [ os.path.join(yaml_path, y) for y in os.listdir(yaml_path) if y.endswith('.yaml') ]
         else:
-            yaml_paths = [ yaml_loc ] if os.path.isfile(yaml_loc) else []
+            yaml_paths = [ yaml_path ] if os.path.isfile(yaml_path) else []
 
     #Debug
     # print(yaml_paths)

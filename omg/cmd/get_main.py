@@ -115,11 +115,14 @@ def get_main(a):
     # i.e, call the get function for all the requested types
     # then call the output function or simply print if its yaml/json
     for rt in objects.keys():
-        get_func = map_res(rt)['get_func']
-        getout_func = map_res(rt)['getout_func']
+        rt_info = map_res(rt)
+        get_func = rt_info['get_func']
+        getout_func = rt_info['getout_func']
+        yaml_loc = rt_info['yaml_loc']
+        need_ns = rt_info['need_ns']
 
         # Call the get function to get the resoruces
-        res = get_func(rt, ns, objects[rt])
+        res = get_func(rt, ns, objects[rt], yaml_loc, need_ns)
 
         # Error out if no objects/resources were collected
         if len(res) == 0:
