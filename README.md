@@ -18,4 +18,7 @@ Point it to an extracted must-gather:
 
 Use it like oc:
 
-    # omg get pods -n openshift-ingress
+    # omg get clusterVersion
+    # omg get clusterOperators
+    # omg project openshift-ingress
+    # omg get pods -o wide
