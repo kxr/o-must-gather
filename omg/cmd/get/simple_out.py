@@ -24,7 +24,7 @@ def simple_out(t, ns, res, output, show_type):
             row.append(p['metadata']['name'])
         # age
         try:
-            ct = p['metadata']['creationTimestamp']
+            ct = str(p['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:

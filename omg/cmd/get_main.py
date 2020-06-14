@@ -9,7 +9,7 @@ from omg.common.resource_map import map_res
 #   get dc/httpd pod/httpd1
 #   get routes
 #   get pod,svc
-# We get all these args (space separated) in the array args.objects
+# We get all these args (space separated) in the array a.objects
 # We'll process them and normalize them in a python dict (objects)
 # Once we have one of more object to get,
 # and call the respective get function

@@ -46,7 +46,7 @@ def ep_out(t, ns, res, output, show_type):
             row.append('<none>')
         # age
         try:
-            ct = ep['metadata']['creationTimestamp']
+            ct = str(ep['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:

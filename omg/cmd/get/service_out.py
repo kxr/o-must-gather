@@ -48,7 +48,7 @@ def service_out(t, ns, res, output, show_type):
             row.append('<none>')
         # age
         try:
-            ct = svc['metadata']['creationTimestamp']
+            ct = str(svc['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:

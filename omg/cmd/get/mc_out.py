@@ -27,7 +27,7 @@ def mc_out(t, ns, res, output, show_type):
         row.append(i_ver)
         # age
         try:
-            ct = mc['metadata']['creationTimestamp']
+            ct = str(mc['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:

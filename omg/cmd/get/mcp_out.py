@@ -40,7 +40,7 @@ def mcp_out(t, ns, res, output, show_type):
         row.append(mcp['status']['degradedMachineCount'])
         # age
         try:
-            ct = mcp['metadata']['creationTimestamp']
+            ct = str(mcp['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:

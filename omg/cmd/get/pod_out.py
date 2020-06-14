@@ -35,13 +35,19 @@ def pod_out(t, ns, res, output, show_type):
         # restarts
         row.append(max([ r['restartCount'] for r in p['status']['containerStatuses'] ]))
         # age
-        pod_ct = p['metadata']['creationTimestamp']
+        pod_ct = str(p['metadata']['creationTimestamp'])
         gen_ts = pod['gen_ts']
         row.append(age(pod_ct,gen_ts))
         # pod ip and node (if -o wide)
         if output == "wide":
-            row.append(p['status']['podIP'])
-            row.append(p['spec']['nodeName'])
+            if 'podIP' in p['status']:
+                row.append(p['status']['podIP'])
+            else:
+                row.append('')
+            if 'nodeName' in p['spec']:
+                row.append(p['spec']['nodeName'])
+            else:
+                row.append('')
 
         output_pods.append(row)
 

@@ -9,15 +9,19 @@ from omg.cmd.get.mc_out import mc_out
 from omg.cmd.get.pv_out import pv_out
 from omg.cmd.get.secret_out import secret_out
 from omg.cmd.get.service_out import service_out
+from omg.cmd.get.route_out import route_out
 from omg.cmd.get.cm_out import cm_out
 from omg.cmd.get.ep_out import ep_out
 from omg.cmd.get.ev_out import ev_out
+from omg.cmd.get.deployment_out import deployment_out
+from omg.cmd.get.rs_out import rs_out
+from omg.cmd.get.ss_out import ss_out
 
 
 # This map and function normalizes/standarizes the different names of object/resources types
 # Also returns the function that handles get,describe and output of this object type
 # This is how the top level get_main function knows which objects we can handle and how.
-# returns None if not an object type that we can handle
+# returns None if not an object type that we can't handle
 
 
 map = [
@@ -54,16 +58,16 @@ map = [
         'yaml_loc': 'namespaces/%s/core/replicationcontrollers.yaml' }, ###
 
     {   'type': 'replicaset','aliases': ['replicasets', 'rs'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
-        'yaml_loc': 'namespaces/%s/apps/replicasets.yaml' }, ###
+        'get_func': from_yaml, 'getout_func': rs_out,
+        'yaml_loc': 'namespaces/%s/apps/replicasets.yaml' },
 
     {   'type': 'statefulset','aliases': ['statefulsets'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': ss_out,
         'yaml_loc': 'namespaces/%s/apps/statefulsets.yaml' }, ###
 
     {   'type': 'deployment','aliases': ['deployments'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
-        'yaml_loc': 'namespaces/%s/apps/deployments.yaml' }, ###
+        'get_func': from_yaml, 'getout_func': deployment_out,
+        'yaml_loc': 'namespaces/%s/apps/deployments.yaml' },
     
     {   'type': 'daemonset','aliases': ['daemonsets', 'ds'],'need_ns': True,
         'get_func': from_yaml, 'getout_func': simple_out,
@@ -74,7 +78,7 @@ map = [
         'yaml_loc': 'namespaces/%s/apps.openshift.io/deploymentconfigs.yaml' }, ###
 
     {   'type': 'route','aliases': ['routes'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': route_out,
         'yaml_loc': 'namespaces/%s/route.openshift.io/routes.yaml' }, ###
 
     {   'type': 'node','aliases': ['nodes'],'need_ns': False,

@@ -2,8 +2,7 @@ from tabulate import tabulate
 
 from omg.common.helper import age
 
-
-# Simple out put with just name and age
+# Config Map
 def cm_out(t, ns, res, output, show_type):
     output_res=[[]]
     # header
@@ -29,7 +28,7 @@ def cm_out(t, ns, res, output, show_type):
             row.append('0')
         # age
         try:
-            ct = cm['metadata']['creationTimestamp']
+            ct = str(cm['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:

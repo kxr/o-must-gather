@@ -34,13 +34,13 @@ def cv_out(t, ns, res, output, show_type):
         for c in conds:
             if c['type'] == 'Available':
                 avail = c['status']
-                transitions.append(c['lastTransitionTime'])
+                transitions.append(str(c['lastTransitionTime']))
             elif c['type'] == 'Progressing':
                 prog = c['status']
                 status = c['message']
-                transitions.append(c['lastTransitionTime'])
+                transitions.append(str(c['lastTransitionTime']))
             elif c['type'] == 'Failing':
-                transitions.append(c['lastTransitionTime'])
+                transitions.append(str(c['lastTransitionTime']))
             
         row.append(avail)
         row.append(prog)

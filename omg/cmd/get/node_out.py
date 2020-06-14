@@ -33,13 +33,13 @@ def node_out(t, ns, res, output, show_type):
             status += ",SchedulingDisabled"
         row.append(status)
         # roles
-        roles = ''
+        roles = []
         for label in n['metadata']['labels']:
             if label.startswith('node-role.kubernetes.io'):
-                roles += label.split('/')[1]
-        row.append(roles)
+                roles.append(label.split('/')[1])
+        row.append(','.join(roles))
         # age
-        ct = n['metadata']['creationTimestamp']
+        ct = str(n['metadata']['creationTimestamp'])
         ts = node['gen_ts']
         row.append(age(ct,ts))
         # version

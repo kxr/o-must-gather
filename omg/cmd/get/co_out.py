@@ -28,13 +28,13 @@ def co_out(t, ns, res, output, show_type):
         for c in cond:
             if c['type'] == 'Degraded':
                 dg = c['status']
-                transitions.append(c['lastTransitionTime'])
+                transitions.append(str(c['lastTransitionTime']))
             elif c['type'] == 'Progressing':
                 pr = c['status']
-                transitions.append(c['lastTransitionTime'])
+                transitions.append(str(c['lastTransitionTime']))
             elif c['type'] == 'Available':
                 av = c['status']
-                transitions.append(c['lastTransitionTime'])
+                transitions.append(str(c['lastTransitionTime']))
         row.append(av)
         row.append(pr)
         row.append(dg)

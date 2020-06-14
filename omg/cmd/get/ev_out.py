@@ -19,7 +19,7 @@ def ev_out(t, ns, res, output, show_type):
             row.append(ev['metadata']['namespace'])
 
         # last
-        last_ts = ev['lastTimestamp']
+        last_ts = str(ev['lastTimestamp'])
         gen_ts = r['gen_ts']
         row.append(age(last_ts,gen_ts))
         # type
