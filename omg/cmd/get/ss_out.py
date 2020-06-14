@@ -30,7 +30,7 @@ def ss_out(t, ns, res, output, show_type):
         row.append( str(ready) + '/' + str(replicas) )
         # age
         try:
-            ct = ss['metadata']['creationTimestamp']
+            ct = str(ss['metadata']['creationTimestamp'])
             ts = r['gen_ts']
             row.append(age(ct,ts))
         except:
