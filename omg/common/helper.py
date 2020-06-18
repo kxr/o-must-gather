@@ -16,7 +16,7 @@ def age(obj_time, file_ts):
 
     try:
         dt1 = parse(obj_time, ignoretz=True)
-        dt2 = datetime.fromtimestamp(file_ts)
+        dt2 = datetime.utcfromtimestamp(file_ts)
         rd = relativedelta(dt2, dt1)
     except:
         return 'Unknown'
@@ -28,7 +28,7 @@ def age(obj_time, file_ts):
     elif rd.hours > 0 and rd.hours < 10:
         return str(rd.hours)+'h'+str(rd.minutes)+'m'
     elif rd.minutes > 9:
-        return str(rd.minutes)
+        return str(rd.minutes) + 'm'
     elif rd.minutes > 0 and rd.minutes < 10:
         return str(rd.minutes)+'m'+str(rd.seconds)+'s'
     else:

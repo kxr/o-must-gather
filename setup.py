@@ -7,7 +7,7 @@ dependencies = ['tabulate', 'pyyaml', 'python-dateutil']
 
 setup(
     name='o-must-gather',
-    version='0.3',
+    version='0.4',
     url='https://github.com/kxr/o-must-gather',
     license='GPLv3',
     author='Khizer Naeem',
