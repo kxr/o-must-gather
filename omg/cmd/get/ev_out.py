@@ -23,11 +23,19 @@ def ev_out(t, ns, res, output, show_type):
         gen_ts = r['gen_ts']
         row.append(age(last_ts,gen_ts))
         # type
-        row.append(ev['type'])
+        if 'type' in ev:
+            row.append(ev['type'])
+        else:
+            row.append('')
         # reason
-        row.append(ev['reason'])
+        if 'reason' in ev:
+            row.append(ev['reason'])
+        else:
+            row.append('')
         # object
-        if 'involvedObject' in ev:
+        if ( 'involvedObject' in ev
+        and 'kind' in ev['involvedObject']
+        and 'name' in ev['involvedObject'] ):
             inv_obj = ev['involvedObject']
             row.append(
                 inv_obj['kind'].lower() + '/' + inv_obj['name']
