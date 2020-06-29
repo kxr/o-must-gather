@@ -27,13 +27,21 @@ def pod_out(t, ns, res, output, show_type):
         else:
             row.append(p['metadata']['name'])
         # containers/ready count
-        containers = str(len(p['spec']['containers']))
-        containers_ready = str(len([ r for r in p['status']['containerStatuses']  if r['ready'] == True ]))
+        if 'containers' in p['spec']:
+            containers = str(len(p['spec']['containers']))
+        else:
+            containers = '0'
+        if 'containerStatuses' in p['status']:
+            containers_ready = str(len([ r for r in p['status']['containerStatuses']  if r['ready'] == True ]))
+            restarts = max([ r['restartCount'] for r in p['status']['containerStatuses'] ])
+        else:
+            containers_ready = '0'
+            restarts = 0
         row.append(containers_ready+'/'+containers)
         # status
         row.append(p['status']['phase'])
         # restarts
-        row.append(max([ r['restartCount'] for r in p['status']['containerStatuses'] ]))
+        row.append(restarts)
         # age
         pod_ct = str(p['metadata']['creationTimestamp'])
         gen_ts = pod['gen_ts']
