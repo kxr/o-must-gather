@@ -44,7 +44,6 @@ def machine_out(t, ns, res, output, show_type):
 
         output_res.append(row)
 
-    print(output_res)
     # sort by NAME column whose index will be
     # 1 if we are showing namespaces otherwise 0
     ni = 1 if ns == '_all' else 0
