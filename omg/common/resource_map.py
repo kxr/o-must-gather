@@ -16,6 +16,8 @@ from omg.cmd.get.ev_out import ev_out
 from omg.cmd.get.deployment_out import deployment_out
 from omg.cmd.get.rs_out import rs_out
 from omg.cmd.get.ss_out import ss_out
+from omg.cmd.get.machine_out import machine_out
+from omg.cmd.get.machineset_out import machineset_out
 
 
 # This map and function normalizes/standarizes the different names of object/resources types
@@ -153,6 +155,15 @@ map = [
     {   'type': 'scheduler','aliases': ['schedulers'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/schedulers.yaml' },
+
+    {   'type': 'machineset','aliases': ['machinesets'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': machineset_out,
+        'yaml_loc': 'namespaces/%s/machine.openshift.io/machinesets' },
+
+    {   'type': 'machine','aliases': ['machines'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': machine_out,
+        'yaml_loc': 'namespaces/%s/machine.openshift.io/machines' },
+
 ]
 
 

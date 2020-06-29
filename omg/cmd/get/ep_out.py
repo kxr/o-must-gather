@@ -32,7 +32,9 @@ def ep_out(t, ns, res, output, show_type):
                             endpoints.append(
                                 str(a['ip']) + ':' + str(p['port'])
                             )
-        if len(endpoints) < 4:
+        if len(endpoints) == 0:
+            row.append('<none>')
+        elif len(endpoints) < 4:
             row.append(
                 ','.join(endpoints)
             )
@@ -43,7 +45,7 @@ def ep_out(t, ns, res, output, show_type):
                 str(len(endpoints)-3) +
                 ' more...'
             )
-            row.append('<none>')
+        
         # age
         try:
             ct = str(ep['metadata']['creationTimestamp'])

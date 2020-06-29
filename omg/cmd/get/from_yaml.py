@@ -15,22 +15,28 @@ def from_yaml(rt, ns, names, yaml_loc, need_ns):
         # Get all namespace names if we need all
         elif ns == '_all':
             nses = os.listdir( os.path.join(mg_path, 'namespaces') )
-            yaml_paths = [ yaml_path%(n) for n in nses if os.path.isfile(yaml_path%(n)) ]
+            yaml_paths = [ yaml_path%(n) for n in nses ]
         else:
-            yaml_paths = [ yaml_path%(ns) ] if os.path.isfile(yaml_path%(ns)) else []
+            yaml_paths = [ yaml_path%(ns) ]
     else:
-        # if yaml_loc in resource_map is a dir, we will read all yamls from this dir
-        if os.path.isdir(yaml_path):
-            yaml_paths = [ os.path.join(yaml_path, y) for y in os.listdir(yaml_path) if y.endswith('.yaml') ]
-        else:
-            yaml_paths = [ yaml_path ] if os.path.isfile(yaml_path) else []
+        yaml_paths = [ yaml_path ]
+
+    yamls = []
+    for ym in yaml_paths:
+        # if yaml_paths is a dir, we will read all yamls from this dir
+        if os.path.isdir(ym):
+            yamls.extend(
+                [ os.path.join(ym, y) for y in os.listdir(ym) if y.endswith('.yaml') ]
+            )
+        elif os.path.isfile(ym) and ym.endswith('.yaml'):
+            yamls.append( ym )
 
     #Debug
-    # print(yaml_paths)
+    # print(yamls)
     
     # Collect the resources
     collected=[]
-    for yp in yaml_paths:
+    for yp in yamls:
         try:
             # record when was this yaml generated (to calc age)
             gen_ts = os.path.getmtime(yp)
@@ -38,7 +44,7 @@ def from_yaml(rt, ns, names, yaml_loc, need_ns):
                 try:
                     res = yaml.safe_load(yf)
                 except:
-                    print("[ERROR] Parsing error in ", yp)
+                    print("[ERROR] Invalid yaml file. Parsing error in ", yp)
                     sys.exit(1)
         except:
             print("[ERROR] Could not read file:", yp)
