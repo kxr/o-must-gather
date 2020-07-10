@@ -164,6 +164,10 @@ map = [
         'get_func': from_yaml, 'getout_func': machine_out,
         'yaml_loc': 'namespaces/%s/machine.openshift.io/machines' },
 
+    {   'type': 'customresourcedefinition','aliases': ['customresourcedefinitions', 'crd', 'crds'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/apiextensions.k8s.io/customresourcedefinitions' },
+
 ]
 
 

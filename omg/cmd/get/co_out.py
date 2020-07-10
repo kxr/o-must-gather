@@ -19,9 +19,12 @@ def co_out(t, ns, res, output, show_type):
         else:
             row.append(co['metadata']['name'])
         # version
-        vers = co['status']['versions']
-        ver = next( v['version'] for v in vers if v['name'] == 'operator' )
-        row.append(ver)
+        try:
+            vers = co['status']['versions']
+            ver = next( v['version'] for v in vers if v['name'] == 'operator' )
+            row.append(ver)
+        except:
+            row.append('')
         # available,progressing,degraded,since
         transitions = []
         cond = co['status']['conditions']
