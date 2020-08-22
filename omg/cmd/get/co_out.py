@@ -26,31 +26,37 @@ def co_out(t, ns, res, output, show_type):
         except:
             row.append('')
         # available,progressing,degraded,since
-        transitions = []
-        cond = co['status']['conditions']
-        for c in cond:
-            if c['type'] == 'Degraded':
-                dg = c['status']
-                transitions.append(str(c['lastTransitionTime']))
-            elif c['type'] == 'Progressing':
-                pr = c['status']
-                transitions.append(str(c['lastTransitionTime']))
-            elif c['type'] == 'Available':
-                av = c['status']
-                transitions.append(str(c['lastTransitionTime']))
-        row.append(av)
-        row.append(pr)
-        row.append(dg)
-        # since
-        latest_trans = None
-        for t in transitions:
-            if latest_trans is None:
-                latest_trans = t
-            else:
-                if parse(t) > parse(latest_trans):
+        try:
+            transitions = []
+            cond = co['status']['conditions']
+            for c in cond:
+                if c['type'] == 'Degraded':
+                    dg = c['status']
+                    transitions.append(str(c['lastTransitionTime']))
+                elif c['type'] == 'Progressing':
+                    pr = c['status']
+                    transitions.append(str(c['lastTransitionTime']))
+                elif c['type'] == 'Available':
+                    av = c['status']
+                    transitions.append(str(c['lastTransitionTime']))
+            row.append(av)
+            row.append(pr)
+            row.append(dg)
+            # since
+            latest_trans = None
+            for t in transitions:
+                if latest_trans is None:
                     latest_trans = t
-        since = age(latest_trans,r['gen_ts'])
-        row.append(since)
+                else:
+                    if parse(t) > parse(latest_trans):
+                        latest_trans = t
+            since = age(latest_trans,r['gen_ts'])
+            row.append(since)
+        except:
+            row.append('')
+            row.append('')
+            row.append('')
+            row.append('')
 
         output_res.append(row)
 
