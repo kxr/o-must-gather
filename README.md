@@ -9,6 +9,10 @@ Simply run:
 
     $ pip3 install o-must-gather --user
 
+The omg binary is installed at ~/.local/bin, if it is not on your $PATH, create a symlink:
+
+    $ ln -s ~/.local/bin ~/bin
+
 
 # Usage
 
