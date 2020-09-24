@@ -101,11 +101,19 @@ map = [
         'get_func': from_yaml, 'getout_func': mc_out,
         'yaml_loc': 'cluster-scoped-resources/machineconfiguration.openshift.io/machineconfigs' },
 
+    {   'type': 'apiserver','aliases': ['apiservers'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/config.openshift.io/apiservers.yaml' },
+
+    {   'type': 'authentication','aliases': ['authentications'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/config.openshift.io/authentications.yaml' },
+
     {   'type': 'clusteroperator','aliases': ['clusteroperators', 'co'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': co_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/clusteroperators.yaml' },
 
-    {   'type': 'clusterversion','aliases': [],'need_ns': False,
+    {   'type': 'clusterversion','aliases': ['clusterversions'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': cv_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/clusterversions.yaml' },
 
