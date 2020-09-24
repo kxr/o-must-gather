@@ -7,6 +7,7 @@ from omg.cmd.get.co_out import co_out
 from omg.cmd.get.cv_out import cv_out
 from omg.cmd.get.mcp_out import mcp_out
 from omg.cmd.get.mc_out import mc_out
+from omg.cmd.get.mwhc_out import mwhc_out
 from omg.cmd.get.pv_out import pv_out
 from omg.cmd.get.secret_out import secret_out
 from omg.cmd.get.service_out import service_out
@@ -17,6 +18,7 @@ from omg.cmd.get.ev_out import ev_out
 from omg.cmd.get.deployment_out import deployment_out
 from omg.cmd.get.rs_out import rs_out
 from omg.cmd.get.ss_out import ss_out
+from omg.cmd.get.vwhc_out import vwhc_out
 from omg.cmd.get.machine_out import machine_out
 from omg.cmd.get.machineset_out import machineset_out
 
@@ -141,6 +143,10 @@ map = [
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/ingresses.yaml' },
 
+    {   'type': 'mutatingwebhookconfiguration','aliases': ['mutatingwebhookconfigurations'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': mwhc_out,
+        'yaml_loc': 'cluster-scoped-resources/admissionregistration.k8s.io/mutatingwebhookconfigurations' },
+
     {   'type': 'network','aliases': ['networks'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/networks.yaml' },
@@ -164,6 +170,10 @@ map = [
     {   'type': 'scheduler','aliases': ['schedulers'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/schedulers.yaml' },
+
+    {   'type': 'validatingwebhookconfiguration','aliases': ['validatingwebhookconfigurations'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': vwhc_out,
+        'yaml_loc': 'cluster-scoped-resources/admissionregistration.k8s.io/validatingwebhookconfigurations' },
 
     {   'type': 'machineset','aliases': ['machinesets'],'need_ns': True,
         'get_func': from_yaml, 'getout_func': machineset_out,
