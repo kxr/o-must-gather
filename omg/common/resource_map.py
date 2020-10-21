@@ -4,11 +4,13 @@ from omg.cmd.get.node_out import node_out
 from omg.cmd.get.pod_out import pod_out
 from omg.cmd.get.project_out import project_out
 from omg.cmd.get.co_out import co_out
+from omg.cmd.get.csr_out import csr_out
 from omg.cmd.get.cv_out import cv_out
 from omg.cmd.get.mcp_out import mcp_out
 from omg.cmd.get.mc_out import mc_out
 from omg.cmd.get.mwhc_out import mwhc_out
 from omg.cmd.get.pv_out import pv_out
+from omg.cmd.get.sc_out import sc_out
 from omg.cmd.get.secret_out import secret_out
 from omg.cmd.get.service_out import service_out
 from omg.cmd.get.route_out import route_out
@@ -123,6 +125,10 @@ map = [
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/consoles.yaml' },
 
+    {   'type': 'certificatesigningrequest','aliases': ['certificatesigningrequests', 'csr'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': csr_out,
+        'yaml_loc': 'cluster-scoped-resources/certificates.k8s.io/certificatesigningrequests' },
+
     {   'type': 'dns','aliases': ['dnses'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/dnses.yaml' },
@@ -170,6 +176,10 @@ map = [
     {   'type': 'scheduler','aliases': ['schedulers'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/schedulers.yaml' },
+
+    {   'type': 'storageclass','aliases': ['storageclasses', 'sc'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': sc_out,
+        'yaml_loc': 'cluster-scoped-resources/storage.k8s.io/storageclasses' },
 
     {   'type': 'validatingwebhookconfiguration','aliases': ['validatingwebhookconfigurations'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': vwhc_out,
