@@ -1,4 +1,6 @@
 from omg.cmd.get.from_yaml import from_yaml
+from omg.cmd.get.get_project import get_project
+
 from omg.cmd.get.simple_out import simple_out
 from omg.cmd.get.node_out import node_out
 from omg.cmd.get.pod_out import pod_out
@@ -165,9 +167,9 @@ map = [
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/operatorhubs.yaml' },
 
-    {   'type': 'project','aliases': ['projects'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': project_out,
-        'yaml_loc': 'namespaces/%s' },
+    {   'type': 'project','aliases': ['projects'],'need_ns': False,
+        'get_func': get_project, 'getout_func': project_out,
+        'yaml_loc': 'namespaces/*/*.yaml' },
 
     {   'type': 'proxy','aliases': ['proxies'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
