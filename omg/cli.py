@@ -1,5 +1,6 @@
 import sys, argparse
 
+from omg import version
 from omg.cmd.use import use
 from omg.cmd.project import project, projects
 from omg.cmd.get_main import get_main
@@ -61,6 +62,11 @@ def main():
     p_whoami = subparsers.add_parser('whoami', parents=[common],
                                   help='Display who you are')
     p_whoami.set_defaults(func=whoami)
+
+    # omg version
+    p_version = subparsers.add_parser('version', parents=[common],
+                                    help='Display omg version')
+    p_version.set_defaults(func=lambda x: print('omg version '+version+' (https://github.com/kxr/o-must-gather)'))
 
     # process args and call the corresponding function
     args = parser.parse_args()
