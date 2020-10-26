@@ -17,7 +17,10 @@ def mcp_out(t, ns, res, output, show_type):
         else:
             row.append(mcp['metadata']['name'])
         # config
-        row.append(mcp['spec']['configuration']['name'])
+        try:
+            row.append(mcp['spec']['configuration']['name'])
+        except:
+            row.append('')
         # updated, updating, degraded
         updated = ''
         updating = ''
