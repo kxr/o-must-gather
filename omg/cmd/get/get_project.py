@@ -1,6 +1,7 @@
 import sys, os, yaml, glob
 
 from omg.common.config import Config
+from omg.common.helper import load_yaml_file
 
 
 # Special function to handle `omg get project`
@@ -18,12 +19,7 @@ def get_project(rt, ns, names, yaml_loc, need_ns):
         try:
             # record when was this yaml generated (to calc age)
             gen_ts = os.path.getmtime(yp)
-            with open(yp, 'rb') as yf:
-                try:
-                    res = yaml.safe_load(yf)
-                except:
-                    print("[ERROR] Invalid yaml file. Parsing error in ", yp)
-                    sys.exit(1)
+            res = load_yaml_file(yp)
         except:
             print("[ERROR] Could not read file:", yp)
             sys.exit(1)

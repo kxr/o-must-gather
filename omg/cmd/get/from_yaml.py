@@ -1,6 +1,7 @@
 import sys, os, yaml
 
 from omg.common.config import Config
+from omg.common.helper import load_yaml_file
 
 # This function finds the respective yamls and returns the resouces that match
 # args = resource_type (e.g pod), namespace, resource_names (e.g, httpd)
@@ -40,12 +41,7 @@ def from_yaml(rt, ns, names, yaml_loc, need_ns):
         try:
             # record when was this yaml generated (to calc age)
             gen_ts = os.path.getmtime(yp)
-            with open(yp, 'rb') as yf:
-                try:
-                    res = yaml.safe_load(yf)
-                except:
-                    print("[ERROR] Invalid yaml file. Parsing error in ", yp)
-                    sys.exit(1)
+            res = load_yaml_file(yp)
         except:
             print("[ERROR] Could not read file:", yp)
             sys.exit(1)
