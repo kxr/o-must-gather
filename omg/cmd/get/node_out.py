@@ -35,7 +35,7 @@ def node_out(t, ns, res, output, show_type):
         # roles
         roles = []
         for label in n['metadata']['labels']:
-            if label.startswith('node-role.kubernetes.io'):
+            if label.startswith('node-role.kubernetes.io/'):
                 roles.append(label.split('/')[1])
         row.append(','.join(roles))
         # age
