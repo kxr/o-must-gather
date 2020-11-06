@@ -28,8 +28,8 @@ Use it like oc:
     # omg get pods -o wide
 
 
-## Build
+## Development and Contribution
 
-This project is licensed under GPLv3.  Refer to these instructions on how to [build from source].
+Contributions are most welcomed. Please refer [here](./CONTRIBUTING.md) for instructions on setting up development environment and learning more about the internal architecture of o-must-gather.
 
-[build from source]: ./CONTRIBUTING.md
+This project is licensed under GPLv3.
