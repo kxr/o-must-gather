@@ -24,7 +24,7 @@ def is_out(t, ns, res, output, show_type):
         try:
             row.append(is_['status']['publicDockerImageRepository'])
         except:
-            row.append('??')
+            row.append('')
         # tags
         try:
             tags = []
@@ -32,15 +32,19 @@ def is_out(t, ns, res, output, show_type):
                 tags.append(tag['tag'])
             row.append(','.join(tags))
         except:
-            row.append('??')
+            row.append('')
         # updated
         ## TODO: should update this to parse list of tags and determine latest updated image, rather than use metadata.creationTimestamp
         try:
-            ct = str(is_['metadata']['creationTimestamp'])
-            ts = r['gen_ts']
-            row.append(age(ct,ts))
+            ## TODO: replace this check when reimplementing latest updated image
+            if len(is_['status']['tags']) > 0:
+                ct = str(is_['metadata']['creationTimestamp'])
+                ts = r['gen_ts']
+                row.append(age(ct,ts))
+            else:
+                row.append('')
         except:
-            row.append('Unknown')
+            row.append('')
 
         output_res.append(row)
 

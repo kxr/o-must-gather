@@ -9,7 +9,9 @@ from omg.cmd.get.cm_out import cm_out
 from omg.cmd.get.cj_out import cj_out
 from omg.cmd.get.csr_out import csr_out
 from omg.cmd.get.cv_out import cv_out
+from omg.cmd.get.dc_out import dc_out
 from omg.cmd.get.deployment_out import deployment_out
+from omg.cmd.get.ds_out import ds_out
 from omg.cmd.get.ep_out import ep_out
 from omg.cmd.get.ev_out import ev_out
 from omg.cmd.get.hpa_out import hpa_out
@@ -86,7 +88,7 @@ map = [
         'yaml_loc': 'cluster-scoped-resources/apiextensions.k8s.io/customresourcedefinitions' },
     
     {   'type': 'daemonset','aliases': ['daemonsets', 'ds'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': ds_out,
         'yaml_loc': 'namespaces/%s/apps/daemonsets.yaml' },
         
     {   'type': 'deployment','aliases': ['deployments'],'need_ns': True,
@@ -94,7 +96,7 @@ map = [
         'yaml_loc': 'namespaces/%s/apps/deployments.yaml' },
 
     {   'type': 'deploymentconfig','aliases': ['deploymentconfigs', 'dc'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': dc_out,
         'yaml_loc': 'namespaces/%s/apps.openshift.io/deploymentconfigs.yaml' },
 
     {   'type': 'dns','aliases': ['dnses'],'need_ns': False,

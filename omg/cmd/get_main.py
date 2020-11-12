@@ -35,7 +35,6 @@ def get_main(a):
     # e.g, for `get pod,svc` this will look like:
     #   objects = { 'pod': ['_all'], 'service': ['_all'] }
     objects = {}
-    is_all = False
 
     last_object = []
     for o in a.objects:
@@ -62,7 +61,6 @@ def get_main(a):
                 
         # Convert 'all' to list of resource types in a specific order
         elif 'all' in o:
-            is_all = True
             r_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build', 'is']
             for rt in r_types:
                 check_rt = map_res(rt)
@@ -140,11 +138,9 @@ def get_main(a):
         res = get_func(rt, ns, objects[rt], yaml_loc, need_ns)
 
         # Error out if no objects/resources were collected
-        if len(res) == 0 and is_all == False:
-            print('No resources found for type "%s" found in namespace "%s" '%(rt,ns))
-        elif len(res) == 0 and is_all == True:
-            dummy = True   # don't print anything out and skip to next resource
-        else:
+        if len(res) == 0 and len(objects) == 1:
+            print('No resources found for type "%s" in %s namespace'%(rt,ns))
+        elif len(res) > 0:
             # If printing multiple objects, add a blank line between each
             if mult_objs_blank_line == True:
                 print('')
@@ -172,3 +168,6 @@ def get_main(a):
             # Flag to print multiple objects
             if mult_objs_blank_line == False:
                 mult_objs_blank_line = True
+    # Error out once if multiple objects/resources requested and none collected
+    if mult_objs_blank_line == False and len(objects) > 1:
+        print('No resources found in %s namespace'%(ns))
