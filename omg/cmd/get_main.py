@@ -3,7 +3,7 @@ from omg.common.config import Config
 from omg.common.resource_map import map_res
 
 # The high level function that gets called for any "get" command
-# This fucntion Processes/indentifies the objects, they can be in various formats e.g:
+# This function processes/identifies the objects, they can be in various formats e.g:
 #   get pod httpd
 #   get pods httpd1 httpd2
 #   get dc/httpd pod/httpd1
@@ -35,7 +35,7 @@ def get_main(a):
     # e.g, for `get pod,svc` this will look like:
     #   objects = { 'pod': ['_all'], 'service': ['_all'] }
     objects = {}
-
+    is_all = False
 
     last_object = []
     for o in a.objects:
@@ -59,6 +59,18 @@ def get_main(a):
                 # last_object was set, meaning this should be object name
                 print("[ERROR] There is no need to specify a resource type as a separate argument when passing arguments in resource/name form")
                 sys.exit(1)
+                
+        # Convert 'all' to list of resource types in a specific order
+        elif 'all' in o:
+            is_all = True
+            r_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build', 'is']
+            for rt in r_types:
+                check_rt = map_res(rt)
+                if check_rt is None:
+                    print("[ERROR] Invalid object type: ",rt)
+                    sys.exit(1)
+                else:
+                    last_object.append(check_rt['type'])
 
         # Case where we have a ',' e.g `get dc,svc,pod httpd`
         # These all will be resource_types, not names,
@@ -114,6 +126,9 @@ def get_main(a):
     # Object based routing
     # i.e, call the get function for all the requested types
     # then call the output function or simply print if its yaml/json
+    
+    # If printing multiple objects, add a blank line between each
+    mult_objs_blank_line = False
     for rt in objects.keys():
         rt_info = map_res(rt)
         get_func = rt_info['get_func']
@@ -125,26 +140,35 @@ def get_main(a):
         res = get_func(rt, ns, objects[rt], yaml_loc, need_ns)
 
         # Error out if no objects/resources were collected
-        if len(res) == 0:
+        if len(res) == 0 and is_all == False:
             print('No resources found for type "%s" found in namespace "%s" '%(rt,ns))
-        # Yaml dump if -o yaml
-        elif a.output == 'yaml':
-            if len(res) == 1:
-                print(yaml.dump(res[0]['res']))
-            elif len(res) > 1:
-                print(yaml.dump({'apiVersion':'v1','items':[cp['res']for cp in res]}))
-        # Json dump if -o json
-        elif a.output == 'json':
-            if len(res) == 1:
-                print(json.dumps(res[0]['res'],indent=4))
-            elif len(res) > 1:
-                print(json.dumps({'apiVersion':'v1','items':[cp['res']for cp in res]},indent=4))
-        # Call the respective output fucntion if -o is not set or -o wide
-        elif a.output in [None, 'wide']:
-            # If we displaying more than one resource_type,
-            # we need to display resource_type with the name (type/name)
-            if len(objects) > 1:
-                show_type = True
-            else:
-                show_type = False
-            getout_func(rt, ns, res, a.output, show_type)
+        elif len(res) == 0 and is_all == True:
+            dummy = True   # don't print anything out and skip to next resource
+        else:
+            # If printing multiple objects, add a blank line between each
+            if mult_objs_blank_line == True:
+                print('')
+            # Yaml dump if -o yaml
+            if a.output == 'yaml':
+                if len(res) == 1:
+                    print(yaml.dump(res[0]['res']))
+                elif len(res) > 1:
+                    print(yaml.dump({'apiVersion':'v1','items':[cp['res']for cp in res]}))
+            # Json dump if -o json
+            elif a.output == 'json':
+                if len(res) == 1:
+                    print(json.dumps(res[0]['res'],indent=4))
+                elif len(res) > 1:
+                    print(json.dumps({'apiVersion':'v1','items':[cp['res']for cp in res]},indent=4))
+            # Call the respective output function if -o is not set or -o wide
+            elif a.output in [None, 'wide']:
+                # If we displaying more than one resource_type,
+                # we need to display resource_type with the name (type/name)
+                if len(objects) > 1:
+                    show_type = True
+                else:
+                    show_type = False
+                getout_func(rt, ns, res, a.output, show_type)
+            # Flag to print multiple objects
+            if mult_objs_blank_line == False:
+                mult_objs_blank_line = True
