@@ -7,12 +7,14 @@ from omg.cmd.get.build_out import build_out
 from omg.cmd.get.co_out import co_out
 from omg.cmd.get.cm_out import cm_out
 from omg.cmd.get.cj_out import cj_out
+from omg.cmd.get.crd_out import crd_out
 from omg.cmd.get.csr_out import csr_out
 from omg.cmd.get.cv_out import cv_out
 from omg.cmd.get.dc_out import dc_out
 from omg.cmd.get.deployment_out import deployment_out
 from omg.cmd.get.ds_out import ds_out
 from omg.cmd.get.ep_out import ep_out
+from omg.cmd.get.eps_out import eps_out
 from omg.cmd.get.ev_out import ev_out
 from omg.cmd.get.hpa_out import hpa_out
 from omg.cmd.get.is_out import is_out
@@ -26,6 +28,8 @@ from omg.cmd.get.node_out import node_out
 from omg.cmd.get.pod_out import pod_out
 from omg.cmd.get.project_out import project_out
 from omg.cmd.get.pv_out import pv_out
+from omg.cmd.get.pvc_out import pvc_out
+from omg.cmd.get.rc_out import rc_out
 from omg.cmd.get.route_out import route_out
 from omg.cmd.get.rs_out import rs_out
 from omg.cmd.get.sc_out import sc_out
@@ -84,7 +88,7 @@ map = [
         'yaml_loc': 'namespaces/%s/batch/cronjobs.yaml' },
 
     {   'type': 'customresourcedefinition','aliases': ['customresourcedefinitions', 'crd', 'crds'],'need_ns': False,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': crd_out,
         'yaml_loc': 'cluster-scoped-resources/apiextensions.k8s.io/customresourcedefinitions' },
     
     {   'type': 'daemonset','aliases': ['daemonsets', 'ds'],'need_ns': True,
@@ -106,6 +110,10 @@ map = [
     {   'type': 'endpoint','aliases': ['endpoints', 'ep'],'need_ns': True,
         'get_func': from_yaml, 'getout_func': ep_out,
         'yaml_loc': 'namespaces/%s/core/endpoints.yaml' },
+
+    {   'type': 'endpointslice','aliases': ['endpointslices'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': eps_out,
+        'yaml_loc': 'namespaces/%s/discovery.k8s.io/endpointslices.yaml' },
 
     {   'type': 'event','aliases': ['events', 'ev'],'need_ns': True,
         'get_func': from_yaml, 'getout_func': ev_out,
@@ -131,7 +139,7 @@ map = [
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/infrastructures.yaml' },
 
-    {   'type': 'ingress','aliases': ['ingresses'],'need_ns': False,
+    {   'type': 'ingress','aliases': ['ingresses'],'need_ns': True,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/ingresses.yaml' },
 
@@ -181,7 +189,7 @@ map = [
         'yaml_loc': 'cluster-scoped-resources/core/persistentvolumes' },
 
     {   'type': 'persistentvolumeclaim','aliases': ['persistentvolumeclaims', 'pvc'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': pvc_out,
         'yaml_loc': 'namespaces/%s/core/persistentvolumeclaims.yaml' },
         
     {   'type': 'pod','aliases': ['pods', 'po'],'need_ns': True,
@@ -201,7 +209,7 @@ map = [
         'yaml_loc': 'namespaces/%s/apps/replicasets.yaml' },
 
     {   'type': 'replicationcontroller','aliases': ['replicationcontrollers', 'rc'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': simple_out,
+        'get_func': from_yaml, 'getout_func': rc_out,
         'yaml_loc': 'namespaces/%s/core/replicationcontrollers.yaml' },
 
     {   'type': 'route','aliases': ['routes'],'need_ns': True,
