@@ -44,12 +44,12 @@ def co_out(t, ns, res, output, show_type):
             row.append(dg)
             # since
             latest_trans = None
-            for t in transitions:
+            for tr in transitions:
                 if latest_trans is None:
-                    latest_trans = t
+                    latest_trans = tr
                 else:
-                    if parse(t) > parse(latest_trans):
-                        latest_trans = t
+                    if parse(tr) > parse(latest_trans):
+                        latest_trans = tr
             since = age(latest_trans,r['gen_ts'])
             row.append(since)
         except:
