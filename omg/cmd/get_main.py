@@ -105,18 +105,20 @@ def get_main(a):
                     objects[rt].append(o)
                 else:
                     objects[rt] = [o]
-            last_object = []
+            #last_object = []
         else:
             # Should never happen
             print("[ERROR] Invalid resources to get: ", o)
             sys.exit(1)
     # If after going through all the args, we have last_object set
-    # means we didn't get a resource_name for these resource_type.
+    # and there was no entry in objects[] for this, it
+    # means we didn't get a resource_name for this resource_type.
     # i.e, we need to get all names
     if last_object:
         for rt in last_object:
             check_rt = map_res(rt)
-            objects[check_rt['type']] = ['_all']
+            if check_rt['type'] not in objects or len(objects[check_rt['type']]) == 0:
+                objects[check_rt['type']] = ['_all']
 
     # Debug
     # print(objects)
