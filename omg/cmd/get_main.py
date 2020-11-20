@@ -37,6 +37,7 @@ def get_main(a):
     objects = {}
 
     last_object = []
+    all_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build', 'is']
     for o in a.objects:
         # Case where we have a '/'
         # e.g omg get pod/httpd
@@ -60,9 +61,8 @@ def get_main(a):
                 sys.exit(1)
                 
         # Convert 'all' to list of resource types in a specific order
-        elif 'all' in o:
-            r_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build', 'is']
-            for rt in r_types:
+        elif o == 'all':
+            for rt in all_types:
                 check_rt = map_res(rt)
                 if check_rt is None:
                     print("[ERROR] Invalid object type: ",rt)
@@ -76,6 +76,11 @@ def get_main(a):
         elif ',' in o:
             if not last_object:
                 r_types = o.split(',')
+                # if all is present, we will replace it with all_types
+                if 'all' in r_types:
+                    ai = r_types.index('all')
+                    r_types.remove('all')
+                    r_types[ai:ai] = all_types
                 for rt in r_types:
                     check_rt = map_res(rt)
                     if check_rt is None:
