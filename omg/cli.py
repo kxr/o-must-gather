@@ -20,9 +20,10 @@ def main():
     subparsers = parser.add_subparsers()
 
     # omg use </path/to/must-gather>
-    p_use = subparsers.add_parser('use', parents=[common],
+    p_use = subparsers.add_parser('use',
                                   help='Select the must-gather to use')
-    p_use.add_argument('mg_path', metavar='</must/gather/location>', type=str)
+    p_use.add_argument('mg_path', metavar='</must/gather/location>', type=str, nargs='?')
+    p_use.add_argument('--cwd', dest="cwd", action='store_true')
     p_use.set_defaults(func=use)
 
     # omg project
