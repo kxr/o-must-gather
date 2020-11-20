@@ -3,9 +3,9 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 def sc_out(t, ns, res, output, show_type):
-    output_res=[[]]
+    output_res=[]
     # header
-    output_res[0].extend(['NAME','PROVISIONER','RECLAIMPOLICY','VOLUMEBINDINGMODE','ALLOWVOLUMEEXPANSION','AGE'])
+    header = ['NAME','PROVISIONER','RECLAIMPOLICY','VOLUMEBINDINGMODE','ALLOWVOLUMEEXPANSION','AGE']
     # resources
     for r in res:
         sc = r['res']
@@ -36,4 +36,7 @@ def sc_out(t, ns, res, output, show_type):
 
         output_res.append(row)
 
-    print(tabulate(output_res,tablefmt="plain"))
+    # sort by 1st column
+    sorted_output = sorted(output_res)
+    sorted_output.insert(0,header)
+    print(tabulate(sorted_output,tablefmt="plain"))

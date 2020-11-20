@@ -3,22 +3,32 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def pv_out(t, ns, res, output, show_type):
-    output_res=[]
+def pvc_out(t, ns, res, output, show_type):
+    output_res=[[]]
     # header
-    # we will append the header array at last after sorting
-    header = ['NAME','CAPACITY','ACCESS MODES','RECLAIM POLICY','STATUS','CLAIM','STORAGECLASS','REASON','AGE']
+    if ns == '_all':
+        output_res[0].append('NAMESPACE')
+    output_res[0].extend(['NAME','STATUS','VOLUME','CAPACITY','ACCESS MODES','STORAGECLASS','AGE'])
+    if output == 'wide':
+        output_res[0].extend(['VOLUMEMODE'])
     # resources
     for r in res:
         p = r['res']
         row = []
+        # namespace (for --all-namespaces)
+        if ns == '_all':
+            row.append(p['metadata']['namespace'])
         # name
         if show_type:
             row.append(t + '/' + p['metadata']['name'])
         else:
             row.append(p['metadata']['name'])
+        # status
+        row.append(p['status']['phase'])
+        # volume
+        row.append(p['spec']['volumeName'])
         # capacity
-        row.append(p['spec']['capacity']['storage'])
+        row.append(p['status']['capacity']['storage'])
         # access
         access = ",".join(p['spec']['accessModes'])
         if access == 'ReadWriteOnce':
@@ -27,26 +37,12 @@ def pv_out(t, ns, res, output, show_type):
           row.append('ROX')
         elif access == 'ReadWriteMany':
           row.append('RWX')
-        # reclaim
-        row.append(p['spec']['persistentVolumeReclaimPolicy'])
-        # status
-        row.append(p['status']['phase'])
-        # claim
-        try:
-            cr_name = p['spec']['claimRef']['name']
-            cr_ns = p['spec']['claimRef']['namespace']
-            claim = cr_ns + '/' + cr_name
-        except:
-            claim = ''
-        row.append(claim)
         # storage class
         if 'storageClassName' in p['spec']:
             row.append(p['spec']['storageClassName'])
         else:
             row.append('')
         
-        # reason (?) TODO need sample of this yaml
-        row.append('')
         # age
         try:
             ct = p['metadata']['creationTimestamp']
@@ -54,11 +50,10 @@ def pv_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # -o wide
+        if output == 'wide':
+            row.append(p['spec']['volumeMode'])
 
         output_res.append(row)
 
-    # sort by 1st column
-    sorted_output = sorted(output_res)
-    sorted_output.insert(0,header)
-
-    print(tabulate(sorted_output,tablefmt="plain"))
+    print(tabulate(output_res,tablefmt="plain"))
