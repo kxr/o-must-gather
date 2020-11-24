@@ -4,7 +4,7 @@ from omg import version
 from omg.cmd.use import use
 from omg.cmd.project import project, projects
 from omg.cmd.get_main import get_main
-from omg.cmd.describe import describe
+from omg.cmd.desc_main import desc_main
 from omg.cmd.log import log
 from omg.cmd.whoami import whoami
 
@@ -48,8 +48,8 @@ def main():
     # omg describe <object(s)>
     p_describe = subparsers.add_parser('describe', parents=[common],
                                        help='This command joins many API calls together to form a detailed description of a given resource.')
-    p_describe.add_argument('object', nargs='*', type=str)
-    p_describe.set_defaults(func=describe)
+    p_describe.add_argument('objects', nargs='*', type=str)
+    p_describe.set_defaults(func=desc_main)
 
     # omg log <pod>
     p_log = subparsers.add_parser('log', aliases=['logs'], parents=[common],
