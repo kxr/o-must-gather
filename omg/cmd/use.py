@@ -36,7 +36,7 @@ def use(a):
         # We traverse up to 3 levels to find the must-gather
         # At each leve if it has only one dir and we check inside it
         # When we see see the dir /namespaces and /cluster-scoped-resources, we assume it
-        for i in [1,2,3]:
+        for _ in [1,2,3]:
             if os.path.isdir(p):
                 if ( os.path.isdir( os.path.join(p, 'namespaces')) and
                     os.path.isdir( os.path.join(p, 'cluster-scoped-resources')) ):
