@@ -16,11 +16,20 @@ class Config:
                         Config.path = c['path']
                     if 'project' in c:
                         Config.project = c['project']
-        if fail_if_no_path and Config.path is None:
-            print('[ERROR] You have not selected a must-gather')
-            print()
-            print('Use `omg use </path/to/must-gather>` to point to an extracted must-gather.')
-            sys.exit(1)
+        if fail_if_no_path:
+            if Config.path is None:
+                print('[ERROR] You have not selected a must-gather')
+                print()
+                print('Use `omg use </path/to/must-gather>` to point to an extracted must-gather.')
+                sys.exit(1)
+            elif Config.path == '.':
+                if not ( os.path.isdir( os.path.join( '.', 'namespaces')) and
+                         os.path.isdir( os.path.join( '.', 'cluster-scoped-resources')) ):
+                    print('[ERROR] Current working directory is not a valid must-gather')
+                    print()
+                    sys.exit(1)
+
+
 
     def save(self, path=None, project=None):
         c = {}
