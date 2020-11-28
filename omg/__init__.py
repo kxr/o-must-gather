@@ -1,2 +1,2 @@
-version_info = (1, 0, 2)
+version_info = (1, 1, 0)
 version = '.'.join(str(c) for c in version_info)
