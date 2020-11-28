@@ -28,7 +28,9 @@ Use it like oc:
     # omg get pods -o wide
 
 
-#### omg use
+## Additional Features
+
+### `omg use`
 
 - When run without any arguments i.e, just `omg use`, omg will show you the details of the currently selected must-gather. For example:
 
@@ -62,6 +64,33 @@ Use it like oc:
             Cluster API URL: ['https://api.ocpprod.example.com:6443']
            Cluster Platform: ['None']
 
+### omg machine-config
+
+This feature assist you in exploring the MachineConfigs in a more human-friendly way. You can use it in the following two ways:
+
+- `omg machine-config extract [MachineConfig1 MachineConfig2 ...]`
+
+    This will "extract" the MachineConfigs and place them under `<must-gather>/extracted-machine-configs`. The encoded files are decoded so they can be examined in a better way. If no MachineConfigs are passed (e.g, you simply run `omg machine-config extract`), all the MachineConfigs are extracted. Example usage:
+
+    - Extract all MachineConfigs
+
+            # omg machine-config extract
+
+    - Extract specific MachineConfig
+
+            # omg machine-conifg extract rendered-worker-261eed0b6fe6793c8b609de8e77958fa
+
+- `omg machine-config compare MachineConfig1 MachineConfig2 [--show-contents]`
+
+    This allows you to compare two MachineConfigs. It will list all the changes, addition and deletion in the two MachineConfigs. If `--show-contents` is passed it will show the `diff` between the contents as well (diff will be on deocded content if the content is encoded). Example usage:
+
+    - Compare two MachineConfigs (high level)
+
+            # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5
+
+    - Compare two MachineConfigs with a diff of changed content
+
+            # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5 --show-contents
 
 
 

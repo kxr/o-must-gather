@@ -71,13 +71,14 @@ def main():
     p_version.set_defaults(func=lambda x: print('omg version '+version+' (https://github.com/kxr/o-must-gather)'))
 
     # omg machine-config
-    p_emc = subparsers.add_parser('machine-config',
+    p_mc = subparsers.add_parser('machine-config',
                                     help='Explore Machine Configs')
-    p_emc.add_argument('mc_op', metavar='operation', type=str,choices=['extract', 'show', 'compare'],
+    p_mc.add_argument('mc_op', metavar='operation', type=str,choices=['extract', 'show', 'compare'],
         help='Operation to be performed on the machine-config (extract/show/compare)')
-    p_emc.add_argument('mc_names', metavar='name', type=str, nargs='*',
+    p_mc.add_argument('mc_names', metavar='name', type=str, nargs='*',
         help='Machine Config name (skip this to process all machine-configs')
-    p_emc.set_defaults(func=machine_config)
+    p_mc.add_argument("--show-contents", dest="show_contents", action='store_true')
+    p_mc.set_defaults(func=machine_config)
 
     # process args and call the corresponding function
     args = parser.parse_args()
