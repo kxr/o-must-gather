@@ -64,7 +64,7 @@ Use it like oc:
             Cluster API URL: ['https://api.ocpprod.example.com:6443']
            Cluster Platform: ['None']
 
-### omg machine-config
+### `omg machine-config`
 
 This feature assist you in exploring the MachineConfigs in a more human-friendly way. You can use it in the following two ways:
 
@@ -84,11 +84,11 @@ This feature assist you in exploring the MachineConfigs in a more human-friendly
 
     This allows you to compare two MachineConfigs. It will list all the changes, addition and deletion in the two MachineConfigs. If `--show-contents` is passed it will show the `diff` between the contents as well (diff will be on deocded content if the content is encoded). Example usage:
 
-    - Compare two MachineConfigs (high level)
+    - Compare two MachineConfigs on a high level
 
             # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5
 
-    - Compare two MachineConfigs with a diff of changed content
+    - Compare two MachineConfigs with while also showing the diff of changed content
 
             # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5 --show-contents
 
