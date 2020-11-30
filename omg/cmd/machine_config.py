@@ -15,11 +15,11 @@ def decode_content(content):
         if len(data) == 0:
             return content 
         form = head[5:].split(';')
-        if ''.join(form) == '':
-            return unquote(data)
-        elif 'base64' in form:
+        if 'base64' in form:
             charset = next((x[8:] for x in form if x[0:8] == 'charset='),'utf-8')
             return b64decode(data).decode(charset)
+        else:
+            return unquote(data)
     else:
         print('[Warning] Unable to recognize content (not starting with "data:")')
         return content
