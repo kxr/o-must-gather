@@ -78,7 +78,7 @@ This feature assist you in exploring the MachineConfigs in a more human-friendly
 
     - Extract specific MachineConfig
 
-            # omg machine-conifg extract rendered-worker-261eed0b6fe6793c8b609de8e77958fa
+            # omg machine-config extract rendered-worker-261eed0b6fe6793c8b609de8e77958fa
 
 - `omg machine-config compare MachineConfig1 MachineConfig2 [--show-contents]`
 
