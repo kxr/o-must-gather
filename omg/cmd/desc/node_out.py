@@ -19,12 +19,15 @@ def node_out(t, ns, res, show_type):
         # roles
         row = []
         row.append('Roles:')
-        ### TODO: implement roles
-        row.append('This field is not implemented yet!')
+        role = ""
+        labels = n['metadata']['labels']
+        for l in labels:
+            if "node-role.kubernetes.io" in l:
+                role = l.split('/')[1]
+        row.append(role)
         output_nodes.append(row)
         # labels
         row = []
-        labels = n['metadata']['labels']
         first_label = True
         for l in labels:
             if first_label == True:
@@ -85,6 +88,7 @@ def node_out(t, ns, res, show_type):
         else:
             row.append('false')
         output_nodes.append(row)
+        
         # lease
         row = []
         row.append('Lease:')
@@ -92,7 +96,7 @@ def node_out(t, ns, res, show_type):
         row.append('This field is not implemented yet!')
         output_nodes.append(row)
         
-        # print out what we have so far, so we can preserve indents on the next table
+        # print out what we have so far, next table(s) will have new indents
         print(tabulate(output_nodes,tablefmt="plain"))
         output_nodes = []
 
@@ -127,6 +131,7 @@ def node_out(t, ns, res, show_type):
             row.append(c['message'])
             output_nodes.append(row)
         
+        # print out what we have so far, next table(s) will have new indents
         print(tabulate(output_nodes,tablefmt="plain"))
         output_nodes = []
         
@@ -140,6 +145,11 @@ def node_out(t, ns, res, show_type):
             row.append('  ' + a['type'] + ':')
             row.append(a['address'])
             output_nodes.append(row)
+        
+        # print out what we have so far, next table(s) will have new indents
+        print(tabulate(output_nodes,tablefmt="plain"))
+        output_nodes = []
+        
         # capacity
         row = []
         row.append('Capacity:')
@@ -160,6 +170,11 @@ def node_out(t, ns, res, show_type):
             row.append('  ' + a + ':')
             row.append(allocatable[a])
             output_nodes.append(row)
+        
+        # print out what we have so far, next table(s) will have new indents
+        print(tabulate(output_nodes,tablefmt="plain"))
+        output_nodes = []
+        
         # system info
         row = []
         row.append('System Info:')
