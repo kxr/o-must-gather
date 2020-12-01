@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age, age2
+from omg.common.helper import age
 
 
 def job_out(t, ns, res, output, show_type):
@@ -37,7 +37,7 @@ def job_out(t, ns, res, output, show_type):
         try:
             st = str(job['status']['startTime'])
             ct = str(job['status']['completionTime'])
-            row.append(age2(st,ct))
+            row.append(age(st,ct, ts2_type='iso'))
         except:
             row.append('Unknown')
         # age

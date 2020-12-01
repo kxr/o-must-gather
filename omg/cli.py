@@ -7,6 +7,7 @@ from omg.cmd.get_main import get_main
 from omg.cmd.desc_main import desc_main
 from omg.cmd.log import log
 from omg.cmd.whoami import whoami
+from omg.cmd.machine_config import machine_config
 
 # Process the Arguments and call the respective functions
 def main():
@@ -68,6 +69,16 @@ def main():
     p_version = subparsers.add_parser('version', parents=[common],
                                     help='Display omg version')
     p_version.set_defaults(func=lambda x: print('omg version '+version+' (https://github.com/kxr/o-must-gather)'))
+
+    # omg machine-config
+    p_mc = subparsers.add_parser('machine-config',
+                                    help='Explore Machine Configs')
+    p_mc.add_argument('mc_op', metavar='operation', type=str,choices=['extract', 'show', 'compare'],
+        help='Operation to be performed on the machine-config (extract/show/compare)')
+    p_mc.add_argument('mc_names', metavar='name', type=str, nargs='*',
+        help='Machine Config name (skip this to process all machine-configs')
+    p_mc.add_argument("--show-contents", dest="show_contents", action='store_true')
+    p_mc.set_defaults(func=machine_config)
 
     # process args and call the corresponding function
     args = parser.parse_args()
