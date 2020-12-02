@@ -1,7 +1,7 @@
 from omg.cmd.desc.from_yaml import from_yaml
 
-from omg.cmd.desc.simple_out import simple_out
 from omg.cmd.desc.node_out import node_out
+from omg.cmd.desc.pod_out import pod_out
 
 
 # This map and function normalizes/standarizes the different names of object/resources types
@@ -17,6 +17,9 @@ map = [
         'yaml_loc': 'cluster-scoped-resources/core/nodes' },
         # When yaml_loc is a dir like in this case, we scan *.yaml files in it.
 
+    {   'type': 'pod','aliases': ['pods', 'po'],'need_ns': True,
+        'desc_func': from_yaml, 'descout_func': pod_out,
+        'yaml_loc': 'namespaces/%s/core/pods.yaml' },
 ]
 
 
