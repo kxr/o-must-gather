@@ -140,25 +140,37 @@ def desc_main(a):
         descout_func = rt_info['descout_func']
         yaml_loc = rt_info['yaml_loc']
         need_ns = rt_info['need_ns']
+        events = []
 
-        # Call the describe function to describe the resoruces
+        # Call the describe function to describe the resources
         res = desc_func(rt, ns, objects[rt], yaml_loc, need_ns)
 
         # Error out if no objects/resources were collected
         if len(res) == 0 and len(objects) == 1:
             print('No resources found for type "%s" in %s namespace'%(rt,ns))
         elif len(res) > 0:
+        
+            # If describing pod or node, also read in the events log
+            if 'pod' in rt or 'node' in rt:
+                events_info = map_res('event')
+                desc_func = events_info['desc_func']
+                # if describing node, read events log from default namespace
+                if 'node' in rt:
+                    ns = 'default'
+                yaml_loc = events_info['yaml_loc']
+                events = desc_func('event', ns, '_all', yaml_loc, 'True')
+        
             # If printing multiple objects, add a blank line between each
             if mult_objs_blank_line == True:
                 print('')
             
-            # If we displaying more than one resource_type,
+            # If we are displaying more than one resource_type,
             # we need to display resource_type with the name (type/name)
             if len(objects) > 1:
                 show_type = True
             else:
                 show_type = False
-                descout_func(rt, ns, res, show_type)
+                descout_func(rt, ns, res, events, show_type)
             # Flag to print multiple objects
             if mult_objs_blank_line == False:
                 mult_objs_blank_line = True

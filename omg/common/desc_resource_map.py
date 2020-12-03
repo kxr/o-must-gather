@@ -1,5 +1,6 @@
 from omg.cmd.desc.from_yaml import from_yaml
 
+from omg.cmd.desc.ev_out import ev_out
 from omg.cmd.desc.node_out import node_out
 from omg.cmd.desc.pod_out import pod_out
 
@@ -12,6 +13,11 @@ from omg.cmd.desc.pod_out import pod_out
 
 map = [
 
+
+    {   'type': 'event','aliases': ['events', 'ev'],'need_ns': True,
+        'desc_func': from_yaml, 'descout_func': ev_out,
+        'yaml_loc': 'namespaces/%s/core/events.yaml' },
+        
     {   'type': 'node','aliases': ['nodes'],'need_ns': False,
         'desc_func': from_yaml, 'descout_func': node_out,
         'yaml_loc': 'cluster-scoped-resources/core/nodes' },

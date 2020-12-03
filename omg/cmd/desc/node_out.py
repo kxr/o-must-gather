@@ -6,8 +6,8 @@ tb.PRESERVE_WHITESPACE = True
 from omg.common.helper import age
 
 # We will create an array of array and then print if with tabulate
-def node_out(t, ns, res, show_type):
-        
+def node_out(t, ns, res, events, show_type):
+
     for node in res:
         output_res=[]
         n = node['res']
@@ -39,8 +39,8 @@ def node_out(t, ns, res, show_type):
             output_res.append(row)
         # annotations
         # annotations
-        if 'annotations' in p['spec']:
-            annotations = p['spec']['annotations']
+        if 'annotations' in n['spec']:
+            annotations = n['spec']['annotations']
         else:
             annotations = []
         first_annotation = True
@@ -253,10 +253,55 @@ def node_out(t, ns, res, show_type):
         row.append('This field is not implemented yet!')
         output_res.append(row)
         # events
-        row = []
-        row.append('Events:')
-        row.append('This field is not implemented yet!')
-        output_res.append(row)
+        matchedevents = []
+        for event in events:
+            e = event['res']
+            # cycle through involvedObject to match events for our pod
+            if 'involvedObject' in e:
+                if e['involvedObject']['kind'] == 'Node' and e['involvedObject']['name'] == n['metadata']['name']:
+                    matchedevents.append(e)
+        if len(matchedevents) == 0:
+            row = []
+            row.append('Events:')
+            row.append('<none>')
+            output_res.append(row)
+        else:
+            # refresh indent for events table only if we have matched events
+            # print out what we have so far, next table(s) will have new indents
+            print(tabulate(output_res,tablefmt="plain"))
+            output_res = []
+        
+            row = []
+            row.append('Events:')
+            output_res.append(row)
+            header = []
+            header.append('  Type')
+            header.append('Reason')
+            header.append('Age')
+            header.append('From')
+            header.append('Message')
+            output_res.append(header)
+            header = []
+            header.append('  ----')
+            header.append('------')
+            header.append('----')
+            header.append('----')
+            header.append('-------')
+            output_res.append(header)
+            for m in matchedevents:
+                row = []
+                row.append('  ' + m['type'])
+                row.append(m['reason'])
+                # age
+                try:
+                    ct = str(m['lastTimestamp'])
+                    ts = node['gen_ts']
+                    row.append(age(ct,ts))
+                except:
+                    row.append('Unknown')
+                row.append(m['source']['component'])
+                row.append(m['message'])
+                output_res.append(row)
         
         output_res.append('')
         print(tabulate(output_res,tablefmt="plain"))
