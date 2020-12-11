@@ -100,11 +100,198 @@ def pod_out(t, ns, res, events, show_type):
             row.append('Controlled By:')
             row.append(p['metadata']['ownerReferences'][0]['kind'] + '/' + p['metadata']['ownerReferences'][0]['name'])
             output_res.append(row)
+
         # containers
         row = []
         row.append('Containers:')
-        row.append('This field is not implemented yet!')
         output_res.append(row)
+        
+        # parse through both containers and initContainers
+        containers = []
+        if 'containers' in p['spec']:
+            containers = p['spec']['containers']
+        if 'initContainers' in p['spec']:
+            containers = containers + p['spec']['initContainers']
+        for c in containers:
+            # also parse through status.containerStatuses for matching container
+            container_statuses = []
+            if 'containerStatuses' in p['status']:
+                container_statuses = p['status']['containerStatuses']
+            if 'initContainerStatuses' in p['status']:
+                container_statuses = container_statuses + p['status']['initContainerStatuses']
+            container_status = []
+            for cs in container_statuses:
+                if cs['name'] == c['name']:
+                    container_status = cs
+            
+            row = []
+            row.append('  ' + c['name'] + ':')
+            output_res.append(row)
+            row = []
+            row.append('    Container ID:')
+            row.append(container_status['containerID'])
+            output_res.append(row)
+            row = []
+            row.append('    Image:')
+            row.append(c['image'])
+            output_res.append(row)
+            row = []
+            row.append('    Image ID:')
+            row.append(c['image'])
+            output_res.append(row)
+            if 'ports' in c:
+                if 'containerPort' in c['ports'][0]:
+                    row = []
+                    row.append('    Port:')
+                    row.append(str(c['ports'][0]['containerPort']) + '/' + c['ports'][0]['protocol'])
+                    output_res.append(row)
+                if 'hostPort' in c['ports'][0]:
+                    row = []
+                    row.append('    Host Port:')
+                    row.append(str(c['ports'][0]['hostPort']) + '/' + c['ports'][0]['protocol'])
+                    output_res.append(row)
+            
+            # print out what we have so far, next table(s) will have new indents
+            print(tabulate(output_res,tablefmt="plain"))
+            output_res = []
+            
+            if 'command' in c:
+                command = c['command']
+                row = []
+                row.append('    Command:')
+                output_res.append(row)
+                for com in command:
+                    row = []
+                    row.append('      ' + com)
+                    output_res.append(row)
+                if 'args' in c:
+                    args = c['args']
+                    row = []
+                    row.append('    Args:')
+                    output_res.append(row)
+                    for a in args:
+                        row = []
+                        row.append('      ' + a)
+                        output_res.append(row)
+            
+            # print out what we have so far, next table(s) will have new indents
+            print(tabulate(output_res,tablefmt="plain"))
+            output_res = []
+            
+            # container state
+            state = container_status['state']
+            row = []
+            row.append('    State:')
+            row.append(list(state.keys())[0].capitalize())
+            output_res.append(row)
+            # print nested container state, if applicable
+            if state.get(list(state.keys())[0], {}).get('reason') is not None:
+                row = []
+                row.append('      Reason:')
+                row.append(state.get(list(state.keys())[0], {}).get('reason'))
+                output_res.append(row)
+            if state.get(list(state.keys())[0], {}).get('exitCode') is not None:
+                row = []
+                row.append('      Exit Code:')
+                row.append(state.get(list(state.keys())[0], {}).get('exitCode'))
+                output_res.append(row)
+            if state.get(list(state.keys())[0], {}).get('startedAt') is not None:
+                row = []
+                row.append('      Started:')
+                row.append(state.get(list(state.keys())[0], {}).get('startedAt'))
+                output_res.append(row)
+            if state.get(list(state.keys())[0], {}).get('finishedAt') is not None:
+                row = []
+                row.append('      Finished:')
+                row.append(state.get(list(state.keys())[0], {}).get('finishedAt'))
+                output_res.append(row)
+            
+            # container last state
+            last_state = []
+            if 'lastState' in container_status:
+                last_state = container_status['lastState']
+                if len(last_state) != 0:
+                    row = []
+                    row.append('    Last State:')
+                    row.append(list(last_state.keys())[0].capitalize())
+                    output_res.append(row)
+                    # print nested container last state, if applicable
+                    if last_state.get(list(last_state.keys())[0], {}).get('reason') is not None:
+                        row = []
+                        row.append('      Reason:')
+                        row.append(last_state.get(list(last_state.keys())[0], {}).get('reason'))
+                        output_res.append(row)
+                    if last_state.get(list(last_state.keys())[0], {}).get('exitCode') is not None:
+                        row = []
+                        row.append('      Exit Code:')
+                        row.append(last_state.get(list(last_state.keys())[0], {}).get('exitCode'))
+                        output_res.append(row)
+                    if last_state.get(list(last_state.keys())[0], {}).get('startedAt') is not None:
+                        row = []
+                        row.append('      Started:')
+                        row.append(last_state.get(list(last_state.keys())[0], {}).get('startedAt'))
+                        output_res.append(row)
+                    if last_state.get(list(last_state.keys())[0], {}).get('finishedAt') is not None:
+                        row = []
+                        row.append('      Finished:')
+                        row.append(last_state.get(list(last_state.keys())[0], {}).get('finishedAt'))
+                        output_res.append(row)
+            
+            row = []
+            row.append('    Ready:')
+            row.append(container_status['ready'])
+            output_res.append(row)
+            row = []
+            row.append('    Restart Count:')
+            row.append(container_status['restartCount'])
+            output_res.append(row)
+            if 'resources' in c and 'requests' in c['resources']:
+                row = []
+                row.append('    Requests:')
+                output_res.append(row)
+                if 'cpu' in c['resources']['requests']:
+                    row = []
+                    row.append('      cpu:')
+                    row.append(c['resources']['requests']['cpu'])
+                    output_res.append(row)
+                if 'memory' in c['resources']['requests']:
+                    row = []
+                    row.append('      memory:')
+                    row.append(c['resources']['requests']['memory'])
+                    output_res.append(row)
+            
+            
+            # environment
+            if 'env' in c:
+                row = []
+                row.append('    Environment:')
+                output_res.append(row)
+                env = c['env']
+            
+                for e in env:
+                    row = []
+                    row.append('      ' + e['name'])
+                    if 'value' in e:
+                        row.append(e['value'])
+                    ## TODO: implement valueFrom where used in the below example
+                    ##    - name: K8S_NODE_NAME
+                    ##      valueFrom:
+                    ##        fieldRef:
+                    ##          apiVersion: v1
+                    ##          fieldPath: spec.nodeName
+                    output_res.append(row)
+            else:
+                row = []
+                row.append('    Environment:')
+                row.append('<none>')
+                output_res.append(row)
+            
+            # mounts
+            row = []
+            row.append('    Mounts:')
+            row.append('This field is not implemented yet!')
+            output_res.append(row)
+            
         # conditions
         row = []
         row.append('Conditions:')
