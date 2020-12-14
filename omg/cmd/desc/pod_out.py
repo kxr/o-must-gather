@@ -286,11 +286,39 @@ def pod_out(t, ns, res, events, show_type):
                 row.append('<none>')
                 output_res.append(row)
             
+            # print out what we have so far, next table(s) will have new indents
+            print(tabulate(output_res,tablefmt="plain"))
+            output_res = []
+            
             # mounts
-            row = []
-            row.append('    Mounts:')
-            row.append('This field is not implemented yet!')
-            output_res.append(row)
+            if 'volumeMounts' in c:
+                row = []
+                row.append('    Mounts:')
+                output_res.append(row)
+                mounts = c['volumeMounts']
+                
+                for m in mounts:
+                    row = []
+                    # parse through optional readOnly and subPath fields
+                    rw = 'rw' # read-write if not defined
+                    if 'readOnly' in mounts:
+                        if m['readOnly'] == True:
+                            rw = 'ro'
+                    if 'subPath' in mounts:
+                        mount_options = '(' + rw + ',path="' + m['subPath'] + '")'
+                    else:
+                        mount_options = '(' + rw + ')'
+                    row.append('      ' + m['mountPath'] + ' from ' + m['name'] + ' ' + mount_options)
+                    output_res.append(row)
+            else:
+                row = []
+                row.append('    Mounts:')
+                row.append('<none>')
+                output_res.append(row)
+            
+        # print out what we have so far, next table(s) will have new indents
+        print(tabulate(output_res,tablefmt="plain"))
+        output_res = []
             
         # conditions
         row = []
@@ -306,11 +334,125 @@ def pod_out(t, ns, res, events, show_type):
             row.append('  ' + c['type'])
             row.append(c['status'])
             output_res.append(row)
+        
         # volumes
         row = []
         row.append('Volumes:')
-        row.append('This field is not implemented yet!')
         output_res.append(row)
+        
+        volumes = p['spec']['volumes']
+        for v in volumes:
+            row = []
+            row.append('  ' + v['name'] + ':')
+            output_res.append(row)
+            
+            # print out what we have so far, next table(s) will have new indents
+            print(tabulate(output_res,tablefmt="plain"))
+            output_res = []
+            
+            if 'hostPath' in v:
+                row = []
+                row.append('    Type:')
+                row.append('HostPath (bare host directory volume)')
+                output_res.append(row)
+                row = []
+                row.append('    Path:')
+                row.append(v['hostPath']['path'])
+                output_res.append(row)
+                row = []
+                row.append('    HostPathType:')
+                row.append(v['hostPath']['type'])
+                output_res.append(row)
+            elif 'configMap' in v:
+                row = []
+                row.append('    Type:')
+                row.append('ConfigMap (a volume populated by a ConfigMap)')
+                output_res.append(row)
+                row = []
+                row.append('    Name:')
+                row.append(v['configMap']['name'])
+                output_res.append(row)
+                if 'optional' in v['configMap']:
+                    row = []
+                    row.append('    Optional:')
+                    row.append(str(v['configMap']['optional']).lower())
+                    output_res.append(row)
+                else:
+                    row = []
+                    row.append('    Optional:')
+                    row.append('false')
+                    output_res.append(row)
+            elif 'secret' in v:
+                row = []
+                row.append('    Type:')
+                row.append('Secret (a volume populated by a Secret)')
+                output_res.append(row)
+                row = []
+                row.append('    SecretName:')
+                row.append(v['secret']['secretName'])
+                output_res.append(row)
+                if 'optional' in v['secret']:
+                    row = []
+                    row.append('    Optional:')
+                    row.append(str(v['secret']['optional']).lower())
+                    output_res.append(row)
+                else:
+                    row = []
+                    row.append('    Optional:')
+                    row.append('false')
+                    output_res.append(row)
+            elif 'persistentVolumeClaim' in v:
+                row = []
+                row.append('    Type:')
+                row.append('PersistentVolumeClaim (a reference to a PersistentVolumeClaim in the same namespace)')
+                output_res.append(row)
+                row = []
+                row.append('    ClaimName:')
+                row.append(v['persistentVolumeClaim']['claimName'])
+                output_res.append(row)
+                ## TODO: need a working example to validate this
+                if 'readOnly' in v['persistentVolumeClaim']:
+                    row = []
+                    row.append('    ReadOnly:')
+                    row.append(str(v['persistentVolumeClaim']['readOnly']).lower())
+                    output_res.append(row)
+                else:
+                    row = []
+                    row.append('    ReadOnly:')
+                    row.append('false')
+                    output_res.append(row)
+            elif 'projected' in v:
+                row = []
+                row.append('    Type:')
+                row.append('Projected (a volume that contains injected data from multiple sources)')
+                output_res.append(row)
+                row = []
+                row.append('    SecretName:')
+                row.append(v['projected']['sources'][0]['secret']['name'])
+                output_res.append(row)
+                ## TODO: need a working example to implement this
+                row = []
+                row.append('    SecretOptionalName:')
+                row.append('<nil>')
+                output_res.append(row)
+            elif 'emptyDir' in v:
+                row = []
+                row.append('    Type:')
+                row.append("EmptyDir (a temporary directory that shares a pod's lifetime)")
+                output_res.append(row)
+                ## TODO: need a working example to implement this
+                row = []
+                row.append('    Medium:')
+                output_res.append(row)
+                row = []
+                row.append('    SizeLimit:')
+                row.append('<unset>')
+                output_res.append(row)
+        
+            # print out what we have so far, next table(s) will have new indents
+            print(tabulate(output_res,tablefmt="plain"))
+            output_res = []
+        
         # qos class
         row = []
         row.append('QoS Class:')
