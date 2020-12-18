@@ -2,13 +2,13 @@ import os, sys
 
 from omg.common.config import Config
 
-def log(a):
-    if a.all_namespaces is True:
+def log(resource, container, previous, namespace, all_namespaces):
+    if all_namespaces is True:
         print('[ERROR] All Namespaces is not supported with log')
         sys.exit(1)
     else:
-        if a.namespace is not None:
-            ns = a.namespace
+        if namespace is not None:
+            ns = namespace
         elif Config().project is not None:
             ns = Config().project
         else:
@@ -24,14 +24,14 @@ def log(a):
         sys.exit(1)
     
     # pod
-    if '/' in a.resource:
-        r_type = a.resource.split('/')[0]
-        pod = a.resource.split('/')[1]
+    if '/' in resource:
+        r_type = resource.split('/')[0]
+        pod = resource.split('/')[1]
         if r_type not in ['pod','pods']:
             print('[ERROR] Can not print logs of type:',r_type)
             sys.exit(1)
     else:
-        pod = a.resource
+        pod = resource
 
     # check if top pod directory exits
     pod_dir = os.path.join(ns_dir, 'pods', pod)
@@ -47,17 +47,17 @@ def log(a):
         print('[ERROR] No container directory not found in pod direcotry:', pod_dir)
         sys.exit(1)
     elif len(containers) > 1:
-        if a.container is None:
+        if container is None:
             print('[ERROR] This pod has more than one containers:')
             print('       ', str(containers))
             print('        Use -c/--container to specify the container')
             sys.exit(1)
         else:
-            con_to_log = a.container
+            con_to_log = container
     else: # len(containers) == 1
         con_to_log = containers[0]
 
-    if a.previous:
+    if previous:
         log_f = 'previous.log'
     else:
         log_f = 'current.log'

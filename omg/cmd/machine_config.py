@@ -236,14 +236,14 @@ def compare(m, show_contents):
     
     mc_diff(mc1,mc2)
 
-def machine_config(a):
-    if a.mc_op == 'extract':
-        if len(a.mc_names) <= 0:
+def machine_config(mc_op, mc_names, show_contents):
+    if mc_op == 'extract':
+        if len(mc_names) <= 0:
             extract('_all')
         else:
-            extract(a.mc_names)
-    elif a.mc_op == 'compare':
-        if len(a.mc_names) == 2:
-            compare(a.mc_names, show_contents=a.show_contents)
+            extract(mc_names)
+    elif mc_op == 'compare':
+        if len(mc_names) == 2:
+            compare(mc_names, show_contents=show_contents)
         else:
             print('[ERROR] Provide two machine-configs to compare')

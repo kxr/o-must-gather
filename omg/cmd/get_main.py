@@ -2,6 +2,7 @@ import sys, yaml, json
 from omg.common.config import Config
 from omg.common.resource_map import map_res
 
+
 # The high level function that gets called for any "get" command
 # This function processes/identifies the objects, they can be in various formats e.g:
 #   get pod httpd
@@ -9,21 +10,21 @@ from omg.common.resource_map import map_res
 #   get dc/httpd pod/httpd1
 #   get routes
 #   get pod,svc
-# We get all these args (space separated) in the array a.objects
+# We get all these args (space separated) in the array objects
 # We'll process them and normalize them in a python dict (objects)
 # Once we have one of more object to get,
 # and call the respective get function
 # (this function is looked up from common/resource_map)
-def get_main(a):
+def get_main(objects, output, namespace, all_namespaces):
     # a = args passed from cli
     # Check if -A/--all-namespaces is set
     # else, Set the namespace
     # -n/--namespace takes precedence over current project 
-    if a.all_namespaces is True:
+    if all_namespaces is True:
         ns = '_all'
     else:
-        if a.namespace is not None:
-            ns = a.namespace
+        if namespace is not None:
+            ns = namespace
         elif Config().project is not None:
             ns = Config().project
         else:
@@ -34,11 +35,11 @@ def get_main(a):
     #   objects = { 'pod': ['httpd1', 'httpd2'] }
     # e.g, for `get pod,svc` this will look like:
     #   objects = { 'pod': ['_all'], 'service': ['_all'] }
-    objects = {}
+    obj_dict = {}
 
     last_object = []
     all_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build', 'is']
-    for o in a.objects:
+    for o in objects:
         # Case where we have a '/'
         # e.g omg get pod/httpd
         if '/' in o:
@@ -48,10 +49,10 @@ def get_main(a):
                 r_name = o.split('/')[1]
                 # If its a valid resource type, apppend it to objects
                 if r_type is not None:
-                    if r_type in objects:
-                        objects[r_type].append(r_name)
+                    if r_type in obj_dict:
+                        obj_dict[r_type].append(r_name)
                     else:
-                        objects[r_type] = [r_name]
+                        obj_dict[r_type] = [r_name]
                 else:
                     print("[ERROR] Invalid object type: ",pre)
                     sys.exit(1)
@@ -90,7 +91,7 @@ def get_main(a):
                         last_object.append(check_rt['type'])
             else:
                 # last_object was set, meaning this should be object name
-                print("[ERROR] Invalid resources to get: ", a.objects)
+                print("[ERROR] Invalid resources to get: ", objects)
                 sys.exit(1)
 
         # Simple word (without , or /)
@@ -106,10 +107,10 @@ def get_main(a):
         # and this should be a resource_name. 
         elif last_object:
             for rt in last_object:
-                if rt in objects:
-                    objects[rt].append(o)
+                if rt in obj_dict:
+                    obj_dict[rt].append(o)
                 else:
-                    objects[rt] = [o]
+                    obj_dict[rt] = [o]
             #last_object = []
         else:
             # Should never happen
@@ -122,8 +123,8 @@ def get_main(a):
     if last_object:
         for rt in last_object:
             check_rt = map_res(rt)
-            if check_rt['type'] not in objects or len(objects[check_rt['type']]) == 0:
-                objects[check_rt['type']] = ['_all']
+            if check_rt['type'] not in obj_dict or len(obj_dict[check_rt['type']]) == 0:
+                obj_dict[check_rt['type']] = ['_all']
 
     # Debug
     # print(objects)
@@ -134,7 +135,7 @@ def get_main(a):
     
     # If printing multiple objects, add a blank line between each
     mult_objs_blank_line = False
-    for rt in objects.keys():
+    for rt in obj_dict.keys():
         rt_info = map_res(rt)
         get_func = rt_info['get_func']
         getout_func = rt_info['getout_func']
@@ -142,39 +143,39 @@ def get_main(a):
         need_ns = rt_info['need_ns']
 
         # Call the get function to get the resoruces
-        res = get_func(rt, ns, objects[rt], yaml_loc, need_ns)
+        res = get_func(rt, ns, obj_dict[rt], yaml_loc, need_ns)
 
         # Error out if no objects/resources were collected
-        if len(res) == 0 and len(objects) == 1:
+        if len(res) == 0 and len(obj_dict) == 1:
             print('No resources found for type "%s" in %s namespace'%(rt,ns))
         elif len(res) > 0:
             # If printing multiple objects, add a blank line between each
             if mult_objs_blank_line == True:
                 print('')
             # Yaml dump if -o yaml
-            if a.output == 'yaml':
+            if output == 'yaml':
                 if len(res) == 1:
                     print(yaml.dump(res[0]['res']))
                 elif len(res) > 1:
                     print(yaml.dump({'apiVersion':'v1','items':[cp['res']for cp in res]}))
             # Json dump if -o json
-            elif a.output == 'json':
+            elif output == 'json':
                 if len(res) == 1:
                     print(json.dumps(res[0]['res'],indent=4))
                 elif len(res) > 1:
                     print(json.dumps({'apiVersion':'v1','items':[cp['res']for cp in res]},indent=4))
             # Call the respective output function if -o is not set or -o wide
-            elif a.output in [None, 'wide']:
+            elif output in [None, 'wide']:
                 # If we displaying more than one resource_type,
                 # we need to display resource_type with the name (type/name)
-                if len(objects) > 1:
+                if len(obj_dict) > 1:
                     show_type = True
                 else:
                     show_type = False
-                getout_func(rt, ns, res, a.output, show_type)
+                getout_func(rt, ns, res, output, show_type)
             # Flag to print multiple objects
             if mult_objs_blank_line == False:
                 mult_objs_blank_line = True
     # Error out once if multiple objects/resources requested and none collected
-    if mult_objs_blank_line == False and len(objects) > 1:
+    if mult_objs_blank_line == False and len(obj_dict) > 1:
         print('No resources found in %s namespace'%(ns))
