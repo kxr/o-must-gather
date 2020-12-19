@@ -2,6 +2,19 @@ import sys, os
 from omg.common.config import Config
 
 
+def list_projects(ctx, args, incomplete):
+    """
+    Callback for project name autocompletion
+    :return: List of matching namespace names or empty list.
+    """
+    c = Config()
+    if incomplete is not None:
+        ns_listing = os.listdir(os.path.join(c.path, "namespaces"))
+        suggestions = [ns for ns in ns_listing if incomplete in ns]
+        return suggestions
+    return []
+
+
 def project(name):
     c = Config()
     ns_dir = os.path.join(c.path,'namespaces')

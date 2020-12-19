@@ -2,10 +2,10 @@ import click
 
 from omg import version
 from omg.cmd.use import use
-from omg.cmd.project import project, projects
+from omg.cmd.project import project, projects, list_projects
 from omg.cmd.get_main import get_main
 from omg.cmd.describe import describe
-from omg.cmd.log import log
+from omg.cmd.log import log, list_pods, list_containers
 from omg.cmd.whoami import whoami
 from omg.cmd.machine_config import machine_config
 
@@ -13,7 +13,7 @@ CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 # Namespace related options shared by a few commands
 _global_namespace_options = [
-    click.option("--namespace", "-n", required=False),
+    click.option("--namespace", "-n", required=False, autocompletion=list_projects),
     click.option("--all-namespaces", "-A", required=False, is_flag=True),
 ]
 
@@ -42,7 +42,7 @@ def use_cmd(mg_path, cwd):
 
 
 @cli.command("project")
-@click.argument("name", required=False)
+@click.argument("name", required=False, autocompletion=list_projects)
 def project_cmd(name):
     """
     Display information about the current active project and existing projects
@@ -80,8 +80,8 @@ def describe_cmd(objects, namespace, all_namespaces):
 
 
 @cli.command("logs")
-@click.argument("resource")
-@click.option("--container", "-c")
+@click.argument("resource", autocompletion=list_pods)
+@click.option("--container", "-c", autocompletion=list_containers)
 @click.option("--previous", "-p", is_flag=True)
 @global_namespace_options  # TODO: Only support -n
 def logs_cmd(resource, container, previous, namespace, all_namespaces):
