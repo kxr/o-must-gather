@@ -240,6 +240,13 @@ map = [
         'get_func': from_yaml, 'getout_func': vwhc_out,
         'yaml_loc': 'cluster-scoped-resources/admissionregistration.k8s.io/validatingwebhookconfigurations' },
 
+    {   'type': 'clusterroles','aliases': ['clusterroles'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/rbac.authorization.k8s.io/clusterroles' },
+
+    {   'type': 'clusterrolebindings','aliases': ['clusterroles'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/rbac.authorization.k8s.io/clusterrolebindings' },
 ]
 
 
