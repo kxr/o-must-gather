@@ -57,7 +57,20 @@ def get_mc(m):
     mcs = from_yaml( rt = mc_map['type'], ns = None, names = m,
         yaml_loc = mc_map['yaml_loc'], need_ns = False)
     return([mc['res'] for mc in mcs])
-    
+
+def write_unit(systemd_path, unit):
+    os.makedirs(systemd_path,exist_ok=True)
+    name = unit['name']
+    if 'enabled' in unit:
+        if unit['enabled'] is not True:
+            name += '.disabled'
+    if 'content' in unit:
+        abs_fil = os.path.join(systemd_path, name)
+        with open(abs_fil, 'w') as fh:
+            print(abs_fil)
+            fh.write(
+                unit['contents']
+            )
 
 def extract(m):
     mg_path = Config().path
@@ -101,16 +114,12 @@ def extract(m):
                 systemd = mc['spec']['config']['systemd']
                 if 'units' in systemd:
                     for unit in systemd['units']:
-                        os.makedirs(systemd_path,exist_ok=True)
-                        name = unit['name']
-                        if unit['enabled'] is not True:
-                            name += '.disabled'
-                        abs_fil = os.path.join(systemd_path, name)
-                        with open(abs_fil, 'w') as fh:
-                            print(abs_fil)
-                            fh.write(
-                                unit['contents']
-                            )
+                        if 'dropins' in unit:
+                            systemd_path = os.path.join(mc_path, 'systemd/' + unit['name'] + '.d')
+                            for unit in unit['dropins']:
+                                write_unit(systemd_path, unit)
+                        else:
+                            write_unit(systemd_path, unit)
             # passwd
             if 'passwd' in mc['spec']['config']:
                 passwd  = mc['spec']['config']['passwd']
