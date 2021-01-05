@@ -86,4 +86,9 @@ def main():
         func = args.func
     except AttributeError:
         parser.error("too few arguments")
-    func(args)
+    try:
+        func(args)
+    except BrokenPipeError:
+        sys.stdout.close()
+    except KeyboardInterrupt:
+        pass
