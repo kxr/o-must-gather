@@ -1,5 +1,8 @@
 import click
 
+import subprocess
+import os
+
 from omg import version
 from omg.cmd.use import use
 from omg.cmd.project import project, projects, list_projects
@@ -105,6 +108,22 @@ def version():
     Display omg version
     """
     print('omg version ' + version + ' (https://github.com/kxr/o-must-gather)')
+
+
+@cli.command("completion")
+@click.argument("shell", nargs=1, type=click.Choice(["bash", "zsh", "fish"]))
+def completion(shell):
+    """
+    Output shell completion code for bash, zsh, or fish.
+
+    \b
+    For example:
+      # omg completion bash > omg-completion.sh
+      # source omg-completion.sh
+    """
+    newenv = os.environ.copy()
+    newenv["_OMG_COMPLETE"] = "source_%s" % shell
+    subprocess.run("omg", env=newenv)
 
 
 @cli.group("machine-config")
