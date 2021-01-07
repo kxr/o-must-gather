@@ -1,6 +1,173 @@
-import sys, yaml, json
+import sys, yaml, json, enum, shlex
+from click import Context
+
 from omg.common.config import Config
-from omg.common.resource_map import map_res
+from omg.common.resource_map import map_res, map
+
+all_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build',
+             'is']
+
+
+class ResourceParseError(Exception):
+    pass
+
+
+class GetResourceList:
+    class Method(enum.Enum):
+        SINGLE_TYPE = 1                 # e.g. omg get pod/mypod
+        MULTI_TYPE_SINGLE_RESOURCE = 2  # e.g. omg get svc,ep,ds dns-default
+        MULTI_TYPE_MULTI_RESOURCE = 3   # e.g. omg get pod mypod myotherpod
+    """
+    Takes in a string of arguments for the `omg get` command. Provides interface for parsing and handling.
+    #   get pod httpd
+    #   get pods httpd1 httpd2
+    #   get dc/httpd pod/httpd1
+    #   get routes
+    #   get pod,svc
+    """
+    def __init__(self, objects):
+        # objects var can look like:
+        # ('pods)
+        # ('pods,svc')
+        # ('pods', 'mypod')
+        # ('pod/test')
+        self.objects = objects
+        self.object_dict = {}
+        self.method = None
+
+        self.__parse()
+
+    def __parse(self):
+        if len(self.objects) == 0:
+            # We've nothing to parse right now.
+            return
+
+        last_object = []
+
+        for o in self.objects:
+            # Case where we have a '/'
+            # e.g omg get pod/httpd
+            if '/' in o:
+                self.method = self.Method.MULTI_TYPE_MULTI_RESOURCE
+                if not last_object:
+                    pre = o.split('/')[0]
+                    r_type = map_res(pre)['type']
+                    r_name = o.split('/')[1]
+                    # If its a valid resource type, append it to objects
+                    if r_type is not None:
+                        if r_type in self.object_dict:
+                            self.object_dict[r_type].append(r_name)
+                        else:
+                            self.object_dict[r_type] = [r_name]
+                    else:
+                        raise ResourceParseError("[ERROR] Invalid object type: ", pre)
+                else:
+                    # last_object was set, meaning this should be object name
+                    raise ResourceParseError("[ERROR] There is no need to specify a resource type as a separate "
+                                             "argument when passing arguments in resource/name form")
+
+            # Convert 'all' to list of resource types in a specific order
+            elif o == 'all':
+                for rt in all_types:
+                    check_rt = map_res(rt)
+                    if check_rt is None:
+                        raise ResourceParseError("[ERROR] Invalid object type: ", rt)
+                    else:
+                        last_object.append(check_rt['type'])
+
+            # Case where we have a ',' e.g `get dc,svc,pod httpd`
+            # These all will be resource_types, not names,
+            # resource_name will come it next iteration (if any)
+            elif ',' in o:
+                self.method = self.method.MULTI_TYPE_SINGLE_RESOURCE
+                if not last_object:
+                    r_types = o.split(',')
+                    # if all is present, we will replace it with all_types
+                    if 'all' in r_types:
+                        ai = r_types.index('all')
+                        r_types.remove('all')
+                        r_types[ai:ai] = all_types
+                    for rt in r_types:
+                        check_rt = map_res(rt)
+                        if check_rt is None:
+                            raise ResourceParseError("[ERROR] Invalid object type: ", rt)
+                        else:
+                            last_object.append(check_rt['type'])
+                else:
+                    # last_object was set, meaning this should be object name
+                    raise ResourceParseError("[ERROR] Invalid resources to get: ", self.objects)
+
+            # Simple word (without , or /)
+            # If last_object was not set, means this is a resource_type
+            elif not last_object:
+                self.method = self.Method.SINGLE_TYPE
+                check_rt = map_res(o)
+                if check_rt is not None:
+                    last_object = [check_rt['type']]
+                else:
+                    print("[ERROR] Invalid resource type to get: ", o)
+            # Simple word (without , or /)
+            # If the last_object was set, means we got resource_type last time,
+            # and this should be a resource_name.
+            elif last_object:
+                self.method = self.Method.SINGLE_TYPE
+                for rt in last_object:
+                    if rt in self.object_dict:
+                        self.object_dict[rt].append(o)
+                    else:
+                        self.object_dict[rt] = [o]
+                # last_object = []
+            else:
+                # Should never happen
+                raise ResourceParseError("[ERROR] Invalid resources to get: ", o)
+
+            # If after going through all the args, we have last_object set
+            # and there was no entry in objects[] for this, it
+            # means we didn't get a resource_name for this resource_type.
+            # i.e, we need to get all names
+        if last_object:
+            for rt in last_object:
+                check_rt = map_res(rt)
+                if check_rt['type'] not in self.object_dict or len(self.object_dict[check_rt['type']]) == 0:
+                    self.object_dict[check_rt['type']] = ['_all']
+
+
+def list_get(ctx: Context, args, incomplete):
+    c = Config()
+    objects = ctx.params.get("objects")
+
+    try:
+        g = GetResourceList(objects)
+    except ResourceParseError as e:
+        return []
+
+    if "/" in incomplete:
+        # Scenario B above
+        restypein = incomplete.split("/")[0]
+        resname = incomplete.split("/")[1]
+        restype = map_res(restypein)
+        resources = restype['get_func']('items', c.project, '_all', restype['yaml_loc'], restype['need_ns'])
+        return [restypein + "/" + r['res']['metadata']['name'] for r in resources if resname in r['res']['metadata']['name']]
+
+    if len(g.object_dict) == 0 and "," in incomplete:
+        # This is a NOP like oc
+        return []
+    elif g.method == g.Method.SINGLE_TYPE or \
+            (len(g.object_dict) == 1 and ["_all"] in g.object_dict.values()):
+        # Autocomplete resource names based on the type (first arg)
+        restypein = list(g.object_dict)[0]
+        restype = map_res(restypein)
+        resources = restype['get_func']('items', c.project, '_all', restype['yaml_loc'], restype['need_ns'])
+        return [r['res']['metadata']['name'] for r in resources if
+                incomplete in r['res']['metadata']['name']]
+    else:
+        # Return completions for resource types
+        # TODO: There has to be a better way
+        # TODO: Include aliases
+        fullset = set(all_types + [t['type'] for t in map])
+        return [t for t in fullset if incomplete in t]
+
+    return []
 
 
 # The high level function that gets called for any "get" command
@@ -30,101 +197,8 @@ def get_main(objects, output, namespace, all_namespaces):
         else:
             ns = None
 
-    # We collect the resources types/names in this dict
-    # e.g for `get pod httpd1 httpd2` this will look like:
-    #   objects = { 'pod': ['httpd1', 'httpd2'] }
-    # e.g, for `get pod,svc` this will look like:
-    #   objects = { 'pod': ['_all'], 'service': ['_all'] }
-    obj_dict = {}
-
-    last_object = []
-    all_types = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build', 'is']
-    for o in objects:
-        # Case where we have a '/'
-        # e.g omg get pod/httpd
-        if '/' in o:
-            if not last_object:
-                pre = o.split('/')[0]
-                r_type = map_res(pre)['type']
-                r_name = o.split('/')[1]
-                # If its a valid resource type, apppend it to objects
-                if r_type is not None:
-                    if r_type in obj_dict:
-                        obj_dict[r_type].append(r_name)
-                    else:
-                        obj_dict[r_type] = [r_name]
-                else:
-                    print("[ERROR] Invalid object type: ",pre)
-                    sys.exit(1)
-            else:
-                # last_object was set, meaning this should be object name
-                print("[ERROR] There is no need to specify a resource type as a separate argument when passing arguments in resource/name form")
-                sys.exit(1)
-                
-        # Convert 'all' to list of resource types in a specific order
-        elif o == 'all':
-            for rt in all_types:
-                check_rt = map_res(rt)
-                if check_rt is None:
-                    print("[ERROR] Invalid object type: ",rt)
-                    sys.exit(1)
-                else:
-                    last_object.append(check_rt['type'])
-
-        # Case where we have a ',' e.g `get dc,svc,pod httpd`
-        # These all will be resource_types, not names,
-        # resource_name will come it next iteration (if any)
-        elif ',' in o:
-            if not last_object:
-                r_types = o.split(',')
-                # if all is present, we will replace it with all_types
-                if 'all' in r_types:
-                    ai = r_types.index('all')
-                    r_types.remove('all')
-                    r_types[ai:ai] = all_types
-                for rt in r_types:
-                    check_rt = map_res(rt)
-                    if check_rt is None:
-                        print("[ERROR] Invalid object type: ",rt)
-                        sys.exit(1)
-                    else:
-                        last_object.append(check_rt['type'])
-            else:
-                # last_object was set, meaning this should be object name
-                print("[ERROR] Invalid resources to get: ", objects)
-                sys.exit(1)
-
-        # Simple word (without , or /)
-        # If last_object was not set, means this is a resource_type
-        elif not last_object:
-            check_rt = map_res(o)
-            if check_rt is not None:
-                last_object = [ check_rt['type'] ]
-            else:
-                print("[ERROR] Invalid resource type to get: ", o)
-        # Simple word (without , or /)
-        # If the last_object was set, means we got resource_type last time,
-        # and this should be a resource_name. 
-        elif last_object:
-            for rt in last_object:
-                if rt in obj_dict:
-                    obj_dict[rt].append(o)
-                else:
-                    obj_dict[rt] = [o]
-            #last_object = []
-        else:
-            # Should never happen
-            print("[ERROR] Invalid resources to get: ", o)
-            sys.exit(1)
-    # If after going through all the args, we have last_object set
-    # and there was no entry in objects[] for this, it
-    # means we didn't get a resource_name for this resource_type.
-    # i.e, we need to get all names
-    if last_object:
-        for rt in last_object:
-            check_rt = map_res(rt)
-            if check_rt['type'] not in obj_dict or len(obj_dict[check_rt['type']]) == 0:
-                obj_dict[check_rt['type']] = ['_all']
+    s = GetResourceList(objects)
+    obj_dict = s.object_dict
 
     # Debug
     # print(objects)
