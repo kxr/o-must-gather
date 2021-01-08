@@ -2,6 +2,8 @@ import os, sys, yaml, json
 from urllib.parse import unquote
 from base64 import b64decode
 import difflib
+from cryptography import x509
+from cryptography.hazmat.backends import default_backend
 from omg.common.config import Config
 from omg.common.resource_map import map_res
 from omg.cmd.get.from_yaml import from_yaml
@@ -13,13 +15,39 @@ def decode_content(content):
     #if head[0:5] ==  'data:':
     if head.startswith('data:'):
         if len(data) == 0:
-            return content 
+            return '' 
         form = head[5:].split(';')
         if 'base64' in form:
             charset = next((x[8:] for x in form if x[0:8] == 'charset='),'utf-8')
-            return b64decode(data).decode(charset)
+            dec_data = b64decode(data).decode(charset)
         else:
-            return unquote(data)
+            dec_data = unquote(data)
+        
+        if dec_data.startswith('-----BEGIN CERTIFICATE-----'):
+            certs = []
+            cert = []
+            for cert_line in dec_data.splitlines():
+                if cert_line != '-----END CERTIFICATE-----':
+                    cert.append(cert_line)
+                else:
+                    cert.append(cert_line)
+                    certs.append( '\n'.join(cert) )
+                    cert = []
+            dec_certs = []
+            for c in certs:
+                dec_cert = []
+                parse_cert = x509.load_pem_x509_certificate(str.encode(c), default_backend())
+                dec_cert.append('~~~~~BEGIN CERTIFICATE~~~~~')
+                dec_cert.append( 'SUBJECT    : ' + parse_cert.subject.rfc4514_string() )
+                dec_cert.append( 'ISSUER     : ' + parse_cert.issuer.rfc4514_string() )
+                dec_cert.append( 'SERIAL     : ' + str(parse_cert.serial_number) )
+                dec_cert.append( 'NOT BEFORE : ' + parse_cert.not_valid_before.isoformat() )
+                dec_cert.append( 'NOT AFTER  : ' + parse_cert.not_valid_after.isoformat() )
+                dec_cert.append('~~~~~END CERTIFICATE~~~~~')
+                dec_certs.append( '\n'.join(dec_cert))
+            return '\n'.join(dec_certs)
+        else:
+            return dec_data
     else:
         print('[Warning] Unable to recognize content (not starting with "data:")')
         return content
@@ -29,7 +57,20 @@ def get_mc(m):
     mcs = from_yaml( rt = mc_map['type'], ns = None, names = m,
         yaml_loc = mc_map['yaml_loc'], need_ns = False)
     return([mc['res'] for mc in mcs])
-    
+
+def write_unit(systemd_path, unit):
+    os.makedirs(systemd_path,exist_ok=True)
+    name = unit['name']
+    if 'enabled' in unit:
+        if unit['enabled'] is not True:
+            name += '.disabled'
+    if 'content' in unit:
+        abs_fil = os.path.join(systemd_path, name)
+        with open(abs_fil, 'w') as fh:
+            print(abs_fil)
+            fh.write(
+                unit['contents']
+            )
 
 def extract(m):
     mg_path = Config().path
@@ -73,16 +114,12 @@ def extract(m):
                 systemd = mc['spec']['config']['systemd']
                 if 'units' in systemd:
                     for unit in systemd['units']:
-                        os.makedirs(systemd_path,exist_ok=True)
-                        name = unit['name']
-                        if unit['enabled'] is not True:
-                            name += '.disabled'
-                        abs_fil = os.path.join(systemd_path, name)
-                        with open(abs_fil, 'w') as fh:
-                            print(abs_fil)
-                            fh.write(
-                                unit['contents']
-                            )
+                        if 'dropins' in unit:
+                            systemd_path = os.path.join(mc_path, 'systemd/' + unit['name'] + '.d')
+                            for unit in unit['dropins']:
+                                write_unit(systemd_path, unit)
+                        else:
+                            write_unit(systemd_path, unit)
             # passwd
             if 'passwd' in mc['spec']['config']:
                 passwd  = mc['spec']['config']['passwd']
@@ -216,14 +253,19 @@ def compare(m, show_contents):
                     path.append(l[lod_key])
                     ld1 = [x for x in d1 if x[lod_key] == l[lod_key]]
                     ld2 = [x for x in d2 if x[lod_key] == l[lod_key]]
-                    if len(ld1) > 1 or len(ld2) > 1:
-                        print('[WARNING] Duplicate key found:', lod_key)
+                    if len(ld1) > 1 and l[lod_key] not in done_lod_keys:
+                        print('    [WARNING] Duplicate (%i) entries found in 1st MachineConfig for %s:%s' %
+                                (len(ld1), lod_key,l[lod_key]))
+                    if len(ld2) > 1 and l[lod_key] not in done_lod_keys:
+                        print('    [WARNING] Duplicate (%i) entries found in 2nd MachineConfig for %s:%s' %
+                                (len(ld2), lod_key,l[lod_key]))
+
                     if len(ld1) == 0:
-                        mc_diff( None, ld2[0], path )
+                        mc_diff( None, ld2[-1], path )
                     elif len(ld2) == 0:
-                        mc_diff( ld1[0], None, path )
+                        mc_diff( ld1[-1], None, path )
                     elif l[lod_key] not in done_lod_keys:
-                        mc_diff( ld1[0], ld2[0], path )
+                        mc_diff( ld1[-1], ld2[-1], path )
                         done_lod_keys.append(l[lod_key])
                     path.pop()
                 else:
@@ -233,7 +275,7 @@ def compare(m, show_contents):
                         mc_diff( None, l, path)
         else:
             print('[WARNING] Unhandled condition at', path)
-    
+
     mc_diff(mc1,mc2)
 
 def machine_config(mc_op, mc_names, show_contents):

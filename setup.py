@@ -4,7 +4,7 @@ oc like tool that works with must-gather rather than OpenShift API
 from setuptools import find_packages, setup
 import omg
 
-dependencies = ['tabulate', 'pyyaml', 'python-dateutil', 'click==7.1.2']
+dependencies = ['tabulate', 'pyyaml', 'python-dateutil', 'cryptography>=2.5', 'click==7.1.2']
 
 setup(
     name='o-must-gather',
