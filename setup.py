@@ -15,7 +15,7 @@ setup(
     author_email='khizernaeem@gmail.com',
     description='oc like tool that works with must-gather rather than OpenShift API',
     long_description=__doc__,
-    packages=find_packages(exclude=['tests']),
+    packages=find_packages(),
     include_package_data=True,
     zip_safe=False,
     platforms='any',

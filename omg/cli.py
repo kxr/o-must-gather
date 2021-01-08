@@ -6,7 +6,7 @@ import os
 from omg import version
 from omg.cmd.use import use
 from omg.cmd.project import project, projects, list_projects
-from omg.cmd.get_main import get_main, list_get
+from omg.cmd.get_main import get_main, complete_get
 from omg.cmd.describe import describe
 from omg.cmd.log import log, list_pods, list_containers
 from omg.cmd.whoami import whoami
@@ -62,7 +62,7 @@ def projects_cmd():
 
 
 @cli.command("get")
-@click.argument("objects", nargs=-1, autocompletion=list_get)
+@click.argument("objects", nargs=-1, autocompletion=complete_get)
 @click.option("--output", "-o", type=click.Choice(["yaml", "json", "wide"]))
 @global_namespace_options
 def get_cmd(objects, output, namespace, all_namespaces):
