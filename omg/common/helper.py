@@ -1,5 +1,4 @@
 import sys, os
-import yaml
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
@@ -54,10 +53,17 @@ def age(ts1, ts2, ts1_type='iso', ts2_type='epoch'):
 # so if the first loading attempt fails, we will
 # try to skip lines from the end and try to load the yaml
 def load_yaml_file(yp):
+    import yaml
+    try:
+        # use C version if possible for speedup
+        from yaml import CSafeLoader as SafeLoader
+    except ImportError:
+        from yaml import SafeLoader
+
     with open(yp, 'r') as yf:
         yd = yf.read()
         try:
-            res = yaml.safe_load(yd)
+            res = yaml.load(yd, Loader=SafeLoader)
             return res
         except:
             # yaml load failed
@@ -71,7 +77,7 @@ def load_yaml_file(yp):
                 yd = yd[:yd.rfind('\n')]
                 lines_skipped += 1
                 try:
-                    res = yaml.safe_load(yd)
+                    res = yaml.load(yd, Loader=SafeLoader)
                     print("[WARN] Skipped " +
                         str(lines_skipped) + "/" + str(lines_total) +
                         " lines from the end of " + os.path.basename(yp) +
