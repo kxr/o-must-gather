@@ -97,6 +97,9 @@ class ResourceList:
 
         self._parse()
 
+    def is_multitype(self):
+        return len(self._resources.get_types()) > 1
+
     def _parse_slash(self, arg):
         """
         Parses out a single word containing a slash, validates the type is known and returns: type name, resource name

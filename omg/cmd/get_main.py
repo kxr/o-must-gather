@@ -36,7 +36,7 @@ def generate_completions(config, objects, incomplete):
         resname = incomplete.split("/")[1]
         restype = map_res(restypein)
         resources = restype['get_func']('items', config.project, '_all', restype['yaml_loc'], restype['need_ns'])
-        return [restypein + "/" + r['res']['metadata']['name'] for r in resources if resname in r['res']['metadata']['name']]
+        return [restypein + "/" + r['res']['metadata']['name'] for r in resources if r['res']['metadata']['name'].startswith(resname)]
 
     if len(resource_list) == 0 and "," in incomplete:
         # This is a NOP like oc
@@ -48,12 +48,12 @@ def generate_completions(config, objects, incomplete):
         restype = map_res(restypein)
         resources = restype['get_func']('items', config.project, '_all', restype['yaml_loc'], restype['need_ns'])
         return [r['res']['metadata']['name'] for r in resources if
-                incomplete in r['res']['metadata']['name']]
+                r['res']['metadata']['name'].startswith(incomplete)]
     else:
         # Return completions for resource types
         # TODO: Include aliases
         fullset = set(parse.ALL_TYPES + [t['type'] for t in map])
-        return [t for t in fullset if incomplete in t]
+        return [t for t in fullset if t.startswith(incomplete)]
 
 
 # The high level function that gets called for any "get" command
@@ -129,7 +129,7 @@ def get_main(objects, output, namespace, all_namespaces):
             elif output in [None, 'wide']:
                 # If we displaying more than one resource_type,
                 # we need to display resource_type with the name (type/name)
-                if len(res_set) > 1:
+                if resource_list.is_multitype():
                     show_type = True
                 else:
                     show_type = False
