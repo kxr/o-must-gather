@@ -25,9 +25,10 @@ def generate_completions(config, objects, incomplete):
     since shell completion should be transparent to user.
     """
     try:
-        resource_list = parse.ResourceList(objects)
-    except:
+        get_method, resource_list = parse.parse_get_resources(objects)
+    except Exception as e:
         # Swallow any error since we don't want to spam terminal during autcompletion.
+        print(e)
         return []
 
     # We're completing something like `oc get pod/name`.
@@ -41,8 +42,8 @@ def generate_completions(config, objects, incomplete):
     if len(resource_list) == 0 and "," in incomplete:
         # This is a NOP like oc
         return []
-    elif resource_list.get_method == parse.Method.SINGLE_TYPE or \
-            resource_list.get_method == parse.Method.ALL:
+    elif get_method == parse.Method.SINGLE_TYPE or \
+            get_method == parse.Method.ALL:
         # Autocomplete resource names based on the type: oc get pod mypod1 mypod2
         restypein, _ = next(resource_list)
         restype = map_res(restypein)
@@ -84,7 +85,7 @@ def get_main(objects, output, namespace, all_namespaces):
             ns = None
 
     try:
-        resource_list = parse.ResourceList(objects)
+        get_method, resource_list = parse.parse_get_resources(objects)
     except parse.ResourceParseError as e:
         print(e)
         return
@@ -107,7 +108,7 @@ def get_main(objects, output, namespace, all_namespaces):
         res = get_func(r_type, ns, res_set, yaml_loc, need_ns)
 
         # Error out if no objects/resources were collected
-        if len(res) == 0 and resource_list.get_method is not parse.Method.ALL:
+        if len(res) == 0 and get_method is not parse.Method.ALL:
             print('No resources found for type "%s" in %s namespace' % (r_type, ns))
         elif len(res) > 0:
             # If printing multiple objects, add a blank line between each
@@ -129,7 +130,8 @@ def get_main(objects, output, namespace, all_namespaces):
             elif output in [None, 'wide']:
                 # If we displaying more than one resource_type,
                 # we need to display resource_type with the name (type/name)
-                if resource_list.is_multitype():
+
+                if len(resource_list) > 1:
                     show_type = True
                 else:
                     show_type = False
@@ -139,5 +141,5 @@ def get_main(objects, output, namespace, all_namespaces):
                 mult_objs_blank_line = True
 
     # Error out once if multiple objects/resources requested and none collected
-    if not mult_objs_blank_line and resource_list.get_method == parse.Method.ALL:
+    if not mult_objs_blank_line and get_method == parse.Method.ALL:
         print('No resources found in %s namespace' % ns)

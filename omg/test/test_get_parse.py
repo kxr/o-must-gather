@@ -12,7 +12,7 @@ class TestGetParse(unittest.TestCase):
 
     def testAllTypes(self):
         args = ("all",)
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
 
         for expected_type in parse.ALL_TYPES:
             self.assertIn(expected_type, rl)
@@ -22,7 +22,7 @@ class TestGetParse(unittest.TestCase):
 
     def testAllResource(self):
         args = ("pods",)
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         r_type, r_name = next(rl)
         self.assertEqual(1, len(rl))
         self.assertEqual("pod", r_type)
@@ -30,7 +30,7 @@ class TestGetParse(unittest.TestCase):
 
     def testSingleResource(self):
         args = ("pod", "mypod")
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         r_type, r_name = next(rl)
         self.assertEqual(1, len(rl))
         self.assertEqual("pod", r_type)
@@ -38,7 +38,7 @@ class TestGetParse(unittest.TestCase):
 
     def testSingleTypeMultiResource(self):
         args = ("pod", "mypod", "myotherpod")
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         r_type, r_name = next(rl)
         self.assertEqual(1, len(rl))
         self.assertEqual("pod", r_type)
@@ -47,7 +47,7 @@ class TestGetParse(unittest.TestCase):
     def testMultipleResources(self):
         expected_args = ["endpoint", "service", "pod"]
         args = ("pods,svc,endpoints",)
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         for r_type, r_name in rl:
             expected = expected_args.pop()
             self.assertEqual(expected, r_type)
@@ -56,7 +56,7 @@ class TestGetParse(unittest.TestCase):
     def testMultipleResourcesOneName(self):
         expected_args = ["endpoint", "service"]
         args = ("svc,endpoints", "dns-default")
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         for r_type, r_name in rl:
             expected = expected_args.pop()
             self.assertEqual(expected, r_type)
@@ -64,7 +64,7 @@ class TestGetParse(unittest.TestCase):
 
     def testSingleSlash(self):
         args = ("pods/mypod",)
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         r_type, r_name = next(rl)
         self.assertEqual(1, len(rl))
         self.assertEqual("pod", r_type)
@@ -72,7 +72,7 @@ class TestGetParse(unittest.TestCase):
 
     def testMultiSlash(self):
         args = ("pods/mypod", "svc/default")
-        rl = parse.ResourceList(args)
+        _, rl = parse.parse_get_resources(args)
         self.assertEqual(2, len(rl))
 
         r_type, r_name = next(rl)
@@ -86,17 +86,17 @@ class TestGetParse(unittest.TestCase):
     def testInvalidType(self):
         args = ("podzzzz",)
         with self.assertRaises(parse.ResourceParseError):
-            parse.ResourceList(args)
+            parse.parse_get_resources(args)
 
     def testInvalidMultiTypeComma(self):
         args = ("pods,svc,asdf",)
         with self.assertRaises(parse.ResourceParseError):
-            parse.ResourceList(args)
+            parse.parse_get_resources(args)
 
     def testInvalidMultiTypeMultiResource(self):
         args = ("pods/mypod", "svc/myservice", "blarg/bad")
         with self.assertRaises(parse.ResourceParseError):
-            parse.ResourceList(args)
+            parse.parse_get_resources(args)
 
 
 if __name__ == "__main__":
