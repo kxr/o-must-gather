@@ -2,10 +2,23 @@ import sys, os
 from omg.common.config import Config
 
 
-def project(a):
+def list_projects(ctx, args, incomplete):
+    """
+    Callback for project name autocompletion
+    :return: List of matching namespace names or empty list.
+    """
+    c = Config()
+    if incomplete is not None:
+        ns_listing = os.listdir(os.path.join(c.path, "namespaces"))
+        suggestions = [ns for ns in ns_listing if incomplete in ns]
+        return suggestions
+    return []
+
+
+def project(name):
     c = Config()
     ns_dir = os.path.join(c.path,'namespaces')
-    if a is None or a.project is None:
+    if name is None:
         # print current project
         if c.project is None:
             print('No project selected')
@@ -13,17 +26,17 @@ def project(a):
             print('Using project "%s" on must-gather "%s"' % (c.project,c.path))
     else:
         # Set current project
-        if os.path.isdir(os.path.join(ns_dir, a.project)):
-            if a.project == c.project:
+        if os.path.isdir(os.path.join(ns_dir, name)):
+            if name == c.project:
                 print('Already on project "%s" on server "%s"' % (c.project,c.path))
             else:
-                c.save(project=a.project)
+                c.save(project=name)
                 print('Now using project "%s" on must-gather "%s"' % (c.project,c.path))
         else:
-            print('[ERROR] Project %s not found in %s'%(a.project,ns_dir))
+            print('[ERROR] Project %s not found in %s'%(name,ns_dir))
 
 
-def projects(a):
+def projects():
     c = Config()
     ns_dir = os.path.join(c.path,'namespaces')
     projects = [ p for p in os.listdir(ns_dir) 

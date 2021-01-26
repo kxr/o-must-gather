@@ -1,9 +1,10 @@
-import sys, os
+import os
 from omg.common.config import Config
 
-def use(a):
-    if a.mg_path is None:
-        if a.cwd == True:
+
+def use(mg_path, cwd):
+    if mg_path is None:
+        if cwd == True:
             # If --cwd is set we will blidly assume current working directory
             # to be the must-gather to use
             c = Config(fail_if_no_path=False)
@@ -32,7 +33,7 @@ def use(a):
                 print('[ERROR] Unable to determine cluster API URL and Platform.')
     else:
         c = Config(fail_if_no_path=False)
-        p = a.mg_path
+        p = mg_path
         # We traverse up to 3 levels to find the must-gather
         # At each leve if it has only one dir and we check inside it
         # When we see see the dir /namespaces and /cluster-scoped-resources, we assume it
@@ -52,4 +53,3 @@ def use(a):
             else:
                 print('[ERROR] Invalid path. Please give path to the extracted must-gather')
                 break
-            
