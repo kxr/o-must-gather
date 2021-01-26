@@ -102,8 +102,8 @@ def whoami_cmd():
     whoami(None)
 
 
-@cli.command
-def version():
+@cli.command("version")
+def version_cmd():
     """
     Display omg version
     """
