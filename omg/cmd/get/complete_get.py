@@ -3,7 +3,7 @@ from click import Context
 from omg.common.config import Config
 from omg.cmd.get import parse
 from omg.cmd.get_main import get_resources
-from omg.common.resource_map import map
+from omg.common.resource_map import map, map_res
 
 def complete_get(ctx: Context, args, incomplete):
     """
@@ -18,43 +18,70 @@ def complete_get(ctx: Context, args, incomplete):
         if not namespace:
             namespace = c.project
         
-        # We're completing something like `oc get pod/<tab>`.
-        if "/" in incomplete:
-            restypein = incomplete.split("/")[0]
-            resname = incomplete.split("/")[1]
-            resources = get_resources(restypein, '_all', namespace)
-            return [ restypein + "/" + r['res']['metadata']['name']
-                        for r in resources
-                        if  r['res']['metadata']['name'].startswith(resname) 
-                        and restypein + "/" + r['res']['metadata']['name'] not in objects]
-        
-        if ',' in incomplete or [ o for o in objects if ',' in o]:
-            # This is a NOP like oc
-            return []
-
-        get_method, resource_list = parse.parse_get_resources(objects)
-
-        # First arg after get, autocomplete type
-        # or autocompleting after existing slash-notation arg
-        if not objects or get_method == parse.Method.SLASH:
-            if get_method == parse.Method.SLASH:
-                add_slash = '/'
-            else:
-                add_slash = ''
-            fullset = set(
-                [t['type'] + add_slash for t in map]
-                + [ a + add_slash for aliases in [ t['aliases'] for t in map ] for a in aliases ] )
-            return [t for t in fullset if t.startswith(incomplete)]
-
-        if get_method == parse.Method.PLAIN and len(resource_list) > 0:
-            # Autocomplete resource names based on the type: oc get pod mypod1 mypod2
-            restypein, _ = next(resource_list)
-            resources = get_resources(restypein, '_all', namespace)
-            return [r['res']['metadata']['name'] for r in resources
-                    if  r['res']['metadata']['name'].startswith(incomplete)
-                    and r['res']['metadata']['name'] not in objects ]
+        return generate_completions(objects, incomplete, namespace)
     except:
         # Swallow any exception
         return []
+
+def _suggest_type(incomplete_type):
+    """
+    Smart matching for type/alias based on incomplete string
+    Suggest one type if matched types and aliases belongs to the the same type
+    e.g,:
+        if incomplete = 'po' return ['po'] instead of ['po', 'pod', 'pods']
+        if incomplete = 'ser' return ['service'] instead of ['service','services']
+        but
+        if incomplete = 'buil' return ['build','buildconfigs','builds','buildconfig']
+    """
+    fullset = set(
+          [t['type'] for t in map]
+        + [ a for aliases in [ t['aliases'] for t in map ] for a in aliases ] )
+    
+    match = [ f for f in fullset if f.startswith(incomplete_type) ]
+
+    if len(match) > 1 and len(match) <= 3:
+        unique_types = set( [ map_res(m)['type'] for m in match ] )
+        if len(unique_types) == 1:
+            return list(unique_types)
+        else:
+            return match
+    else:
+            return match
+
+
+def generate_completions(objects, incomplete, namespace):
+    # We're completing something like `oc get pod/<tab>`.
+    if "/" in incomplete:
+        restypein = incomplete.split("/")[0]
+        resname = incomplete.split("/")[1]
+        resources = get_resources(restypein, '_all', namespace)
+        return [ restypein + "/" + r['res']['metadata']['name']
+                    for r in resources
+                    if  r['res']['metadata']['name'].startswith(resname) 
+                    and restypein + "/" + r['res']['metadata']['name'] not in objects]
+    
+    if ',' in incomplete or [ o for o in objects if ',' in o]:
+        # This is a NOP like oc
+        return []
+
+    get_method, resource_list = parse.parse_get_resources(objects)
+
+    # First arg after get, autocomplete type
+    # or autocompleting after existing slash-notation arg
+    if not objects or get_method == parse.Method.SLASH:
+        if get_method == parse.Method.SLASH:
+            add_slash = '/'
+        else:
+            add_slash = ''
+        sugg = _suggest_type(incomplete)
+        return [ s + add_slash for s in sugg ]
+
+    if get_method == parse.Method.PLAIN and len(resource_list) > 0:
+        # Autocomplete resource names based on the type: oc get pod mypod1 mypod2
+        restypein, _ = next(resource_list)
+        resources = get_resources(restypein, '_all', namespace)
+        return [r['res']['metadata']['name'] for r in resources
+                if  r['res']['metadata']['name'].startswith(incomplete)
+                and r['res']['metadata']['name'] not in objects ]
     # Catch all
     return []

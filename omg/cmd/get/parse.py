@@ -194,7 +194,7 @@ def _parse_plain(args):
     if first == 'all':
         types = tuple( _validate_type(t) for t in ALL_TYPES )
     else:
-        types = (first,)
+        types = (_validate_type(first),)
     
     # If more than one args are present these are names of objects to get
     if len(args) > 1:
