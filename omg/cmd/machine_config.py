@@ -9,7 +9,6 @@ from omg.common.resource_map import map_res
 from omg.cmd.get_main import get_resources
 
 def decode_content(content):
-    print('con-len:',len(content))
     split = content.split(',', 1)
     head = split[0]
     data = split[1]
