@@ -6,9 +6,10 @@ from cryptography import x509
 from cryptography.hazmat.backends import default_backend
 from omg.common.config import Config
 from omg.common.resource_map import map_res
-from omg.cmd.get.from_yaml import from_yaml
+from omg.cmd.get_main import get_resources
 
 def decode_content(content):
+    print('con-len:',len(content))
     split = content.split(',', 1)
     head = split[0]
     data = split[1]
@@ -53,9 +54,10 @@ def decode_content(content):
         return content
 
 def get_mc(m):
-    mc_map = map_res('machineconfig')
-    mcs = from_yaml( rt = mc_map['type'], ns = None, names = m,
-        yaml_loc = mc_map['yaml_loc'], need_ns = False)
+    #mc_map = map_res('machineconfig')
+    mcs = get_resources('machineconfig', m, None)
+    #mcs = from_yaml( rt = mc_map['type'], ns = None, names = m,
+    #    yaml_loc = mc_map['yaml_loc'], need_ns = False)
     return([mc['res'] for mc in mcs])
 
 def write_unit(systemd_path, unit):
@@ -107,7 +109,7 @@ def extract(m):
                             fh.write(
                                 decode_content(fi['contents']['source'])
                             )
-                # TODO directories, links, disks, raid, filesystems
+            # TODO directories, links, disks, raid, filesystems
             # systemd
             if 'systemd' in mc['spec']['config']:
                 systemd_path = os.path.join(mc_path, 'systemd')
@@ -139,7 +141,7 @@ def extract(m):
 
 def compare(m, show_contents):
     # NOTE TO SELF: Recursion has gone out of hand,
-    # probably re-impelement the comparison login without
+    # probably re-impelement the comparison logic without
     # using recursion
     try:
         mc1 = get_mc([m[0]])[0]

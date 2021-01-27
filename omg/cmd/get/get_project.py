@@ -5,7 +5,7 @@ from omg.common.helper import load_yaml_file
 
 
 # Special function to handle `omg get project`
-def get_project(rt, ns, names, yaml_loc, need_ns):
+def get_project(ns, names, yaml_loc, need_ns):
     import glob
     mg_path = Config().path
     yaml_path = os.path.join(mg_path, yaml_loc)

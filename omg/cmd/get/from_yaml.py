@@ -4,8 +4,7 @@ from omg.common.config import Config
 from omg.common.helper import load_yaml_file
 
 # This function finds the respective yamls and returns the resouces that match
-# args = resource_type (e.g pod), namespace, resource_names (e.g, httpd)
-def from_yaml(rt, ns, names, yaml_loc, need_ns):
+def from_yaml(ns, names, yaml_loc, need_ns):
     mg_path = Config().path
     yaml_path = os.path.join(mg_path, yaml_loc)
     if need_ns:

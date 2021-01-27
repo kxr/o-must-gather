@@ -6,7 +6,8 @@ import os
 from omg import version
 from omg.cmd.use import use
 from omg.cmd.project import project, projects, list_projects
-from omg.cmd.get_main import get_main, complete_get
+from omg.cmd.get_main import get_main
+from omg.cmd.get.complete_get import complete_get
 from omg.cmd.describe import describe
 from omg.cmd.log import log, list_pods, list_containers
 from omg.cmd.whoami import whoami
@@ -150,4 +151,4 @@ def compare_mc_cmd(mc_names, show_contents):
     """
     Compare Machine Configs
     """
-    machine_config("show", mc_names, show_contents)
+    machine_config("compare", mc_names, show_contents)

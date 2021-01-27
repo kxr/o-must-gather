@@ -2,6 +2,37 @@ import enum
 
 from omg.common.resource_map import map_res, map
 
+# This module handles parsing of the omg's `get` command
+# i.e, it normalizes whatever is passed after `omg get <....>`
+# Since omg get can be called in a variety of ways, following is a
+# detailed description of all the "varities" omg will handle:
+#
+# 1- SLASH Notation
+#   Syntax:
+#       omg get Type1/Name1 [Type2/Name2 Type3/Name3 ....]
+#   Examples:
+#       - omg get pod/httpd-sdf32
+#       - omg get svc/httpd route/httpd
+#
+# 2- COMMA Notation
+#   Syntax:
+#       omg get Type1,Type2[,Type3,...] [Name1 Name2 ...]
+#   Examples:
+#       - omg get pods,svc
+#       - omg get svc,route,deployment httpd nginx
+#
+# 3- PLAIN
+#   Syntax:
+#       omg get Type [Name1 Name2 Name3]
+#   Examples:
+#       - omg get pods
+#       - omg get nodes node1 node2
+#       - omg get all
+#
+# Note:
+#   Any get request can fall into either one of these syntaxes
+#   A mix of these types will not be supported
+
 
 ALL_RESOURCES = "_all"
 ALL_TYPES = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build',
@@ -85,16 +116,18 @@ class ResourceMap:
         """
         return len(self.dict)
 
+    def __str__(self):
+        return str(self.dict)
+
 
 class Method(enum.Enum):
     """
     Enumeration of various methods `omg get` can be called.
     """
     UNKNOWN = 0  # ¯\_(ツ)_/¯
-    SINGLE_TYPE = 1  # e.g. omg get pod/mypod
-    MULTI_TYPE_SINGLE_RESOURCE = 2  # e.g. omg get svc,ep,ds dns-default
-    MULTI_TYPE_MULTI_RESOURCE = 3  # e.g. omg get pod mypod myotherpod
-    ALL = 4  # e.g. oc get all
+    SLASH = 1  # e.g. omg get pod/mypod
+    COMMA = 2  # e.g. omg get svc,ep,ds dns-default
+    PLAIN = 3  # e.g. omg get pod mypod myotherpod
 
 
 class ResourceParseError(Exception):
@@ -103,21 +136,80 @@ class ResourceParseError(Exception):
     """
     pass
 
+def _validate_type(t):
+    checked_type = map_res(t)
+    if checked_type is None:
+        raise ResourceParseError("[ERROR] Invalid object type: " + t)
+    else:
+        return checked_type['type']
 
-def _parse_slash(arg):
+def _parse_slash(args):
     """
-    Parses out a single word containing a slash, validates the type is known and returns: type name, resource name
+    Parses slash based get args,
+    validates the type is known and returns: [(type_name, resource_name)]
     """
-    try:
+    objects = []
+    for arg in args:
+        if '/' not in arg:
+            raise ResourceParseError("[ERROR] Invalid arguments to get")
         o_split = arg.split('/')
-        r_type = o_split[0]
+        r_type = _validate_type(o_split[0])
         r_name = o_split[1]
-        checked_type = map_res(r_type)
-        if r_type is None:
-            raise ResourceParseError("[ERROR] Invalid object type: " + r_type)
-        return checked_type['type'], r_name
-    except Exception:
-        raise ResourceParseError("[ERROR] Invalid object type: " + arg)
+        objects.append( (r_type, r_name) )
+    return objects
+
+def _parse_comma(args):
+    """
+    Parses comma based get args,
+    validates the type is known and returns: [(type_name, resource_name)]
+    """
+    objects = []
+    # The first arg contains comma sperated types
+    first = args[0]
+    t_split = first.split(',')
+    if 'all' in t_split:
+        t_split.extend(ALL_TYPES)
+    types = tuple( _validate_type(t) for t in t_split if t != 'all' )
+
+    # If more than one args are present these are names of objects to get
+    if len(args) > 1:
+        names = args[1:]
+    else:
+        names = (ALL_RESOURCES,)
+
+    for t in types:
+        for n in names:
+            objects.append( (t,n) )
+
+    return objects
+
+def _parse_plain(args):
+    """
+    Parses plain get args (e.g, without comma or slash),
+    validates the type is known and returns: [(type_name, resource_name)]
+    """
+    objects = []
+    # The first arg should be the type
+    first = args[0]
+    if first == 'all':
+        types = tuple( _validate_type(t) for t in ALL_TYPES )
+    else:
+        types = (first,)
+    
+    # If more than one args are present these are names of objects to get
+    if len(args) > 1:
+        # names are not allowed with "all"
+        if first == 'all':
+            raise ResourceParseError("[ERROR] Invalid arguments to get")
+        names = args[1:]
+    else:
+        names = (ALL_RESOURCES,)
+
+    for t in types:
+        for n in names:
+            objects.append( (t,n) )
+
+    return objects
 
 
 def parse_get_resources(objects: tuple) -> (Method, ResourceMap):
@@ -133,6 +225,7 @@ def parse_get_resources(objects: tuple) -> (Method, ResourceMap):
     ('dc/httpd', 'pod/httpd1')
     ('routes')
     ('pod,svc')
+    ('svc,route','httpd','nginx')
     """
     method = Method.UNKNOWN
     resources = ResourceMap()
@@ -141,101 +234,19 @@ def parse_get_resources(objects: tuple) -> (Method, ResourceMap):
         # We've nothing to parse right now.
         return method, resources
 
-    last_object = []
-
-    # Check first arg to see if we're doing multiple or single resources
+    # Determine the type of args from the first arg
     first = objects[0]
     if '/' in first:
-        method = Method.MULTI_TYPE_MULTI_RESOURCE
+        method = Method.SLASH
+        parsed_objects = _parse_slash(objects)
     elif ',' in first:
-        method = Method.MULTI_TYPE_SINGLE_RESOURCE
+        method = Method.COMMA
+        parsed_objects = _parse_comma(objects)
     else:
-        method = Method.SINGLE_TYPE
+        method = Method.PLAIN
+        parsed_objects = _parse_plain(objects)
 
-    for o in objects:
-        if '/' in o:
-            r_type, r_name = _parse_slash(o)
-            resources.add_resource(r_type, r_name)
-        elif ',' in o:
-            pass
-        else:
-            pass
-
-    for o in objects:
-        # Case where we have a '/'
-        # e.g omg get pod/httpd
-        if '/' in o:
-            method = Method.MULTI_TYPE_MULTI_RESOURCE
-            if not last_object:
-                pre = o.split('/')[0]
-                r_type = map_res(pre)['type']
-                r_name = o.split('/')[1]
-                # If its a valid resource type, append it to objects
-                if r_type is not None:
-                    resources.add_resource(r_type, r_name)
-                else:
-                    raise ResourceParseError("[ERROR] Invalid object type: " + pre)
-
-        # Convert 'all' to list of resource types in a specific order
-        elif o == 'all':
-            for rt in ALL_TYPES:
-                # TODO Simplify to just: last_object.append(rt)?
-                check_rt = map_res(rt)
-                if check_rt is None:
-                    raise ResourceParseError("[ERROR] Invalid object type: " + rt)
-                else:
-                    last_object.append(check_rt['type'])
-
-        # Case where we have a ',' e.g `get dc,svc,pod httpd`
-        # These all will be resource_types, not names,
-        # resource_name will come it next iteration (if any)
-        elif ',' in o:
-            method = Method.MULTI_TYPE_SINGLE_RESOURCE
-            if not last_object:
-                r_types = o.split(',')
-                # if all is present, we will replace it with all_types
-                if 'all' in r_types:
-                    ai = r_types.index('all')
-                    r_types.remove('all')
-                    r_types[ai:ai] = ALL_TYPES
-                for rt in r_types:
-                    check_rt = map_res(rt)
-                    if check_rt is None:
-                        raise ResourceParseError("[ERROR] Invalid object type: " + rt)
-                    else:
-                        last_object.append(check_rt['type'])
-            else:
-                # last_object was set, meaning this should be object name
-                raise ResourceParseError("[ERROR] Invalid resources to get: " + objects)
-
-        # Simple word (without , or /)
-        # If last_object was not set, means this is a resource_type
-        elif not last_object:
-            method = Method.SINGLE_TYPE
-            check_rt = map_res(o)
-            if check_rt is not None:
-                last_object = [check_rt['type']]
-            else:
-                raise ResourceParseError("[ERROR] Invalid resource type to get: " + o)
-        # Simple word (without , or /)
-        # If the last_object was set, means we got resource_type last time,
-        # and this should be a resource_name.
-        elif last_object:
-            method = Method.SINGLE_TYPE
-            for rt in last_object:
-                resources.add_resource(rt, o)
-        else:
-            # Should never happen
-            raise ResourceParseError("[ERROR] Invalid resources to get: " + o)
-
-    if last_object:
-        for rt in last_object:
-            check_rt = map_res(rt)
-            if check_rt is None:
-                continue
-            r_type = check_rt['type']
-            if not resources.has_type(r_type) or len(resources.get_resources(r_type)) == 0:
-                method = Method.ALL
-                resources.add_resource(r_type, ALL_RESOURCES)
+    for r_type,r_name in parsed_objects:
+        resources.add_resource(r_type, r_name)
 
     return method, resources
