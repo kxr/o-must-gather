@@ -18,13 +18,8 @@ def use(mg_path, cwd):
             print('Current must-gather: %s' % path)
             print('    Current Project: %s' % project)
             try:
-                from omg.cmd.get.from_yaml import from_yaml
-                infra = from_yaml(
-                    rt='Infrastructure',
-                    ns=None,
-                    names='_all',
-                    yaml_loc='cluster-scoped-resources/config.openshift.io/infrastructures.yaml',
-                    need_ns=False)
+                from omg.cmd.get_main import get_resources
+                infra = get_resources('Infrastructure')
                 apiServerURL = [ i['res']['status']['apiServerURL'] for i in infra ]
                 platform = [ i['res']['status']['platform'] for i in infra ]
                 print('    Cluster API URL: %s' % str(apiServerURL))

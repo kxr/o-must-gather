@@ -54,6 +54,7 @@ def age(ts1, ts2, ts1_type='iso', ts2_type='epoch'):
 # try to skip lines from the end and try to load the yaml
 def load_yaml_file(yp):
     import yaml
+    from click import echo
     try:
         # use C version if possible for speedup
         from yaml import CSafeLoader as SafeLoader
@@ -78,10 +79,10 @@ def load_yaml_file(yp):
                 lines_skipped += 1
                 try:
                     res = yaml.load(yd, Loader=SafeLoader)
-                    print("[WARN] Skipped " +
+                    echo("[WARN] Skipped " +
                         str(lines_skipped) + "/" + str(lines_total) +
                         " lines from the end of " + os.path.basename(yp) +
-                        " to the load the yaml file properly")
+                        " to the load the yaml file properly",err=True)
                     return res
                 except:
                     pass

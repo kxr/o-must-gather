@@ -3,9 +3,10 @@ import os, sys
 from click import Context
 
 from omg.common.config import Config
+from omg.cmd.get_main import get_resource_names
 
 
-def list_pods(ctx: Context, args, incomplete):
+def complete_pods(ctx: Context, args, incomplete):
     """
     Callback for pod name (within an ns) autocompletion
     :return: List of matching pod names or empty list.
@@ -18,7 +19,7 @@ def list_pods(ctx: Context, args, incomplete):
     return suggestions
 
 
-def list_containers(ctx: Context, args, incomplete):
+def complete_containers(ctx: Context, args, incomplete):
     """
     Callback for container name (within a pod and ns) autocompletion
     :return: List of matching container names or empty list

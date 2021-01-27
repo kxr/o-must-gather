@@ -2,7 +2,7 @@ from click import Context
 
 from omg.common.config import Config
 from omg.cmd.get import parse
-from omg.cmd.get_main import get_resources
+from omg.cmd.get_main import get_resource_names
 from omg.common.resource_map import map, map_res
 
 def complete_get(ctx: Context, args, incomplete):
@@ -14,9 +14,7 @@ def complete_get(ctx: Context, args, incomplete):
         objects = ctx.params.get("objects")
         # If user has set namespace ( with -n), we use that
         # else we use namespace set by `omg project`
-        namespace = ctx.params.get("namespace")
-        if not namespace:
-            namespace = c.project
+        namespace = ctx.params.get("namespace") or c.project
         
         return generate_completions(objects, incomplete, namespace)
     except:
@@ -54,11 +52,11 @@ def generate_completions(objects, incomplete, namespace):
     if "/" in incomplete:
         restypein = incomplete.split("/")[0]
         resname = incomplete.split("/")[1]
-        resources = get_resources(restypein, '_all', namespace)
-        return [ restypein + "/" + r['res']['metadata']['name']
-                    for r in resources
-                    if  r['res']['metadata']['name'].startswith(resname) 
-                    and restypein + "/" + r['res']['metadata']['name'] not in objects]
+        names = get_resource_names(restypein, '_all', namespace)
+        return [ restypein + "/" + n
+                    for n in names
+                    if  n.startswith(resname) 
+                    and restypein + "/" + n not in objects]
     
     if ',' in incomplete or [ o for o in objects if ',' in o]:
         # This is a NOP like oc
@@ -79,9 +77,9 @@ def generate_completions(objects, incomplete, namespace):
     if get_method == parse.Method.PLAIN and len(resource_list) > 0:
         # Autocomplete resource names based on the type: oc get pod mypod1 mypod2
         restypein, _ = next(resource_list)
-        resources = get_resources(restypein, '_all', namespace)
-        return [r['res']['metadata']['name'] for r in resources
-                if  r['res']['metadata']['name'].startswith(incomplete)
-                and r['res']['metadata']['name'] not in objects ]
+        names = get_resource_names(restypein, '_all', namespace)
+        return [ n for n in names
+                if  n.startswith(incomplete)
+                and n not in objects ]
     # Catch all
     return []

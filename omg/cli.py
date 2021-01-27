@@ -5,19 +5,19 @@ import os
 
 from omg import version
 from omg.cmd.use import use
-from omg.cmd.project import project, projects, list_projects
+from omg.cmd.project import project, projects, complete_projects
 from omg.cmd.get_main import get_main
 from omg.cmd.get.complete_get import complete_get
 from omg.cmd.describe import describe
-from omg.cmd.log import log, list_pods, list_containers
+from omg.cmd.log import log, complete_pods, complete_containers
 from omg.cmd.whoami import whoami
-from omg.cmd.machine_config import machine_config
+from omg.cmd.machine_config.machine_config import machine_config, complete_mc
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
 # Namespace related options shared by a few commands
 _global_namespace_options = [
-    click.option("--namespace", "-n", required=False, autocompletion=list_projects),
+    click.option("--namespace", "-n", required=False, autocompletion=complete_projects),
     click.option("--all-namespaces", "-A", required=False, is_flag=True),
 ]
 
@@ -46,7 +46,7 @@ def use_cmd(mg_path, cwd):
 
 
 @cli.command("project")
-@click.argument("name", required=False, autocompletion=list_projects)
+@click.argument("name", required=False, autocompletion=complete_projects)
 def project_cmd(name):
     """
     Display information about the current active project and existing projects
@@ -84,8 +84,8 @@ def describe_cmd(objects, namespace, all_namespaces):
 
 
 @cli.command("logs")
-@click.argument("resource", autocompletion=list_pods)
-@click.option("--container", "-c", autocompletion=list_containers)
+@click.argument("resource", autocompletion=complete_pods)
+@click.option("--container", "-c", autocompletion=complete_containers)
 @click.option("--previous", "-p", is_flag=True)
 @global_namespace_options  # TODO: Only support -n
 def logs_cmd(resource, container, previous, namespace, all_namespaces):
@@ -136,7 +136,7 @@ def mc_cmd():
 
 
 @mc_cmd.command("extract")
-@click.argument("mc_names", nargs=-1)
+@click.argument("mc_names", nargs=-1, autocompletion=complete_mc)
 def extract_mc_cmd(mc_names):
     """
     Extract a Machine Config
@@ -145,7 +145,7 @@ def extract_mc_cmd(mc_names):
 
 
 @mc_cmd.command("compare")
-@click.argument("mc_names", nargs=-1)
+@click.argument("mc_names", nargs=2, autocompletion=complete_mc)
 @click.option("--show-contents", is_flag=True)
 def compare_mc_cmd(mc_names, show_contents):
     """
