@@ -12,6 +12,7 @@ from omg.cmd.describe import describe
 from omg.cmd.log import log, complete_pods, complete_containers
 from omg.cmd.whoami import whoami
 from omg.cmd.machine_config.machine_config import machine_config, complete_mc
+from omg.completion import bash
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
 
@@ -112,19 +113,20 @@ def version_cmd():
 
 
 @cli.command("completion")
-@click.argument("shell", nargs=1, type=click.Choice(["bash", "zsh", "fish"]))
+@click.argument("shell", nargs=1, type=click.Choice(["bash"]))  # TODO: zsh, fish
 def completion(shell):
     """
-    Output shell completion code for bash, zsh, or fish.
+    Output shell completion code for bash.
 
     \b
     For example:
       # omg completion bash > omg-completion.sh
       # source omg-completion.sh
     """
-    newenv = os.environ.copy()
-    newenv["_OMG_COMPLETE"] = "source_%s" % shell
-    subprocess.run("omg", env=newenv)
+    if shell == "bash":
+        print(bash.SCRIPT)
+    else:
+        print("Unsupported shell")
 
 
 @cli.group("machine-config")
