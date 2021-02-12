@@ -52,7 +52,7 @@ def age(ts1, ts2, ts1_type='iso', ts2_type='epoch'):
 # at the end causing the yaml.safe_load() to error out.
 # so if the first loading attempt fails, we will
 # try to skip lines from the end and try to load the yaml
-def load_yaml_file(yp):
+def load_yaml_file(yp, print_warnings):
     import yaml
     from click import echo
     try:
@@ -79,13 +79,15 @@ def load_yaml_file(yp):
                 lines_skipped += 1
                 try:
                     res = yaml.load(yd, Loader=SafeLoader)
-                    echo("[WARN] Skipped " +
-                        str(lines_skipped) + "/" + str(lines_total) +
-                        " lines from the end of " + os.path.basename(yp) +
-                        " to the load the yaml file properly",err=True)
+                    if print_warnings:
+                        echo("[WARN] Skipped " +
+                            str(lines_skipped) + "/" + str(lines_total) +
+                            " lines from the end of " + os.path.basename(yp) +
+                            " to the load the yaml file properly",err=True)
                     return res
                 except:
                     pass
             # Skipping lines from the bottom didn't help. Error out
-            print("[ERROR] Invalid yaml file. Parsing error in ", yp)
+            if print_warnings:
+                print("[ERROR] Invalid yaml file. Parsing error in ", yp)
             sys.exit(1)

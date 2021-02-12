@@ -19,7 +19,7 @@ def get_project(ns, names, yaml_loc, need_ns):
         try:
             # record when was this yaml generated (to calc age)
             gen_ts = os.path.getmtime(yp)
-            res = load_yaml_file(yp)
+            res = load_yaml_file(yp, True)
         except:
             print("[ERROR] Could not read file:", yp)
             sys.exit(1)

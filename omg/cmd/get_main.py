@@ -7,16 +7,16 @@ from omg.common.config import Config
 from omg.common.resource_map import map_res, map
 from omg.cmd.get import parse
 
-def get_resources(r_type, r_name='_all', ns=None):
+def get_resources(r_type, r_name='_all', ns=None, print_warnings=True):
     rt_info = map_res(r_type)
     get_func = rt_info['get_func']
     yaml_loc = rt_info['yaml_loc']
     need_ns = rt_info['need_ns']
 
-    return get_func(ns, r_name, yaml_loc, need_ns)
+    return get_func(ns, r_name, yaml_loc, need_ns, print_warnings)
 
 def get_resource_names(r_type, r_name='_all', ns=None):
-    res = get_resources(r_type, r_name, ns)
+    res = get_resources(r_type, r_name, ns, False)
     res_names = [ r['res']['metadata']['name'] for r in res ]
     return res_names
 
