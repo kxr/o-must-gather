@@ -5,7 +5,7 @@ from omg.common.helper import load_yaml_file
 
 
 # Special function to handle `omg get project`
-def get_project(ns, names, yaml_loc, need_ns):
+def get_project(ns, names, yaml_loc, need_ns, print_warnings=True):
     import glob
     mg_path = Config().path
     yaml_path = os.path.join(mg_path, yaml_loc)
@@ -19,7 +19,7 @@ def get_project(ns, names, yaml_loc, need_ns):
         try:
             # record when was this yaml generated (to calc age)
             gen_ts = os.path.getmtime(yp)
-            res = load_yaml_file(yp, True)
+            res = load_yaml_file(yp, print_warnings)
         except:
             print("[ERROR] Could not read file:", yp)
             sys.exit(1)
