@@ -30,6 +30,22 @@ Use it like oc:
 
 ## Additional Features
 
+### Shell Autocompletion
+
+- `omg` has shell autocompletion (huge thanks to @bostrt). It can auto complete both, the commands (e.g, `get`, `project` etc.) and the objects present in the selected must-gather. Currently autocompletion is only available for `bash` shell however the support for `zsh` and `fish` shells should come soon.
+
+  You can enable the autocompletion functionality in a bash shell by running:
+  
+        # eval "$(omg completion bash)"
+        
+  To make it permanent, append this line to `~/.bashrc` (if installed on system level) or to the activation script (if installed in venv):
+  
+        # If installed on system level
+        # echo 'eval "$(omg completion bash)"' >> ~/.bashrc
+        
+        # If installed in a venv
+        # echo 'eval "$(omg completion bash)"' >> /home/knaeem/dev/o-must-gather-env/bin/activate
+
 ### `omg use`
 
 - When run without any arguments i.e, just `omg use`, omg will show you the details of the currently selected must-gather. For example:
