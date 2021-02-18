@@ -44,7 +44,7 @@ Use it like oc:
         # echo 'eval "$(omg completion bash)"' >> ~/.bashrc
         
         # If installed in a venv
-        # echo 'eval "$(omg completion bash)"' >> /home/knaeem/dev/o-must-gather-env/bin/activate
+        # echo 'eval "$(omg completion bash)"' >> /path/to/vevn/bin/activate
 
 ### `omg use`
 
