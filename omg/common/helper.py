@@ -29,8 +29,9 @@ def age(ts1, ts2, ts1_type='iso', ts2_type='epoch'):
     except:
         return 'Unknown'
 
-    if rd.days > 0:
-        return str(rd.days)+'d'
+    if rd.days > 0 or rd.months > 0 or rd.years > 0:
+        days = int(rd.years * 365) + int(rd.months * 30) + int(rd.days)
+        return str(days)+'d'
     elif rd.hours > 9:
         return str(rd.hours)+'h'
     elif rd.hours > 0 and rd.hours < 10:
