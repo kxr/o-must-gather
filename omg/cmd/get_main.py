@@ -22,7 +22,7 @@ def get_resource_names(r_type, r_name='_all', ns=None):
 
 
 # The high level function that gets called for any "get" command
-def get_main(objects, output, namespace, all_namespaces):
+def get_main(objects, output, namespace, all_namespaces,show_labels):
     # Check if -A/--all-namespaces is set
     # else, Set the namespace
     # -n/--namespace takes precedence over current project 
@@ -78,7 +78,7 @@ def get_main(objects, output, namespace, all_namespaces):
                 else:
                     show_type = False
                 getout_func = map_res(r_type)['getout_func']
-                getout_func(r_type, ns, res, output, show_type)
+                getout_func(r_type, ns, res, output, show_type, show_labels)
             
             # We printed something
             printed_something = True

@@ -2,10 +2,13 @@ from tabulate import tabulate
 
 from omg.common.helper import age
 
-def sc_out(t, ns, res, output, show_type):
+def sc_out(t, ns, res, output, show_type, show_labels):
     output_res=[]
     # header
-    header = ['NAME','PROVISIONER','RECLAIMPOLICY','VOLUMEBINDINGMODE','ALLOWVOLUMEEXPANSION','AGE']
+    if show_labels:
+        header = ['NAME','PROVISIONER','RECLAIMPOLICY','VOLUMEBINDINGMODE','ALLOWVOLUMEEXPANSION','AGE','LABELS']
+    else:
+        header = ['NAME','PROVISIONER','RECLAIMPOLICY','VOLUMEBINDINGMODE','ALLOWVOLUMEEXPANSION','AGE']
     # resources
     for r in res:
         sc = r['res']
@@ -33,6 +36,9 @@ def sc_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in sc['metadata']:
+            row.append(sc['metadata']['labels'])
 
         output_res.append(row)
 

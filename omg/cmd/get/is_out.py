@@ -2,12 +2,15 @@ from tabulate import tabulate
 
 from omg.common.helper import age
 
-def is_out(t, ns, res, output, show_type):
+def is_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','IMAGE REPOSITORY','TAGS','UPDATED'])
+    if show_labels:
+        output_res[0].extend(['NAME','IMAGE REPOSITORY','TAGS','UPDATED','LABELS'])
+    else:
+        output_res[0].extend(['NAME','IMAGE REPOSITORY','TAGS','UPDATED'])
     # resources
     for r in res:
         is_ = r['res']
@@ -45,6 +48,9 @@ def is_out(t, ns, res, output, show_type):
                 row.append('')
         except:
             row.append('')
+        # show-labels
+        if show_labels and "labels" in is_['metadata']:
+            row.append(is_['metadata']['labels'])
 
         output_res.append(row)
 

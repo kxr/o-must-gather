@@ -3,12 +3,15 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def build_out(t, ns, res, output, show_type):
+def build_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','TYPE','FROM','STATUS', 'STARTED','DURATION'])
+    if show_labels:
+        output_res[0].extend(['NAME','TYPE','FROM','STATUS', 'STARTED','DURATION','LABELS'])
+    else:
+        output_res[0].extend(['NAME','TYPE','FROM','STATUS', 'STARTED','DURATION'])
     # resources
     for r in res:
         build = r['res']
@@ -48,6 +51,9 @@ def build_out(t, ns, res, output, show_type):
             row.append(str(int((build['status']['duration']) / 1000000000)) + 's')
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in build['metadata']:
+            row.append(build['metadata']['labels'])
         output_res.append(row)
 
     print(tabulate(output_res,tablefmt="plain"))

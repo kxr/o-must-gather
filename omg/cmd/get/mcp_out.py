@@ -2,10 +2,14 @@ from tabulate import tabulate
 
 from omg.common.helper import age
 
-def mcp_out(t, ns, res, output, show_type):
+def mcp_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
-    output_res[0].extend(['NAME','CONFIG','UPDATED','UPDATING','DEGRADED','MACHINECOUNT',
+    if show_labels:
+        output_res[0].extend(['NAME','CONFIG','UPDATED','UPDATING','DEGRADED','MACHINECOUNT',
+                              'READYMACHINECOUNT', 'UPDATEDMACHINECOUNT','DEGRADEDMACHINECOUNT','AGE'])
+    else:
+        output_res[0].extend(['NAME','CONFIG','UPDATED','UPDATING','DEGRADED','MACHINECOUNT',
                           'READYMACHINECOUNT', 'UPDATEDMACHINECOUNT','DEGRADEDMACHINECOUNT','AGE'])
     # resources
     for r in res:
@@ -48,6 +52,9 @@ def mcp_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in mcp['metadata']:
+            row.append(mcp['metadata']['labels'])
 
         output_res.append(row)
 

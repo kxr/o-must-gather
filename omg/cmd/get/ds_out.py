@@ -4,14 +4,19 @@ import sys, yaml, json
 from omg.common.helper import age
 
 
-def ds_out(t, ns, res, output, show_type):
+def ds_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','DESIRED','CURRENT','READY','UP-TO-DATE','AVAILABLE','NODE SELECTOR','AGE'])
-    if output == 'wide':
-        output_res[0].extend(['CONTAINERS','IMAGES'])
+    if output == 'wide' and not show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','UP-TO-DATE','AVAILABLE','NODE SELECTOR','AGE','CONTAINERS','IMAGES'])
+    elif output == 'wide' and show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','UP-TO-DATE','AVAILABLE','NODE SELECTOR','AGE','CONTAINERS','IMAGES','LABELS'])
+    elif show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','UP-TO-DATE','AVAILABLE','NODE SELECTOR','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','UP-TO-DATE','AVAILABLE','NODE SELECTOR','AGE'])
     # resources
     for r in res:
         ds = r['res']
@@ -71,6 +76,9 @@ def ds_out(t, ns, res, output, show_type):
             # images:
             images = [ c['image'] for c in ds['spec']['template']['spec']['containers'] ]
             row.append(','.join(images))
+        # show-labels
+        if show_labels and "labels" in ds['metadata']:
+            row.append(ds['metadata']['labels'])
 
         output_res.append(row)
 

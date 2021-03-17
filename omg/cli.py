@@ -66,12 +66,13 @@ def projects_cmd():
 @cli.command("get")
 @click.argument("objects", nargs=-1, autocompletion=complete_get)
 @click.option("--output", "-o", type=click.Choice(["yaml", "json", "wide"]))
+@click.option("--show-labels",is_flag=True,type=bool,help="When printing, show all labels as the last column (default hide labels column)")
 @global_namespace_options
-def get_cmd(objects, output, namespace, all_namespaces):
+def get_cmd(objects, output, namespace, all_namespaces,show_labels):
     """
     Display one or many resources
     """
-    get_main(objects, output, namespace, all_namespaces)
+    get_main(objects, output, namespace, all_namespaces,show_labels)
 
 
 @cli.command("describe")

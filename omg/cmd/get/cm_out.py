@@ -3,12 +3,15 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 # Config Map
-def cm_out(t, ns, res, output, show_type):
+def cm_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','DATA','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','DATA','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','DATA','AGE'])
     # resources
     for r in res:
         cm = r['res']
@@ -33,6 +36,9 @@ def cm_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in cm['metadata']:
+            row.append(cm['metadata']['labels'])
 
         output_res.append(row)
 

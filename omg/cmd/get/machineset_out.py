@@ -4,12 +4,15 @@ from omg.common.helper import age
 
 
 # Simple out put with just name and age
-def machineset_out(t, ns, res, output, show_type):
+def machineset_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','DESIRED', 'CURRENT', 'READY', 'AVAILABLE','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','DESIRED', 'CURRENT', 'READY', 'AVAILABLE','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','DESIRED', 'CURRENT', 'READY', 'AVAILABLE','AGE'])
     # resources
     for r in res:
         ms = r['res']
@@ -52,6 +55,9 @@ def machineset_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in ms['metadata']:
+            row.append(ms['metadata']['labels'])
 
         output_res.append(row)
 

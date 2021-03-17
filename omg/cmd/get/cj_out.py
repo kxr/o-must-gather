@@ -3,12 +3,15 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def cj_out(t, ns, res, output, show_type):
+def cj_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','SCHEDULE','SUSPEND','ACTIVE', 'LAST SCHEDULE','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','SCHEDULE','SUSPEND','ACTIVE', 'LAST SCHEDULE','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','SCHEDULE','SUSPEND','ACTIVE', 'LAST SCHEDULE','AGE'])
     # resources
     for r in res:
         cj = r['res']
@@ -50,6 +53,9 @@ def cj_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in cj['metadata']:
+            row.append(cj['metadata']['labels'])
         output_res.append(row)
 
     print(tabulate(output_res,tablefmt="plain"))
