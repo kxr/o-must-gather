@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
@@ -68,8 +68,8 @@ def route_out(t, ns, res, output, show_type, show_labels):
         # except:
         #     row.append('Unknown')
         # show-labels
-        if show_labels and "labels" in route['metadata']:
-            row.append(route['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(route))
 
         output_res.append(row)
 

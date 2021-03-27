@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # endpoint out
@@ -57,8 +57,8 @@ def ep_out(t, ns, res, output, show_type, show_labels):
         except:
             row.append('Unknown')
         # show-labels
-        if show_labels and "labels" in ep['metadata']:
-            row.append(ep['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(ep))
 
         output_res.append(row)
 

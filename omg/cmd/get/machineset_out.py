@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
@@ -56,8 +56,8 @@ def machineset_out(t, ns, res, output, show_type, show_labels):
         except:
             row.append('Unknown')
         # show-labels
-        if show_labels and "labels" in ms['metadata']:
-            row.append(ms['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(ms))
 
         output_res.append(row)
 

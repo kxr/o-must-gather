@@ -1,13 +1,13 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 def mcp_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if show_labels:
         output_res[0].extend(['NAME','CONFIG','UPDATED','UPDATING','DEGRADED','MACHINECOUNT',
-                              'READYMACHINECOUNT', 'UPDATEDMACHINECOUNT','DEGRADEDMACHINECOUNT','AGE'])
+                              'READYMACHINECOUNT', 'UPDATEDMACHINECOUNT','DEGRADEDMACHINECOUNT','AGE','LABELS'])
     else:
         output_res[0].extend(['NAME','CONFIG','UPDATED','UPDATING','DEGRADED','MACHINECOUNT',
                           'READYMACHINECOUNT', 'UPDATEDMACHINECOUNT','DEGRADEDMACHINECOUNT','AGE'])
@@ -53,8 +53,8 @@ def mcp_out(t, ns, res, output, show_type, show_labels):
         except:
             row.append('Unknown')
         # show-labels
-        if show_labels and "labels" in mcp['metadata']:
-            row.append(mcp['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(mcp))
 
         output_res.append(row)
 

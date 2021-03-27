@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 # Special function to output pod
 # Generate output table if -o not set or 'wide'
@@ -61,8 +61,8 @@ def pod_out(t, ns, res, output, show_type, show_labels):
             else:
                 row.append('')
         # show-labels
-        if show_labels and "labels" in p['metadata']:
-            row.append(p['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(p))
 
         output_pods.append(row)
 

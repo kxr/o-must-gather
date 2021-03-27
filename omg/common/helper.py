@@ -92,3 +92,31 @@ def load_yaml_file(yp, print_warnings):
             if print_warnings:
                 print("[ERROR] Invalid yaml file. Parsing error in ", yp)
             sys.exit(1)
+
+# Helper function to print labels when --show-labels is passed
+# This function receives an object and returns the labels in flat/string format.
+# For example:
+#   Input Object:
+#       ...
+#       kind: Pod
+#       metadata:
+#           ...
+#           labels:
+#               app: console
+#               component: ui
+#               pod-template-hash: 769cc64c64
+#           ...
+#       ...
+#
+#   Output String: 'app=console,component=ui,pod-template-hash=769cc64c64'
+# Returns '<none>' if 'labels' is absent in object -> metadata 
+def extract_labels(o):
+    if "labels" in o['metadata']:
+        try:
+            l = o['metadata']['labels']
+            l_str = ','.join( [ "%s=%s"%(k,v) for k,v in l.items() ] )
+            return l_str
+        except:
+            return '<error parsing labels>'
+    else:
+        return '<none>'

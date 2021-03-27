@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 # Special function to output project
 # We will create an array of array and then print if with tabulate
@@ -25,6 +25,10 @@ def project_out(t, ns, res, output, show_type, show_labels):
         row.append(display_name)
         # status
         row.append(p['status']['phase'])
+
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(p))
         
         output_projects.append(row)
 

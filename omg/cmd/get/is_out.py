@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 def is_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
@@ -49,8 +49,8 @@ def is_out(t, ns, res, output, show_type, show_labels):
         except:
             row.append('')
         # show-labels
-        if show_labels and "labels" in is_['metadata']:
-            row.append(is_['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(is_))
 
         output_res.append(row)
 

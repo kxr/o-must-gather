@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 # Config Map
 def cm_out(t, ns, res, output, show_type, show_labels):
@@ -37,8 +37,8 @@ def cm_out(t, ns, res, output, show_type, show_labels):
         except:
             row.append('Unknown')
         # show-labels
-        if show_labels and "labels" in cm['metadata']:
-            row.append(cm['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(cm))
 
         output_res.append(row)
 

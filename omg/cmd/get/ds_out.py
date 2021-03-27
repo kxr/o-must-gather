@@ -1,7 +1,7 @@
 from tabulate import tabulate
 import sys, yaml, json
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 def ds_out(t, ns, res, output, show_type, show_labels):
@@ -77,8 +77,8 @@ def ds_out(t, ns, res, output, show_type, show_labels):
             images = [ c['image'] for c in ds['spec']['template']['spec']['containers'] ]
             row.append(','.join(images))
         # show-labels
-        if show_labels and "labels" in ds['metadata']:
-            row.append(ds['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(ds))
 
         output_res.append(row)
 

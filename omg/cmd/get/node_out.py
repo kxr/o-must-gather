@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 # Special function to output node
 # Generate output table if -o not set or 'wide'
@@ -71,8 +71,8 @@ def node_out(t, ns, res, output, show_type, show_labels):
             crt = n['status']['nodeInfo']['containerRuntimeVersion']
             row.append(crt)
         # show-labels
-        if show_labels and "labels" in n['metadata']:
-            row.append(n['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(n))
 
         output_nodes.append(row)
 

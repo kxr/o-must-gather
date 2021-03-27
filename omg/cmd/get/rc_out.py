@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 def rc_out(t, ns, res, output, show_type, show_labels):
@@ -8,12 +8,11 @@ def rc_out(t, ns, res, output, show_type, show_labels):
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    if show_labels:
-        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','LABELS'])
-    else:
-        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
+    output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
     if output == 'wide':
         output_res[0].extend(['CONTAINERS','IMAGES'])
+    if show_labels:
+        output_res[0].extend(['LABELS'])
     # resources
     for r in res:
         rc = r['res']
@@ -57,8 +56,8 @@ def rc_out(t, ns, res, output, show_type, show_labels):
             images = [ c['image'] for c in rc['spec']['template']['spec']['containers'] ]
             row.append(','.join(images))
         # show-labels
-        if show_labels and "labels" in rc['metadata']:
-            row.append(rc['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(rc))
 
         output_res.append(row)
 

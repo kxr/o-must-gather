@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 def cj_out(t, ns, res, output, show_type, show_labels):
@@ -54,8 +54,9 @@ def cj_out(t, ns, res, output, show_type, show_labels):
         except:
             row.append('Unknown')
         # show-labels
-        if show_labels and "labels" in cj['metadata']:
-            row.append(cj['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(cj))
+
         output_res.append(row)
 
     print(tabulate(output_res,tablefmt="plain"))

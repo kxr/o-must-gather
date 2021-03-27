@@ -1,6 +1,6 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
@@ -9,14 +9,12 @@ def rs_out(t, ns, res, output, show_type, show_labels):
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    if output == 'wide' and not show_labels:
-        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','CONTAINERS', 'IMAGES','SELECTOR'])
-    elif output == 'wide' and show_labels:
-        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','CONTAINERS', 'IMAGES','SELECTOR','LABELS'])
-    elif show_labels:
-        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','LABELS'])
-    else:
-        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
+    output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
+    if output == 'wide':
+        output_res[0].extend(['CONTAINERS', 'IMAGES','SELECTOR'])
+    if show_labels:
+        output_res[0].extend(['LABELS'])
+
     # resources
     for r in res:
         rs = r['res']
@@ -61,8 +59,8 @@ def rs_out(t, ns, res, output, show_type, show_labels):
                 ml = '?'
             row.append(ml)
         # show-labels
-        if show_labels and "labels" in rs['metadata']:
-            row.append(rs['metadata']['labels'])
+        if show_labels:
+            row.append(extract_labels(rs))
 
         output_res.append(row)
 
