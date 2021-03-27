@@ -4,7 +4,7 @@ from dateutil.parser import parse
 from omg.common.helper import age
 
 # Simple out put with just name and age
-def cv_out(t, ns, res, output, show_type):
+def cv_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     output_res[0].extend(['NAME','VERSION','AVAILABLE','PROGRESSING','SINCE','STATUS'])

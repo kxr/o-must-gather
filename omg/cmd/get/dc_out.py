@@ -3,12 +3,15 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def dc_out(t, ns, res, output, show_type):
+def dc_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','REVISION','DESIRED','CURRENT','TRIGGERED BY'])
+    if show_labels:
+        output_res[0].extend(['NAME','REVISION','DESIRED','CURRENT','TRIGGERED BY','LABELS'])
+    else:
+        output_res[0].extend(['NAME','REVISION','DESIRED','CURRENT','TRIGGERED BY'])
     # resources
     for r in res:
         dc = r['res']
@@ -45,6 +48,9 @@ def dc_out(t, ns, res, output, show_type):
                 row.append(triggered_type)
         except:
             row.append('??')
+        # show-labels
+        if show_labels and "labels" in dc['metadata']:
+            row.append(dc['metadata']['labels'])
 
         output_res.append(row)
 

@@ -3,7 +3,7 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def mwhc_out(t, ns, res, output, show_type):
+def mwhc_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     output_res[0].extend(['NAME','WEBHOOKS','AGE'])

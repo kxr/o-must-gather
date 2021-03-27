@@ -3,7 +3,7 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def pv_out(t, ns, res, output, show_type):
+def pv_out(t, ns, res, output, show_type, show_labels):
     output_res=[]
     # header
     # we will append the header array at last after sorting

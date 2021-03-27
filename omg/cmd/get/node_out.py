@@ -5,13 +5,18 @@ from omg.common.helper import age
 # Special function to output node
 # Generate output table if -o not set or 'wide'
 # We will create an array of array and then print if with tabulate
-def node_out(t, ns, res, output, show_type):
+def node_out(t, ns, res, output, show_type, show_labels):
     output_nodes=[]
     # header
     # we will append the header array at last after sorting
-    if output == 'wide':
+    if output == 'wide' and not show_labels:
         header = ['NAME','STATUS','ROLES','AGE','VERSION',
             'INTERNAL-IP','EXTERNAL-IP','OS-IMAGE','KERNEL-VERSION','CONTAINER-RUNTIME']
+    elif output == 'wide' and show_labels:
+        header = ['NAME','STATUS','ROLES','AGE','VERSION',
+            'INTERNAL-IP','EXTERNAL-IP','OS-IMAGE','KERNEL-VERSION','CONTAINER-RUNTIME','LABELS']
+    elif show_labels:
+        header = ['NAME','STATUS','ROLES','AGE','VERSION','LABELS']
     else:
         header = ['NAME','STATUS','ROLES','AGE','VERSION']
     # pods
@@ -65,6 +70,10 @@ def node_out(t, ns, res, output, show_type):
             row.append(kver)
             crt = n['status']['nodeInfo']['containerRuntimeVersion']
             row.append(crt)
+        # show-labels
+        if show_labels and "labels" in n['metadata']:
+            row.append(n['metadata']['labels'])
+
         output_nodes.append(row)
 
     # sort by 2nd column (role)

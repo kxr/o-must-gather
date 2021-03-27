@@ -4,14 +4,19 @@ from omg.common.helper import age
 
 
 # Simple out put with just name and age
-def rs_out(t, ns, res, output, show_type):
+def rs_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
-    if output == 'wide':
-        output_res[0].extend(['CONTAINERS', 'IMAGES','SELECTOR'])
+    if output == 'wide' and not show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','CONTAINERS', 'IMAGES','SELECTOR'])
+    elif output == 'wide' and show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','CONTAINERS', 'IMAGES','SELECTOR','LABELS'])
+    elif show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
     # resources
     for r in res:
         rs = r['res']
@@ -55,6 +60,9 @@ def rs_out(t, ns, res, output, show_type):
             except:
                 ml = '?'
             row.append(ml)
+        # show-labels
+        if show_labels and "labels" in rs['metadata']:
+            row.append(rs['metadata']['labels'])
 
         output_res.append(row)
 

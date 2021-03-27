@@ -3,12 +3,15 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def rc_out(t, ns, res, output, show_type):
+def rc_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
     if output == 'wide':
         output_res[0].extend(['CONTAINERS','IMAGES'])
     # resources
@@ -53,6 +56,9 @@ def rc_out(t, ns, res, output, show_type):
             # images:
             images = [ c['image'] for c in rc['spec']['template']['spec']['containers'] ]
             row.append(','.join(images))
+        # show-labels
+        if show_labels and "labels" in rc['metadata']:
+            row.append(rc['metadata']['labels'])
 
         output_res.append(row)
 

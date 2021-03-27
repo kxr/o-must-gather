@@ -3,14 +3,19 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def service_out(t, ns, res, output, show_type):
+def service_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','TYPE','CLUSTER-IP','EXTERNAL-IP','PORT(S)','AGE'])
-    if output == 'wide':
-        output_res[0].extend(['SELECTOR'])
+    if output == 'wide' and not show_labels:
+        output_res[0].extend(['NAME','TYPE','CLUSTER-IP','EXTERNAL-IP','PORT(S)','AGE','SELECTOR'])
+    elif output == 'wide' and show_labels:
+        output_res[0].extend(['NAME','TYPE','CLUSTER-IP','EXTERNAL-IP','PORT(S)','AGE','SELECTOR','LABELS'])
+    elif show_labels:
+        output_res[0].extend(['NAME','TYPE','CLUSTER-IP','EXTERNAL-IP','PORT(S)','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','TYPE','CLUSTER-IP','EXTERNAL-IP','PORT(S)','AGE'])
     # resources
     for r in res:
         svc = r['res']
@@ -62,6 +67,9 @@ def service_out(t, ns, res, output, show_type):
                 row.append(selector)
             else:
                 row.append('<none>')
+        # show-labels
+        if show_labels and "labels" in svc['metadata']:
+            row.append(svc['metadata']['labels'])
 
         output_res.append(row)
 

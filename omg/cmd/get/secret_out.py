@@ -3,12 +3,15 @@ from tabulate import tabulate
 from omg.common.helper import age
 
 
-def secret_out(t, ns, res, output, show_type):
+def secret_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','TYPE','DATA','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','TYPE','DATA','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','TYPE','DATA','AGE'])
     # resources
     for r in res:
         sec = r['res']
@@ -36,6 +39,9 @@ def secret_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels and "labels" in sec['metadata']:
+            row.append(sec['metadata']['labels'])
 
         output_res.append(row)
 

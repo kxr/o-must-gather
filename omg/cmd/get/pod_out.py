@@ -5,13 +5,17 @@ from omg.common.helper import age
 # Special function to output pod
 # Generate output table if -o not set or 'wide'
 # We will create an array of array and then print if with tabulate
-def pod_out(t, ns, res, output, show_type):
+def pod_out(t, ns, res, output, show_type, show_labels):
     output_pods=[[]]
     # header
     if ns == '_all':
         output_pods[0].append('NAMESPACE')
-    if output == 'wide':
+    if output == 'wide' and not show_labels:
         output_pods[0].extend(['NAME','READY','STATUS','RESTARTS','AGE','IP','NODE'])
+    elif output == 'wide' and show_labels:
+        output_pods[0].extend(['NAME','READY','STATUS','RESTARTS','AGE','IP','NODE','LABELS'])
+    elif show_labels:
+        output_pods[0].extend(['NAME','READY','STATUS','RESTARTS','AGE','LABELS'])
     else:
         output_pods[0].extend(['NAME','READY','STATUS','RESTARTS','AGE'])
     # pods
@@ -56,6 +60,9 @@ def pod_out(t, ns, res, output, show_type):
                 row.append(p['spec']['nodeName'])
             else:
                 row.append('')
+        # show-labels
+        if show_labels and "labels" in p['metadata']:
+            row.append(p['metadata']['labels'])
 
         output_pods.append(row)
 

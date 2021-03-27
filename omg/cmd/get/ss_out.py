@@ -4,7 +4,7 @@ from omg.common.helper import age
 
 
 # Simple out put with just name and age
-def ss_out(t, ns, res, output, show_type):
+def ss_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':

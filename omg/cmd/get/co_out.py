@@ -4,7 +4,7 @@ from dateutil.parser import parse
 from omg.common.helper import age
 
 # Special function to output clusteroperator
-def co_out(t, ns, res, output, show_type):
+def co_out(t, ns, res, output, show_type, show_labels):
     # Generate output table if -o not set or 'wide'
     # We will create an array of array and then print if with tabulate
     # header
