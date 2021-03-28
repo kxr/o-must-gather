@@ -76,7 +76,7 @@ def get_cmd(objects, output, namespace, all_namespaces,show_labels):
 
 
 @cli.command("describe")
-@click.argument("object", nargs=-1)
+@click.argument("objects", nargs=-1)
 @global_namespace_options
 def describe_cmd(objects, namespace, all_namespaces):
     """
