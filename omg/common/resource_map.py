@@ -139,7 +139,7 @@ map = [
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/infrastructures.yaml' },
 
-    {   'type': 'ingress','aliases': ['ingresses'],'need_ns': True,
+    {   'type': 'ingress','aliases': ['ingresses'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/ingresses.yaml' },
 
@@ -255,6 +255,11 @@ map = [
     {   'type': 'rolebindings','aliases': ['rolebindings'],'need_ns': True,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'namespaces/%s/rbac.authorization.k8s.io/rolebindings' },
+
+    {   'type': 'ingresscontroller','aliases': ['ingresscontrollers'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'namespaces/%s/operator.openshift.io/ingresscontrollers' },
+
 ]
 
 
