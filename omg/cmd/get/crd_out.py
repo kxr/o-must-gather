@@ -1,14 +1,17 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
-def crd_out(t, ns, res, output, show_type):
+def crd_out(t, ns, res, output, show_type, show_labels):
     output_res=[]
     # header
     # we will append the header array at last after sorting
-    header = ['NAME','CREATED AT']
+    if show_labels:
+        header = ['NAME','CREATED AT','LABELS']
+    else:
+        header = ['NAME','CREATED AT']
     # resources
     for r in res:
         p = r['res']
@@ -23,6 +26,9 @@ def crd_out(t, ns, res, output, show_type):
             row.append(p['metadata']['creationTimestamp'])
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(p))
 
         output_res.append(row)
 

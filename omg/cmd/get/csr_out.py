@@ -2,7 +2,7 @@ from tabulate import tabulate
 
 from omg.common.helper import age
 
-def csr_out(t, ns, res, output, show_type):
+def csr_out(t, ns, res, output, show_type, show_labels):
     output_res=[]
     # header
     header = ['NAME','AGE','SIGNERNAME','REQUESTOR','CONDITION']

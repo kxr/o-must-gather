@@ -1,15 +1,18 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # endpoint out
-def ep_out(t, ns, res, output, show_type):
+def ep_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','ENDPOINTS','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','ENDPOINTS','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','ENDPOINTS','AGE'])
     # resources
     for r in res:
         ep = r['res']
@@ -53,6 +56,9 @@ def ep_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(ep))
 
         output_res.append(row)
 

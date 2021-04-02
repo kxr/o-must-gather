@@ -1,15 +1,18 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
-def machine_out(t, ns, res, output, show_type):
+def machine_out(t, ns, res, output, show_type, show_labels):
     output_res=[]
     # header
     header = []
     if ns == '_all':
         header.append('NAMESPACE')
-    header.extend(['NAME', 'PHASE', 'TYPE', 'REGION', 'ZONE', 'AGE'])
+    if show_labels:
+        header.extend(['NAME', 'PHASE', 'TYPE', 'REGION', 'ZONE', 'AGE','LABELS'])
+    else:
+        header.extend(['NAME', 'PHASE', 'TYPE', 'REGION', 'ZONE', 'AGE'])
     # resources
     for r in res:
         m = r['res']
@@ -41,6 +44,9 @@ def machine_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(m))
 
         output_res.append(row)
 

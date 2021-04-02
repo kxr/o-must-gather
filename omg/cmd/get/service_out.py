@@ -1,9 +1,9 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
-def service_out(t, ns, res, output, show_type):
+def service_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
@@ -11,6 +11,9 @@ def service_out(t, ns, res, output, show_type):
     output_res[0].extend(['NAME','TYPE','CLUSTER-IP','EXTERNAL-IP','PORT(S)','AGE'])
     if output == 'wide':
         output_res[0].extend(['SELECTOR'])
+    if show_labels:
+        output_res[0].extend(['LABELS'])
+
     # resources
     for r in res:
         svc = r['res']
@@ -62,6 +65,9 @@ def service_out(t, ns, res, output, show_type):
                 row.append(selector)
             else:
                 row.append('<none>')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(svc))
 
         output_res.append(row)
 

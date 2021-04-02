@@ -1,10 +1,10 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
-def rs_out(t, ns, res, output, show_type):
+def rs_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
@@ -12,6 +12,9 @@ def rs_out(t, ns, res, output, show_type):
     output_res[0].extend(['NAME','DESIRED','CURRENT','READY','AGE'])
     if output == 'wide':
         output_res[0].extend(['CONTAINERS', 'IMAGES','SELECTOR'])
+    if show_labels:
+        output_res[0].extend(['LABELS'])
+
     # resources
     for r in res:
         rs = r['res']
@@ -55,6 +58,9 @@ def rs_out(t, ns, res, output, show_type):
             except:
                 ml = '?'
             row.append(ml)
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(rs))
 
         output_res.append(row)
 

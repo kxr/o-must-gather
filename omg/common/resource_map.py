@@ -38,6 +38,9 @@ from omg.cmd.get.service_out import service_out
 from omg.cmd.get.ss_out import ss_out
 from omg.cmd.get.vwhc_out import vwhc_out
 
+import os
+from omg.common.config import Config
+
 
 # This map and function normalizes/standarizes the different names of object/resources types
 # Also returns the function that handles get,describe and output of this object type
@@ -139,7 +142,7 @@ map = [
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/infrastructures.yaml' },
 
-    {   'type': 'ingress','aliases': ['ingresses'],'need_ns': True,
+    {   'type': 'ingress','aliases': ['ingresses'],'need_ns': False,
         'get_func': from_yaml, 'getout_func': simple_out,
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/ingresses.yaml' },
 
@@ -240,6 +243,26 @@ map = [
         'get_func': from_yaml, 'getout_func': vwhc_out,
         'yaml_loc': 'cluster-scoped-resources/admissionregistration.k8s.io/validatingwebhookconfigurations' },
 
+    {   'type': 'clusterroles','aliases': ['clusterroles'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/rbac.authorization.k8s.io/clusterroles' },
+
+    {   'type': 'clusterrolebindings','aliases': ['clusterrolebindings'],'need_ns': False,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'cluster-scoped-resources/rbac.authorization.k8s.io/clusterrolebindings' },
+
+    {   'type': 'roles','aliases': ['roles'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'namespaces/%s/rbac.authorization.k8s.io/roles' },
+
+    {   'type': 'rolebindings','aliases': ['rolebindings'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'namespaces/%s/rbac.authorization.k8s.io/rolebindings' },
+
+    {   'type': 'ingresscontroller','aliases': ['ingresscontrollers'],'need_ns': True,
+        'get_func': from_yaml, 'getout_func': simple_out,
+        'yaml_loc': 'namespaces/%s/operator.openshift.io/ingresscontrollers' },
+
 ]
 
 
@@ -249,4 +272,49 @@ def map_res(t):
             # match the input with type: or alias (without case)
             if t.lower() == x['type'].lower() or t.lower() in [y.lower() for y in x['aliases'] ]:
                 return x
+        # If we didn't find the resource definition in the map dictionary
+        # We "try" to build the definition dynamically from the crd definitions
+        # Idea credit goes to bostrt: https://github.com/kxr/o-must-gather/issues/34
+        # This is just fall back and expensive to compute,
+        # ideally these definitions should be added to the map dict for better lookup performance
+        try:
+            crds = from_yaml('_all', '_all', 'cluster-scoped-resources/apiextensions.k8s.io/customresourcedefinitions', False)
+            for c in crds:
+                singular = c['res']['spec']['names']['singular']
+                plural = c['res']['spec']['names']['plural']
+                if 'shortNames' in c['res']['spec']['names']:
+                    short = c['res']['spec']['names']['shortNames']
+                else:
+                    short = []
+                aliases = [plural] + short
+                if t.lower() == singular or t.lower() in aliases:
+                    # We found the resource type in crd
+                    res_dict = {
+                        'type': singular,
+                        'aliases': aliases,
+                        'need_ns': None,
+                        'get_func': from_yaml,
+                        'getout_func': simple_out,
+                        'yaml_loc': None    }
+
+                    # need_ns
+                    if c['res']['spec']['scope'] == 'Namespaced':
+                        res_dict['need_ns'] = True
+                        yaml_pre = 'namespaces/%s/'
+                    elif c['res']['spec']['scope'] == 'Cluster':
+                        res_dict['need_ns'] = False
+                        yaml_pre = 'cluster-scoped-resources/'
+                    else:
+                        # Unhandled situation
+                        return None
+
+                    # yaml_loc
+                    group = c['res']['spec']['group']
+                    mg_path = Config().path
+                    res_dict['yaml_loc'] = os.path.join(mg_path,yaml_pre,group,plural)
+
+                    return res_dict
+        except:
+            pass
+            
     return None

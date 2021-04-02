@@ -1,5 +1,4 @@
 import sys, os
-import yaml
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
 from datetime import datetime, timedelta
@@ -30,8 +29,9 @@ def age(ts1, ts2, ts1_type='iso', ts2_type='epoch'):
     except:
         return 'Unknown'
 
-    if rd.days > 0:
-        return str(rd.days)+'d'
+    if rd.days > 0 or rd.months > 0 or rd.years > 0:
+        days = int(rd.years * 365) + int(rd.months * 30) + int(rd.days)
+        return str(days)+'d'
     elif rd.hours > 9:
         return str(rd.hours)+'h'
     elif rd.hours > 0 and rd.hours < 10:
@@ -53,11 +53,19 @@ def age(ts1, ts2, ts1_type='iso', ts2_type='epoch'):
 # at the end causing the yaml.safe_load() to error out.
 # so if the first loading attempt fails, we will
 # try to skip lines from the end and try to load the yaml
-def load_yaml_file(yp):
+def load_yaml_file(yp, print_warnings):
+    import yaml
+    from click import echo
+    try:
+        # use C version if possible for speedup
+        from yaml import CSafeLoader as SafeLoader
+    except ImportError:
+        from yaml import SafeLoader
+
     with open(yp, 'r') as yf:
         yd = yf.read()
         try:
-            res = yaml.safe_load(yd)
+            res = yaml.load(yd, Loader=SafeLoader)
             return res
         except:
             # yaml load failed
@@ -71,14 +79,44 @@ def load_yaml_file(yp):
                 yd = yd[:yd.rfind('\n')]
                 lines_skipped += 1
                 try:
-                    res = yaml.safe_load(yd)
-                    print("[WARN] Skipped " +
-                        str(lines_skipped) + "/" + str(lines_total) +
-                        " lines from the end of " + os.path.basename(yp) +
-                        " to the load the yaml file properly")
+                    res = yaml.load(yd, Loader=SafeLoader)
+                    if print_warnings:
+                        echo("[WARN] Skipped " +
+                            str(lines_skipped) + "/" + str(lines_total) +
+                            " lines from the end of " + os.path.basename(yp) +
+                            " to the load the yaml file properly",err=True)
                     return res
                 except:
                     pass
             # Skipping lines from the bottom didn't help. Error out
-            print("[ERROR] Invalid yaml file. Parsing error in ", yp)
+            if print_warnings:
+                print("[ERROR] Invalid yaml file. Parsing error in ", yp)
             sys.exit(1)
+
+# Helper function to print labels when --show-labels is passed
+# This function receives an object and returns the labels in flat/string format.
+# For example:
+#   Input Object:
+#       ...
+#       kind: Pod
+#       metadata:
+#           ...
+#           labels:
+#               app: console
+#               component: ui
+#               pod-template-hash: 769cc64c64
+#           ...
+#       ...
+#
+#   Output String: 'app=console,component=ui,pod-template-hash=769cc64c64'
+# Returns '<none>' if 'labels' is absent in object -> metadata 
+def extract_labels(o):
+    if "labels" in o['metadata']:
+        try:
+            l = o['metadata']['labels']
+            l_str = ','.join( [ "%s=%s"%(k,v) for k,v in l.items() ] )
+            return l_str
+        except:
+            return '<error parsing labels>'
+    else:
+        return '<none>'

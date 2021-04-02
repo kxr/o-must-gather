@@ -1,117 +1,22 @@
-import os, sys, yaml, json
-from urllib.parse import unquote
-from base64 import b64decode
 import difflib
 from omg.common.config import Config
-from omg.common.resource_map import map_res
-from omg.cmd.get.from_yaml import from_yaml
-
-def decode_content(content):
-    split = content.split(',', 1)
-    head = split[0]
-    data = split[1]
-    #if head[0:5] ==  'data:':
-    if head.startswith('data:'):
-        if len(data) == 0:
-            return content 
-        form = head[5:].split(';')
-        if 'base64' in form:
-            charset = next((x[8:] for x in form if x[0:8] == 'charset='),'utf-8')
-            return b64decode(data).decode(charset)
-        else:
-            return unquote(data)
-    else:
-        print('[Warning] Unable to recognize content (not starting with "data:")')
-        return content
-
-def get_mc(m):
-    mc_map = map_res('machineconfig')
-    mcs = from_yaml( rt = mc_map['type'], ns = None, names = m,
-        yaml_loc = mc_map['yaml_loc'], need_ns = False)
-    return([mc['res'] for mc in mcs])
-    
-
-def extract(m):
-    mg_path = Config().path
-    emc_dir = 'extracted-machine-configs'
-    emc_path = os.path.join(mg_path, emc_dir)
-    os.makedirs(emc_path, exist_ok=True)
-    
-    mcs = get_mc(m)
-    for mc in mcs:
-        if 'metadata' in mc and 'name' in mc['metadata']:
-            mc_name = mc['metadata']['name']
-        else:
-            print('[WARNING] Skipping machine-config. Name not found')
-            continue
-
-        mc_path = os.path.join(emc_path, mc_name)
-        os.makedirs(mc_path, exist_ok=True)
-
-        if 'spec' in mc and 'config' in mc['spec']:
-            # storage
-            if 'storage' in mc['spec']['config']:
-                storage_path = os.path.join(mc_path, 'storage')
-                storage = mc['spec']['config']['storage']
-                if 'files' in storage:
-                    for fi in storage['files']:
-                        path = fi['path']
-                        rel_fil = path[1:]
-                        rel_dir = os.path.dirname(rel_fil)
-                        abs_dir = os.path.join(storage_path, rel_dir)
-                        abs_fil = os.path.join(storage_path, rel_fil)
-                        os.makedirs(abs_dir,exist_ok=True)
-                        with open(abs_fil, 'w') as fh:
-                            print(abs_fil)
-                            fh.write(
-                                decode_content(fi['contents']['source'])
-                            )
-                # TODO directories, links, disks, raid, filesystems
-            # systemd
-            if 'systemd' in mc['spec']['config']:
-                systemd_path = os.path.join(mc_path, 'systemd')
-                systemd = mc['spec']['config']['systemd']
-                if 'units' in systemd:
-                    for unit in systemd['units']:
-                        os.makedirs(systemd_path,exist_ok=True)
-                        name = unit['name']
-                        if unit['enabled'] is not True:
-                            name += '.disabled'
-                        abs_fil = os.path.join(systemd_path, name)
-                        with open(abs_fil, 'w') as fh:
-                            print(abs_fil)
-                            fh.write(
-                                unit['contents']
-                            )
-            # passwd
-            if 'passwd' in mc['spec']['config']:
-                passwd  = mc['spec']['config']['passwd']
-                passwd_path = os.path.join(mc_path, 'passwd')
-                if 'users' in passwd:
-                    for user in passwd['users']:
-                        os.makedirs(passwd_path,exist_ok=True)
-                        name = user['name']
-                        abs_fil = os.path.join(passwd_path, name)
-                        with open(abs_fil, 'w') as fh:
-                            print(abs_fil)
-                            fh.write(
-                                yaml.dump(user)
-                # TODO groups
-                            )
-            # TODO networkd
+from omg.cmd.get_main import get_resources
+from omg.cmd.machine_config.decode_content import decode_content
 
 def compare(m, show_contents):
     # NOTE TO SELF: Recursion has gone out of hand,
-    # probably re-impelement the comparison login without
+    # probably re-impelement the comparison logic without
     # using recursion
     try:
-        mc1 = get_mc([m[0]])[0]
+        mcs_res = get_resources('machineconfig', m[0], None)
+        mc1 = [ mc['res'] for mc in mcs_res ][0]
     except:
         print('[ERROR] Failed to load machine-config', m[0])
         return
     
     try:
-        mc2 = get_mc([m[1]])[0]
+        mcs_res = get_resources('machineconfig', m[1], None)
+        mc2 = [ mc['res'] for mc in mcs_res ][0]
     except:
         print('[ERROR] Failed to load machine-config', m[1])        
         return
@@ -216,14 +121,19 @@ def compare(m, show_contents):
                     path.append(l[lod_key])
                     ld1 = [x for x in d1 if x[lod_key] == l[lod_key]]
                     ld2 = [x for x in d2 if x[lod_key] == l[lod_key]]
-                    if len(ld1) > 1 or len(ld2) > 1:
-                        print('[WARNING] Duplicate key found:', lod_key)
+                    if len(ld1) > 1 and l[lod_key] not in done_lod_keys:
+                        print('    [WARNING] Duplicate (%i) entries found in 1st MachineConfig for %s:%s' %
+                                (len(ld1), lod_key,l[lod_key]))
+                    if len(ld2) > 1 and l[lod_key] not in done_lod_keys:
+                        print('    [WARNING] Duplicate (%i) entries found in 2nd MachineConfig for %s:%s' %
+                                (len(ld2), lod_key,l[lod_key]))
+
                     if len(ld1) == 0:
-                        mc_diff( None, ld2[0], path )
+                        mc_diff( None, ld2[-1], path )
                     elif len(ld2) == 0:
-                        mc_diff( ld1[0], None, path )
+                        mc_diff( ld1[-1], None, path )
                     elif l[lod_key] not in done_lod_keys:
-                        mc_diff( ld1[0], ld2[0], path )
+                        mc_diff( ld1[-1], ld2[-1], path )
                         done_lod_keys.append(l[lod_key])
                     path.pop()
                 else:
@@ -233,17 +143,5 @@ def compare(m, show_contents):
                         mc_diff( None, l, path)
         else:
             print('[WARNING] Unhandled condition at', path)
-    
-    mc_diff(mc1,mc2)
 
-def machine_config(a):
-    if a.mc_op == 'extract':
-        if len(a.mc_names) <= 0:
-            extract('_all')
-        else:
-            extract(a.mc_names)
-    elif a.mc_op == 'compare':
-        if len(a.mc_names) == 2:
-            compare(a.mc_names, show_contents=a.show_contents)
-        else:
-            print('[ERROR] Provide two machine-configs to compare')
+    mc_diff(mc1,mc2)

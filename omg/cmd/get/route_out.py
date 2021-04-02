@@ -1,15 +1,18 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
-def route_out(t, ns, res, output, show_type):
+def route_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','HOST/PORT','PATH','SERVICES','PORT','TERMINATION','WILDCARD'])
+    if show_labels:
+        output_res[0].extend(['NAME','HOST/PORT','PATH','SERVICES','PORT','TERMINATION','WILDCARD','LABELS'])
+    else:
+        output_res[0].extend(['NAME','HOST/PORT','PATH','SERVICES','PORT','TERMINATION','WILDCARD'])
     # resources
     for r in res:
         route = r['res']
@@ -64,6 +67,9 @@ def route_out(t, ns, res, output, show_type):
         #     row.append(age(ct,ts))
         # except:
         #     row.append('Unknown')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(route))
 
         output_res.append(row)
 

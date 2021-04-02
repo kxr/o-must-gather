@@ -1,11 +1,14 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
-def mc_out(t, ns, res, output, show_type):
+def mc_out(t, ns, res, output, show_type, show_labels):
     output_res=[]
     # header
-    header = ['NAME','GENERATEDBYCONTROLLER','IGNITIONVERSION','AGE']
+    if show_labels:
+        header = ['NAME','GENERATEDBYCONTROLLER','IGNITIONVERSION','AGE','LABELS']
+    else:
+        header = ['NAME','GENERATEDBYCONTROLLER','IGNITIONVERSION','AGE']
     # resources
     for r in res:
         mc = r['res']
@@ -32,6 +35,9 @@ def mc_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(mc))
 
         output_res.append(row)
 

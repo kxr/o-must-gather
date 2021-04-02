@@ -1,17 +1,17 @@
-import sys, os, yaml
+import sys, os
 
 from omg.common.config import Config
 from omg.common.helper import load_yaml_file
 
 # This function finds the respective yamls and returns the resouces that match
-# args = resource_type (e.g pod), namespace, resource_names (e.g, httpd)
-def from_yaml(rt, ns, names, yaml_loc, need_ns):
+def from_yaml(ns, names, yaml_loc, need_ns, print_warnings=True):
     mg_path = Config().path
     yaml_path = os.path.join(mg_path, yaml_loc)
     if need_ns:
         # Error out if it needs ns and its not set.
         if ns is None:
-            print("[ERROR] Namespace not set. Select a project (omg project) or specify a namespace (-n)")
+            if print_warnings:
+                print("[ERROR] Namespace not set. Select a project (omg project) or specify a namespace (-n)")
             sys.exit(1)
         # Get all namespace names if we need all
         elif ns == '_all':
@@ -41,9 +41,10 @@ def from_yaml(rt, ns, names, yaml_loc, need_ns):
         try:
             # record when was this yaml generated (to calc age)
             gen_ts = os.path.getmtime(yp)
-            res = load_yaml_file(yp)
+            res = load_yaml_file(yp, print_warnings)
         except:
-            print("[ERROR] Could not read file:", yp)
+            if print_warnings:
+                print("[ERROR] Could not read file:", yp)
             sys.exit(1)
 
         # add objects to collected if name matches

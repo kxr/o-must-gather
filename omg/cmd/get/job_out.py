@@ -1,14 +1,17 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
-def job_out(t, ns, res, output, show_type):
+def job_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','COMPLETIONS','DURATION','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','COMPLETIONS','DURATION','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','COMPLETIONS','DURATION','AGE'])
     # resources
     for r in res:
         job = r['res']
@@ -47,6 +50,10 @@ def job_out(t, ns, res, output, show_type):
             row.append(age(ct,ts))
         except:
             row.append('Unknown')
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(job))
+
         output_res.append(row)
 
     print(tabulate(output_res,tablefmt="plain"))

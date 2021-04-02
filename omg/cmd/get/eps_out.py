@@ -4,7 +4,7 @@ from omg.common.helper import age
 
 
 # endpoint out
-def eps_out(t, ns, res, output, show_type):
+def eps_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':

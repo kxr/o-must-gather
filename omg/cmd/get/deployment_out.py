@@ -1,15 +1,18 @@
 from tabulate import tabulate
 
-from omg.common.helper import age
+from omg.common.helper import age, extract_labels
 
 
 # Simple out put with just name and age
-def deployment_out(t, ns, res, output, show_type):
+def deployment_out(t, ns, res, output, show_type, show_labels):
     output_res=[[]]
     # header
     if ns == '_all':
         output_res[0].append('NAMESPACE')
-    output_res[0].extend(['NAME','READY','UP-TO-DATE','AVAILABLE','AGE'])
+    if show_labels:
+        output_res[0].extend(['NAME','READY','UP-TO-DATE','AVAILABLE','AGE','LABELS'])
+    else:
+        output_res[0].extend(['NAME','READY','UP-TO-DATE','AVAILABLE','AGE'])
     if output == 'wide':
         output_res[0].extend(['CONTAINERS','IMAGES'])
     # resources
@@ -56,6 +59,9 @@ def deployment_out(t, ns, res, output, show_type):
             # images:
             images = [ c['image'] for c in dep['spec']['template']['spec']['containers'] ]
             row.append(','.join(images))
+        # show-labels
+        if show_labels:
+            row.append(extract_labels(dep))
 
         output_res.append(row)
 
