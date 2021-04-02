@@ -14,6 +14,7 @@ def cm_out(t, ns, res, output, show_type, show_labels):
         output_res[0].extend(['NAME','DATA','AGE'])
     # resources
     for r in res:
+        print(r)
         cm = r['res']
         row = []
         # namespace (for --all-namespaces)
