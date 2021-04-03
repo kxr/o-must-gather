@@ -5,9 +5,12 @@ tb.PRESERVE_WHITESPACE = True
 
 from omg.common.helper import age
 
-# We will create an array of array and then print if with tabulate
-def pod_out(t, ns, res, events, show_type):
-        
+def desc_pod(r_name, ns):
+
+    from omg.cmd.get_main import get_resources
+    res = get_resources('pod', r_name, ns)
+    events = get_resources('events', '_all', 'default')
+
     for pod in res:
         output_res=[]
         p = pod['res']

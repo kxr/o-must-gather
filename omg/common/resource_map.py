@@ -38,6 +38,9 @@ from omg.cmd.get.service_out import service_out
 from omg.cmd.get.ss_out import ss_out
 from omg.cmd.get.vwhc_out import vwhc_out
 
+from omg.cmd.desc.desc_node import desc_node
+from omg.cmd.desc.desc_pod import desc_pod
+
 import os
 from omg.common.config import Config
 
@@ -175,7 +178,7 @@ map = [
         'yaml_loc': 'cluster-scoped-resources/config.openshift.io/networks.yaml' },
 
     {   'type': 'node','aliases': ['nodes'],'need_ns': False,
-        'get_func': from_yaml, 'getout_func': node_out,
+        'get_func': from_yaml, 'getout_func': node_out, 'desc_func': desc_node,
         'yaml_loc': 'cluster-scoped-resources/core/nodes' },
         # When yaml_loc is a dir like in this case, we scan *.yaml files in it.
 
@@ -196,7 +199,7 @@ map = [
         'yaml_loc': 'namespaces/%s/core/persistentvolumeclaims.yaml' },
         
     {   'type': 'pod','aliases': ['pods', 'po'],'need_ns': True,
-        'get_func': from_yaml, 'getout_func': pod_out,
+        'get_func': from_yaml, 'getout_func': pod_out, 'desc_func': desc_pod,
         'yaml_loc': 'namespaces/%s/core/pods.yaml' },
 
     {   'type': 'project','aliases': ['projects'],'need_ns': False,

@@ -1,13 +1,17 @@
 import tabulate as tb
 from tabulate import tabulate
+
 # preserve whitespace for displaying indents
 tb.PRESERVE_WHITESPACE = True
 
 from omg.common.helper import age
 
 # We will create an array of array and then print if with tabulate
-def node_out(t, ns, res, events, show_type):
+def desc_node(r_name, ns):
 
+    from omg.cmd.get_main import get_resources
+    res = get_resources('node', r_name, ns)
+    events = get_resources('events', '_all', 'default')
     for node in res:
         output_res=[]
         n = node['res']
@@ -257,7 +261,7 @@ def node_out(t, ns, res, events, show_type):
         for event in events:
             e = event['res']
             # cycle through involvedObject to match events for our pod
-            if 'involvedObject' in e:
+            if 'involvedObject' in e and 'kind' in e['involvedObject']:
                 if e['involvedObject']['kind'] == 'Node' and e['involvedObject']['name'] == n['metadata']['name']:
                     matchedevents.append(e)
         if len(matchedevents) == 0:

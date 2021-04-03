@@ -4,7 +4,7 @@ import sys
 from click import Context
 
 from omg.common.config import Config
-from omg.common.resource_map import map_res, map
+from omg.common.resource_map import map_res
 from omg.cmd.get import parse
 
 def get_resources(r_type, r_name='_all', ns=None, print_warnings=True):

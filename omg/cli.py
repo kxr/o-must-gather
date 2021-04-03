@@ -8,7 +8,7 @@ from omg.cmd.use import use
 from omg.cmd.project import project, projects, complete_projects
 from omg.cmd.get_main import get_main
 from omg.cmd.get.complete_get import complete_get
-from omg.cmd.describe import describe
+from omg.cmd.desc_main import desc_main
 from omg.cmd.log import log, complete_pods, complete_containers
 from omg.cmd.whoami import whoami
 from omg.cmd.machine_config.machine_config import machine_config, complete_mc
@@ -82,7 +82,7 @@ def describe_cmd(objects, namespace, all_namespaces):
     """
     This command joins many API calls together to form a detailed description of a given resource.
     """
-    describe(None)
+    desc_main(objects, namespace, all_namespaces)
 
 
 @cli.command("logs")
