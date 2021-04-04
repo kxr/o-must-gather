@@ -23,7 +23,7 @@ class Config:
                 print('Use `omg use </path/to/must-gather>` to point to an extracted must-gather.')
                 sys.exit(1)
             elif Config.path == '.':
-                if not ( os.path.isdir( os.path.join( '.', 'namespaces')) and
+                if not ( os.path.isdir( os.path.join( '.', 'namespaces')) or
                          os.path.isdir( os.path.join( '.', 'cluster-scoped-resources')) ):
                     print('[ERROR] Current working directory is not a valid must-gather')
                     print()
