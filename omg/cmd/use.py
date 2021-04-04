@@ -5,7 +5,7 @@ from omg.common.config import Config
 def use(mg_path, cwd):
     if mg_path is None:
         if cwd == True:
-            # If --cwd is set we will blidly assume current working directory
+            # If --cwd is set we will blindly assume current working directory
             # to be the must-gather to use
             c = Config(fail_if_no_path=False)
             c.save(path='.')
@@ -34,14 +34,17 @@ def use(mg_path, cwd):
         # When we see see the dir /namespaces and /cluster-scoped-resources, we assume it
         for _ in [1,2,3]:
             if os.path.isdir(p):
-                if ( os.path.isdir( os.path.join(p, 'namespaces')) and
-                    os.path.isdir( os.path.join(p, 'cluster-scoped-resources')) ):
+                dirs = [d for d in os.listdir(p) if os.path.isdir(os.path.join(p,d))]
+                if 'namespaces' in dirs or 'cluster-scoped-resources' in dirs:
                     full_path = os.path.abspath(p)
                     c.save(path=full_path)
                     print('Using: ',p)
                     break
-                elif len(os.listdir(p)) == 1:
-                    p = os.path.join(p,os.listdir(p)[0])
+                elif len(dirs) == 1:
+                    p = os.path.join(p,dirs[0])
+                elif len(dirs) > 1:
+                    print('[ERROR] Multiple directories found:', dirs)
+                    break
                 else:
                     print('[ERROR] Invalid must-gather path. Please point to the extracted must-gather directory')
                     break
