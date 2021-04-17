@@ -28,9 +28,13 @@ def pvc_out(t, ns, res, output, show_type, show_labels):
         # volume
         if 'volumeName' in p['spec']:
             row.append(p['spec']['volumeName'])
+        else:
+            row.append('')
         # capacity
         if 'capacity' in p['status']:
             row.append(p['status']['capacity']['storage'])
+        else:
+            row.append('')
         # access
         access = ",".join(p['spec']['accessModes'])
         if access == 'ReadWriteOnce':
