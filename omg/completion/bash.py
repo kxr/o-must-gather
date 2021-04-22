@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 SCRIPT = """
 _omg_completion() {
     local IFS=$'
@@ -16,7 +17,7 @@ _omg_completionetup() {
     if [ ${BASH_VERSION_ARR[0]} -gt 4 ] || ([ ${BASH_VERSION_ARR[0]} -eq 4 ] && [ ${BASH_VERSION_ARR[1]} -ge 4 ]); then
         COMPLETION_OPTIONS="-o nosort -o default"
     fi
-    
+
     complete $COMPLETION_OPTIONS -F _omg_completion omg
 }
 

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import enum
 
 from omg.common.resource_map import map_res, map
@@ -35,14 +36,29 @@ from omg.common.resource_map import map_res, map
 
 
 ALL_RESOURCES = "_all"
-ALL_TYPES = ['pod', 'rc', 'svc', 'ds', 'deployment', 'rs', 'statefulset', 'hpa', 'job', 'cronjob', 'dc', 'bc', 'build',
-             'is']
+ALL_TYPES = [
+    "pod",
+    "rc",
+    "svc",
+    "ds",
+    "deployment",
+    "rs",
+    "statefulset",
+    "hpa",
+    "job",
+    "cronjob",
+    "dc",
+    "bc",
+    "build",
+    "is",
+]
 
 
 class ResourceMap:
     """
     Wrapper around a dictionary that contains type->set<Resource>.
     """
+
     def __init__(self):
         self.dict = {}
         self.__res_generator = None
@@ -92,7 +108,7 @@ class ResourceMap:
         """
         res = map_res(item)
         if res is not None:
-            return self.has_type(res['type'])
+            return self.has_type(res["type"])
 
     def __iter__(self):
         """
@@ -124,6 +140,7 @@ class Method(enum.Enum):
     """
     Enumeration of various methods `omg get` can be called.
     """
+
     UNKNOWN = 0  # ¯\_(ツ)_/¯
     SLASH = 1  # e.g. omg get pod/mypod
     COMMA = 2  # e.g. omg get svc,ep,ds dns-default
@@ -134,14 +151,17 @@ class ResourceParseError(Exception):
     """
     Error raised during parsing of `oc get` args.
     """
+
     pass
+
 
 def _validate_type(t):
     checked_type = map_res(t)
     if checked_type is None:
         raise ResourceParseError("[ERROR] Invalid object type: " + t)
     else:
-        return checked_type['type']
+        return checked_type["type"]
+
 
 def _parse_slash(args):
     """
@@ -150,13 +170,14 @@ def _parse_slash(args):
     """
     objects = []
     for arg in args:
-        if '/' not in arg:
+        if "/" not in arg:
             raise ResourceParseError("[ERROR] Invalid arguments to get")
-        o_split = arg.split('/')
+        o_split = arg.split("/")
         r_type = _validate_type(o_split[0])
         r_name = o_split[1]
-        objects.append( (r_type, r_name) )
+        objects.append((r_type, r_name))
     return objects
+
 
 def _parse_comma(args):
     """
@@ -166,10 +187,10 @@ def _parse_comma(args):
     objects = []
     # The first arg contains comma sperated types
     first = args[0]
-    t_split = first.split(',')
-    if 'all' in t_split:
+    t_split = first.split(",")
+    if "all" in t_split:
         t_split.extend(ALL_TYPES)
-    types = tuple( _validate_type(t) for t in t_split if t != 'all' )
+    types = tuple(_validate_type(t) for t in t_split if t != "all")
 
     # If more than one args are present these are names of objects to get
     if len(args) > 1:
@@ -179,9 +200,10 @@ def _parse_comma(args):
 
     for t in types:
         for n in names:
-            objects.append( (t,n) )
+            objects.append((t, n))
 
     return objects
+
 
 def _parse_plain(args):
     """
@@ -191,15 +213,15 @@ def _parse_plain(args):
     objects = []
     # The first arg should be the type
     first = args[0]
-    if first == 'all':
-        types = tuple( _validate_type(t) for t in ALL_TYPES )
+    if first == "all":
+        types = tuple(_validate_type(t) for t in ALL_TYPES)
     else:
         types = (_validate_type(first),)
-    
+
     # If more than one args are present these are names of objects to get
     if len(args) > 1:
         # names are not allowed with "all"
-        if first == 'all':
+        if first == "all":
             raise ResourceParseError("[ERROR] Invalid arguments to get")
         names = args[1:]
     else:
@@ -207,7 +229,7 @@ def _parse_plain(args):
 
     for t in types:
         for n in names:
-            objects.append( (t,n) )
+            objects.append((t, n))
 
     return objects
 
@@ -236,17 +258,17 @@ def parse_get_resources(objects: tuple) -> (Method, ResourceMap):
 
     # Determine the type of args from the first arg
     first = objects[0]
-    if '/' in first:
+    if "/" in first:
         method = Method.SLASH
         parsed_objects = _parse_slash(objects)
-    elif ',' in first:
+    elif "," in first:
         method = Method.COMMA
         parsed_objects = _parse_comma(objects)
     else:
         method = Method.PLAIN
         parsed_objects = _parse_plain(objects)
 
-    for r_type,r_name in parsed_objects:
+    for r_type, r_name in parsed_objects:
         resources.add_resource(r_type, r_name)
 
     return method, resources

@@ -1,3 +1,4 @@
+# -*- coding: utf-8 -*-
 import unittest
 
 from omg.cmd.get.complete_get import generate_completions
@@ -11,7 +12,7 @@ class TestGetCompletion(unittest.TestCase):
         pass
 
     def testTypeCompletion(self):
-        expected = ['service']
+        expected = ["service"]
         results = generate_completions((), "servi", None)
         self.assertEqual(expected, results)
 
