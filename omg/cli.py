@@ -42,11 +42,12 @@ def cli():
     type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False),
 )
 @click.option("--cwd", is_flag=True)
-def use_cmd(mg_path, cwd):
+@click.option("--session", "-s")
+def use_cmd(mg_path, cwd, session):
     """
     Select the must-gather to use
     """
-    use(mg_path, cwd)
+    use(mg_path, cwd, session)
 
 
 @cli.command("project")
