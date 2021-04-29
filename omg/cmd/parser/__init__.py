@@ -33,7 +33,7 @@ parser_map = {
     "etcd-all": 
         {
             "command": "etcd-all",
-            "helper": "Parser etcd endpoint status from must-gather etcd_info/endpoint_status.json",
+            "helper": "Run all etcd commands available",
             "file_in": "",
             "fn_out": etcd_show_all
         }
@@ -107,7 +107,7 @@ def parser_main(command=None, show=None):
     if show:
         return help()
 
-    if command is None:
+    if (command is None) or (len(command) <= 0):
         print(f"Missing command argument, avaiable commands: ")
         return help()
 
@@ -116,7 +116,7 @@ def parser_main(command=None, show=None):
         buffer = file_reader(parser_map[cmd]['file_in'])
         return parser_map[cmd]["fn_out"](buffer)
     except KeyError:
-        print(f"Command [{command}] not found, avaiable commands: ")
+        print(f"Command [{cmd}] not found, avaiable commands: ")
         return help()
     except:
         raise
