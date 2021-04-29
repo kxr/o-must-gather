@@ -112,9 +112,20 @@ two ways:
 
           # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5
 
-  - Compare two MachineConfigs with while also showing the diff of changed content
+### `omg parse`
 
-          # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5 --show-contents
+This feature assist you to view files exported by must-gather and it's not a standard `oc` command.
+
+To show available files mapped to be parsed, you can use:
+~~~
+# omg parser -s
+~~~
+
+To inspect a file, for example, etcd member list (`file on MG: etcd_info/endpoint_status.json`):
+
+~~~
+# omg parser etcd-endpoint-status
+~~~
 
 ## Development and Contribution
 
