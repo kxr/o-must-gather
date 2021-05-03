@@ -114,14 +114,14 @@ two ways:
 
 ### `omg parse`
 
-This feature assist you to view files exported by must-gather and it's not a standard `oc` command.
+This feature assist you to view files exported by must-gather when it is not a standard `oc` command.
 
 To show available files mapped to be parsed, you can use:
 ~~~
 # omg parser -s
 ~~~
 
-To inspect a file, for example, etcd member list (`file on MG: etcd_info/endpoint_status.json`):
+To inspect a file, for example, etcd endpoint status (`path of file on MG: etcd_info/endpoint_status.json`):
 
 ~~~
 # omg parser etcd-endpoint-status
