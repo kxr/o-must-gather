@@ -1,0 +1,69 @@
+fail_fast: true
+repos:
+-   repo: meta
+    hooks:
+    -   id: check-useless-excludes
+-   repo: https://github.com/pre-commit/mirrors-prettier
+    rev: v2.2.1
+    hooks:
+    -   id: prettier
+        files: \.(css|js|md|markdown|json)
+-   repo: https://github.com/python/black
+    rev: 20.8b1
+    hooks:
+    -   id: black
+-   repo: https://github.com/pre-commit/pre-commit-hooks
+    rev: v3.4.0
+    hooks:
+    -   id: check-added-large-files
+    -   id: check-ast
+    -   id: check-case-conflict
+    -   id: check-executables-have-shebangs
+    -   id: check-json
+    -   id: check-merge-conflict
+    -   id: check-symlinks
+    -   id: check-vcs-permalinks
+    -   id: check-xml
+    -   id: check-yaml
+        args:
+        - --unsafe
+    -   id: end-of-file-fixer
+    -   id: fix-encoding-pragma
+    -   id: forbid-new-submodules
+    -   id: no-commit-to-branch
+        args:
+        - --branch
+        - gh-pages
+    -   id: requirements-txt-fixer
+    -   id: sort-simple-yaml
+    -   id: trailing-whitespace
+-   repo: https://gitlab.com/pycqa/flake8
+    rev: 3.9.0
+    hooks:
+    -   id: flake8
+-   repo: local
+    hooks:
+    -   id: shfmt
+        name: shfmt
+        minimum_pre_commit_version: 2.4.0
+        language: golang
+        additional_dependencies:
+        - mvdan.cc/sh/v3/cmd/shfmt@v3.1.1
+        entry: shfmt
+        args:
+        - -w
+        - -i
+        - '0'
+        types:
+        - shell
+-   repo: https://github.com/asottile/blacken-docs
+    rev: v1.10.0
+    hooks:
+    -   id: blacken-docs
+-   repo: https://github.com/hcodes/yaspeller.git
+    rev: v7.0.0
+    hooks:
+    -   id: yaspeller
+        files: \.en\.md
+        types:
+        - markdown

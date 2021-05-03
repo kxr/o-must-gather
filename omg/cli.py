@@ -1,17 +1,17 @@
+# -*- coding: utf-8 -*-
 import click
-
-import subprocess
 import os
+import subprocess
 
 from omg import version
-from omg.cmd.use import use
-from omg.cmd.project import project, projects, complete_projects
-from omg.cmd.get_main import get_main
-from omg.cmd.get.complete_get import complete_get
 from omg.cmd.describe import describe
+from omg.cmd.get.complete_get import complete_get
+from omg.cmd.get_main import get_main
 from omg.cmd.log import log, complete_pods, complete_containers
-from omg.cmd.whoami import whoami
 from omg.cmd.machine_config.machine_config import machine_config, complete_mc
+from omg.cmd.project import project, projects, complete_projects
+from omg.cmd.use import use
+from omg.cmd.whoami import whoami
 from omg.completion import bash
 
 CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
@@ -36,8 +36,11 @@ def cli():
 
 
 @cli.command("use")
-@click.argument("mg_path", required=False,
-                type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False))
+@click.argument(
+    "mg_path",
+    required=False,
+    type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False),
+)
 @click.option("--cwd", is_flag=True)
 def use_cmd(mg_path, cwd):
     """
@@ -66,13 +69,18 @@ def projects_cmd():
 @cli.command("get")
 @click.argument("objects", nargs=-1, autocompletion=complete_get)
 @click.option("--output", "-o", type=click.Choice(["yaml", "json", "wide"]))
-@click.option("--show-labels",is_flag=True,type=bool,help="When printing, show all labels as the last column (default hide labels column)")
+@click.option(
+    "--show-labels",
+    is_flag=True,
+    type=bool,
+    help="When printing, show all labels as the last column (default hide labels column)",
+)
 @global_namespace_options
-def get_cmd(objects, output, namespace, all_namespaces,show_labels):
+def get_cmd(objects, output, namespace, all_namespaces, show_labels):
     """
     Display one or many resources
     """
-    get_main(objects, output, namespace, all_namespaces,show_labels)
+    get_main(objects, output, namespace, all_namespaces, show_labels)
 
 
 @cli.command("describe")
@@ -110,7 +118,7 @@ def version_cmd():
     """
     Display omg version
     """
-    print('omg version ' + version + ' (https://github.com/kxr/o-must-gather)')
+    print("omg version " + version + " (https://github.com/kxr/o-must-gather)")
 
 
 @cli.command("completion")

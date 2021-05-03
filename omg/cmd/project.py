@@ -1,6 +1,9 @@
-import sys, os
-from omg.common.config import Config
+# -*- coding: utf-8 -*-
+import os
+import sys
+
 from omg.cmd.get_main import get_resource_names
+from omg.common.config import Config
 
 
 def complete_projects(ctx, args, incomplete):
@@ -9,7 +12,7 @@ def complete_projects(ctx, args, incomplete):
     :return: List of matching namespace names or empty list.
     """
     if incomplete is not None:
-        ns_listing = get_resource_names('project')
+        ns_listing = get_resource_names("project")
         suggestions = [ns for ns in ns_listing if ns.startswith(incomplete)]
         return suggestions
     return []
@@ -17,36 +20,39 @@ def complete_projects(ctx, args, incomplete):
 
 def project(name):
     c = Config()
-    ns_dir = os.path.join(c.path,'namespaces')
+    ns_dir = os.path.join(c.path, "namespaces")
     if name is None:
         # print current project
         if c.project is None:
-            print('No project selected')
+            print("No project selected")
         else:
-            print('Using project "%s" on must-gather "%s"' % (c.project,c.path))
+            print('Using project "%s" on must-gather "%s"' % (c.project, c.path))
     else:
         # Set current project
         if os.path.isdir(os.path.join(ns_dir, name)):
             if name == c.project:
-                print('Already on project "%s" on server "%s"' % (c.project,c.path))
+                print('Already on project "%s" on server "%s"' % (c.project, c.path))
             else:
                 c.save(project=name)
-                print('Now using project "%s" on must-gather "%s"' % (c.project,c.path))
+                print(
+                    'Now using project "%s" on must-gather "%s"' % (c.project, c.path)
+                )
         else:
-            print('[ERROR] Project %s not found in %s'%(name,ns_dir))
+            print("[ERROR] Project %s not found in %s" % (name, ns_dir))
 
 
 def projects():
     c = Config()
-    ns_dir = os.path.join(c.path,'namespaces')
-    projects = [ p for p in os.listdir(ns_dir) 
-                    if os.path.isdir(os.path.join(ns_dir,p)) ]
-    print("You have access to the following projects and can switch between them with 'omg project <projectname>':")
+    ns_dir = os.path.join(c.path, "namespaces")
+    projects = [p for p in os.listdir(ns_dir) if os.path.isdir(os.path.join(ns_dir, p))]
+    print(
+        "You have access to the following projects and can switch between them with 'omg project <projectname>':"
+    )
     print()
     for proj in projects:
         if proj == c.project:
-            print('  * ',proj)
+            print("  * ", proj)
         else:
-            print('    ',proj)
+            print("    ", proj)
     print()
     project(None)

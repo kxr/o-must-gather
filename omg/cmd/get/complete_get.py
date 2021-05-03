@@ -1,9 +1,11 @@
+# -*- coding: utf-8 -*-
 from click import Context
 
-from omg.common.config import Config
 from omg.cmd.get import parse
 from omg.cmd.get_main import get_resource_names
+from omg.common.config import Config
 from omg.common.resource_map import map, map_res
+
 
 def complete_get(ctx: Context, args, incomplete):
     """
@@ -15,11 +17,12 @@ def complete_get(ctx: Context, args, incomplete):
         # If user has set namespace ( with -n), we use that
         # else we use namespace set by `omg project`
         namespace = ctx.params.get("namespace") or c.project
-        
+
         return generate_completions(objects, incomplete, namespace)
     except:
         # Swallow any exception
         return []
+
 
 def _suggest_type(incomplete_type):
     """
@@ -32,19 +35,20 @@ def _suggest_type(incomplete_type):
         if incomplete = 'buil' return ['build','buildconfigs','builds','buildconfig']
     """
     fullset = set(
-          [t['type'] for t in map]
-        + [ a for aliases in [ t['aliases'] for t in map ] for a in aliases ] )
-    
-    match = [ f for f in fullset if f.startswith(incomplete_type) ]
+        [t["type"] for t in map]
+        + [a for aliases in [t["aliases"] for t in map] for a in aliases]
+    )
+
+    match = [f for f in fullset if f.startswith(incomplete_type)]
 
     if len(match) > 1 and len(match) <= 3:
-        unique_types = set( [ map_res(m)['type'] for m in match ] )
+        unique_types = set([map_res(m)["type"] for m in match])
         if len(unique_types) == 1:
             return list(unique_types)
         else:
             return match
     else:
-            return match
+        return match
 
 
 def generate_completions(objects, incomplete, namespace):
@@ -52,13 +56,14 @@ def generate_completions(objects, incomplete, namespace):
     if "/" in incomplete:
         restypein = incomplete.split("/")[0]
         resname = incomplete.split("/")[1]
-        names = get_resource_names(restypein, '_all', namespace)
-        return [ restypein + "/" + n
-                    for n in names
-                    if  n.startswith(resname) 
-                    and restypein + "/" + n not in objects]
-    
-    if ',' in incomplete or [ o for o in objects if ',' in o]:
+        names = get_resource_names(restypein, "_all", namespace)
+        return [
+            restypein + "/" + n
+            for n in names
+            if n.startswith(resname) and restypein + "/" + n not in objects
+        ]
+
+    if "," in incomplete or [o for o in objects if "," in o]:
         # This is a NOP like oc
         return []
 
@@ -68,18 +73,16 @@ def generate_completions(objects, incomplete, namespace):
     # or autocompleting after existing slash-notation arg
     if not objects or get_method == parse.Method.SLASH:
         if get_method == parse.Method.SLASH:
-            add_slash = '/'
+            add_slash = "/"
         else:
-            add_slash = ''
+            add_slash = ""
         sugg = _suggest_type(incomplete)
-        return [ s + add_slash for s in sugg ]
+        return [s + add_slash for s in sugg]
 
     if get_method == parse.Method.PLAIN and len(resource_list) > 0:
         # Autocomplete resource names based on the type: oc get pod mypod1 mypod2
         restypein, _ = next(resource_list)
-        names = get_resource_names(restypein, '_all', namespace)
-        return [ n for n in names
-                if  n.startswith(incomplete)
-                and n not in objects ]
+        names = get_resource_names(restypein, "_all", namespace)
+        return [n for n in names if n.startswith(incomplete) and n not in objects]
     # Catch all
     return []
