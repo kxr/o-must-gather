@@ -86,9 +86,12 @@ def print_table(data=None, headers=[], rows=[], fmt="psql"):
     if data is None:
         return print("ERROR: data buffer not found.")
 
-    # extract headers from firs data fields
-    headers = [h for h in data[0].keys()]
     rows = []
+    headers = []
+
+    # extract headers from first data fields
+    if len(data) > 0:
+        headers = [h for h in data[0].keys()]
 
     for d in data:
         row = []
@@ -99,10 +102,9 @@ def print_table(data=None, headers=[], rows=[], fmt="psql"):
     return print(tabulate(rows, headers, tablefmt=fmt))
 
 
-# The high level function that gets called for any "get" command
 def parser_main(command=None, show=None):
     """
-    Main cli for parser option.
+    The high level function that gets called for any "parse" command.
     """
     if show:
         return help()
