@@ -24,8 +24,7 @@ def alerts_summary(buffer=None):
 
 def alerts_firing(buffer=None):
     """
-    Show summary of alerts exported by must-gather.
-    For more details (message details, open the json file)
+    Show alerts firing (with labels) exported by must-gather.
     """
     from . import print_table
 
