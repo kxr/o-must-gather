@@ -6,6 +6,8 @@ from .etcd_out import etcd_member_list
 from .etcd_out import etcd_endpoint_health
 from .etcd_out import etcd_endpoint_status
 from .etcd_out import etcd_show_all
+from .alerts_out import alerts_summary
+from .alerts_out import alerts_firing
 
 
 parser_map = {
@@ -35,7 +37,22 @@ parser_map = {
             "command": "etcd-all",
             "helper": "Run all etcd commands available",
             "file_in": "",
+            "ignore_err": True,
             "fn_out": etcd_show_all
+        },
+    "alerts":
+        {
+            "command": "alerts",
+            "helper": "Parser alerts exported by must-gather monitoring/alerts.json",
+            "file_in": "monitoring/alerts.json",
+            "fn_out": alerts_summary
+        },
+    "alerts-firing":
+        {
+            "command": "alerts-firing",
+            "helper": "Parser alerts firing exported by must-gather monitoring/alerts.json",
+            "file_in": "monitoring/alerts.json",
+            "fn_out": alerts_firing
         }
 }
 
@@ -66,12 +83,16 @@ def file_reader(path):
     try:
         full_path = os.path.join(Config().path, path)
         with open(full_path, 'r') as f:
-            return f.read()
+            return f.read(), False
     except IsADirectoryError as e:
         print("WANING: ignoring file reader; Is a directory")
-        return ""
-    except:
-        raise
+        return "", True
+    except FileNotFoundError as e:
+        print(f"ERROR: file [{path}] not found")
+        return "", True
+    except Exception as e:
+        print(f"ERROR: Unknow error opening file {path}")
+        return "", True
 
 
 def print_table(data=None, headers=[], rows=[], fmt="psql"):
@@ -115,9 +136,15 @@ def parser_main(command=None, show=None):
 
     try:
         cmd = command[0]
-        buffer = file_reader(parser_map[cmd]['file_in'])
+        buffer, err = file_reader(parser_map[cmd]['file_in'])
+        if err:
+            if 'ignore_err' in parser_map[cmd]:
+                if not (parser_map[cmd]['ignore_err']):
+                    return err
+            else:
+                return err
         return parser_map[cmd]["fn_out"](buffer)
-    except KeyError:
+    except KeyError as e:
         print(f"Command [{cmd}] not found, avaiable commands: ")
         return help()
     except:

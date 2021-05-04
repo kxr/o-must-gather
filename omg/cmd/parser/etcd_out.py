@@ -91,7 +91,7 @@ def etcd_show_all(buffer=None):
         etcd_cmds.append(parser_map[cmd])
 
     for cmd in etcd_cmds:
-        buffer = file_reader(cmd['file_in'])
+        buffer, err = file_reader(cmd['file_in'])
         parser_map[cmd['command']]["fn_out"](buffer)
     
     return
