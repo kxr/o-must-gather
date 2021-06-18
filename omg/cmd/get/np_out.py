@@ -32,7 +32,6 @@ def networkpolicy_out(t, ns, res, output, show_type, show_labels):
         try:
             ct = str(p["metadata"]["creationTimestamp"])
             ts = r["gen_ts"]
-            ps = str(p["metadata"]["creationTimestamp"])
             row.append(age(ct, ts))
         except:
             row.append("Unknown")       
