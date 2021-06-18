@@ -26,6 +26,7 @@ from omg.cmd.get.mc_out import mc_out
 from omg.cmd.get.mcp_out import mcp_out
 from omg.cmd.get.mwhc_out import mwhc_out
 from omg.cmd.get.node_out import node_out
+from omg.cmd.get.np_out import networkpolicy_out
 from omg.cmd.get.pod_out import pod_out
 from omg.cmd.get.project_out import project_out
 from omg.cmd.get.pv_out import pv_out
@@ -295,6 +296,14 @@ map = [
         "get_func": from_yaml,
         "getout_func": simple_out,
         "yaml_loc": "cluster-scoped-resources/config.openshift.io/networks.yaml",
+    },
+    {
+        "type": "networkpolicy",
+        "aliases": ["networkpolicies"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": networkpolicy_out,
+        "yaml_loc": "namespaces/%s/networking.k8s.io/networkpolicies",
     },
     {
         "type": "node",
