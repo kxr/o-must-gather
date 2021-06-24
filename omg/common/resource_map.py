@@ -517,7 +517,7 @@ map = [
     },
     {
         "type": "subscription",
-        "aliases": ["subscriptions", "sub"],
+        "aliases": ["subscriptions", "sub", "subs"],
         "need_ns": True,
         "get_func": from_yaml,
         "getout_func": get_olm.opsub_out,
