@@ -112,6 +112,10 @@ two ways:
 
           # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5
 
+  - Compare two MachineConfigs with while also showing the diff of changed content
+
+          # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5 --show-contents
+
 ### `omg parse`
 
 This feature assist you to view files exported by must-gather when it is not a standard `oc` command.
