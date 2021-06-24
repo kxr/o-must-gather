@@ -39,6 +39,7 @@ from omg.cmd.get.service_out import service_out
 from omg.cmd.get.simple_out import simple_out
 from omg.cmd.get.ss_out import ss_out
 from omg.cmd.get.vwhc_out import vwhc_out
+import omg.cmd.get.olm as get_olm
 from omg.common.config import Config
 
 # This map and function normalizes/standarizes the different names of object/resources types
@@ -479,7 +480,7 @@ map = [
         "aliases": ["clusterserviceversions", "csv"],
         "need_ns": True,
         "get_func": from_yaml,
-        "getout_func": csv_out,
+        "getout_func": get_olm.opcsv_out,
         "yaml_loc": "namespaces/%s/operators.coreos.com/clusterserviceversions",
     },
     {
@@ -487,7 +488,7 @@ map = [
         "aliases": ["installplans", "ip"],
         "need_ns": True,
         "get_func": from_yaml,
-        "getout_func": ip_out,
+        "getout_func": get_olm.opip_out,
         "yaml_loc": "namespaces/%s/operators.coreos.com/installplans",
     },
     {
@@ -495,7 +496,7 @@ map = [
         "aliases": ["operators"],
         "need_ns": False,
         "get_func": from_yaml,
-        "getout_func": op_out,
+        "getout_func": get_olm.op_out,
         "yaml_loc": "cluster-scoped-resources/operators.coreos.com/operators",
     },
     {
@@ -503,10 +504,25 @@ map = [
         "aliases": ["catsrc"],
         "need_ns": False,
         "get_func": from_yaml,
-        "getout_func": catsrc_out,
+        "getout_func": get_olm.opcatsrc_out,
         "yaml_loc": "namespaces/openshift-marketplace/operators.coreos.com/catalogsources",
     },
-    #> OLM TODO og (organizational groups): it seems to be inside catsrc
+    {
+        "type": "operatorgroups",
+        "aliases": ["operatorgroups"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": get_olm.opgrp_out,
+        "yaml_loc": "namespaces/%s/operators.coreos.com/operatorgroups",
+    },
+    {
+        "type": "subscription",
+        "aliases": ["subscriptions", "sub"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": get_olm.opsub_out,
+        "yaml_loc": "namespaces/%s/operators.coreos.com/subscriptions",
+    },
 ]
 
 
