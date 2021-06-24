@@ -108,7 +108,7 @@ def opip_out(*args):
 
 
 def op_out(*args):
-    print("WIP")
+    print("TODO")
 
 
 def opcatsrc_out(*args):
@@ -147,10 +147,34 @@ def opcatsrc_out(*args):
     print(tabulate(output_res, tablefmt="plain"))
 
 
-
-
 def opgrp_out(*args):
-    print("WIP")
+    """
+    Operator OperatorGroups parser.
+    """
+    ns = args[1]
+    show_labels = args[5]
+
+    output_res = _build_output_res(*args, fields=[
+        "NAME",
+        "AGE"
+    ])
+
+    for r in args[2]: # resource
+        rs = r["res"]
+        row = []
+
+        if ns == "_all":
+            row.append(rs["metadata"]["namespace"])
+
+        row.append(rs["metadata"]["name"])
+        row.append(age(rs["metadata"]["creationTimestamp"], r["gen_ts"]))
+
+        if show_labels:
+            row.append(extract_labels(rs))
+
+        output_res.append(row)
+
+    print(tabulate(output_res, tablefmt="plain"))
 
 
 def opsub_out(*args):

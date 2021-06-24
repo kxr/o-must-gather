@@ -508,8 +508,8 @@ map = [
         "yaml_loc": "namespaces/openshift-marketplace/operators.coreos.com/catalogsources",
     },
     {
-        "type": "operatorgroups",
-        "aliases": ["operatorgroups"],
+        "type": "operatorgroup",
+        "aliases": ["operatorgroups", "og"],
         "need_ns": True,
         "get_func": from_yaml,
         "getout_func": get_olm.opgrp_out,
