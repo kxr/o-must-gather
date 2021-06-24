@@ -3,6 +3,25 @@ from tabulate import tabulate
 from omg.common.helper import age, extract_labels
 
 
+def _build_output_res(*args, fields=[]):
+    """
+    Build common output response header.
+    """
+    ns = args[1]
+    show_labels = args[5]
+
+    output_res = [[]]
+    if ns == "_all": # ns
+        output_res[0].append("NAMESPACE")
+
+    output_res[0].extend(fields)
+
+    if show_labels: # show_labels
+        output_res[0].extend(["LABELS"])
+
+    return output_res
+
+
 def opcsv_out(*args):
     """
     Operator ClusterServiceVersions parser.
@@ -18,19 +37,13 @@ def opcsv_out(*args):
     ns = args[1]
     show_labels = args[5]
 
-    output_res = [[]]
-    if ns == "_all": # ns
-        output_res[0].append("NAMESPACE")
-
-    output_res[0].extend([
+    output_res = _build_output_res(*args, fields=[
         "NAME",
         "DISPLAY",
         "VERSION",
         "REPLACES",
         "PHASE"
     ])
-    if show_labels: # show_labels
-        output_res[0].extend(["LABELS"])
 
     for r in args[2]: # resource
         rs = r["res"]
@@ -52,11 +65,46 @@ def opcsv_out(*args):
             row.append(extract_labels(rs))
 
         output_res.append(row)
+
     print(tabulate(output_res, tablefmt="plain"))
 
 
 def opip_out(*args):
-    print("WIP")
+    """
+    Operator InstallPlans parser.
+    """
+    ns = args[1]
+    show_labels = args[5]
+
+    output_res = _build_output_res(*args, fields=[
+        "NAME",
+        "CSV",
+        "APPROVAL",
+        "APPROVED"
+    ])
+
+    for r in args[2]: # resource
+        rs = r["res"]
+
+        # If there's more than on CSV on this IP, duplicate the row.
+        # TODO check if that is same behavior of CLI.
+        for csv_name in rs["spec"]["clusterServiceVersionNames"]:
+            row = []
+
+            if ns == "_all":
+                row.append(rs["metadata"]["namespace"])
+
+            row.append(rs["metadata"]["name"])
+            row.append(csv_name)
+            row.append(rs["spec"]["approval"])
+            row.append(rs["spec"]["approved"])
+
+            if show_labels:
+                row.append(extract_labels(rs))
+
+            output_res.append(row)
+
+    print(tabulate(output_res, tablefmt="plain"))
 
 
 def op_out(*args):
