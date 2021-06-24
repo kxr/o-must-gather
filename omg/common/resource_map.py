@@ -473,6 +473,40 @@ map = [
         "getout_func": simple_out,
         "yaml_loc": "namespaces/%s/operator.openshift.io/ingresscontrollers",
     },
+    # OLM
+    {
+        "type": "clusterserviceversion",
+        "aliases": ["clusterserviceversions", "csv"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": csv_out,
+        "yaml_loc": "namespaces/%s/operators.coreos.com/clusterserviceversions",
+    },
+    {
+        "type": "installplan",
+        "aliases": ["installplans", "ip"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": ip_out,
+        "yaml_loc": "namespaces/%s/operators.coreos.com/installplans",
+    },
+    {
+        "type": "operator",
+        "aliases": ["operators"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": op_out,
+        "yaml_loc": "cluster-scoped-resources/operators.coreos.com/operators",
+    },
+    {
+        "type": "catalogsources",
+        "aliases": ["catsrc"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": catsrc_out,
+        "yaml_loc": "namespaces/openshift-marketplace/operators.coreos.com/catalogsources",
+    },
+    #> OLM TODO og (organizational groups): it seems to be inside catsrc
 ]
 
 
