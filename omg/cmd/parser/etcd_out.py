@@ -1,13 +1,27 @@
 import json
 
 
+def _load_buffer_as_json(buffer):
+    """
+    wrapper function to open a json from a given buffer.
+    Return json object and error
+    """
+    try:
+        data = json.loads(buffer)
+        return data, False
+    except json.decoder.JSONDecodeError :
+        return "JSONDecodeError", True
+    except Exception as e:
+        return e, True
+
+
 def etcd_member_list(buffer=None):
     """
     Show etcd member list table.
     """
     from . import print_table
 
-    data = json.loads(buffer)
+    data, err = _load_buffer_as_json(buffer)
     h = data['header']
 
     print(f"\nClusterID: {h['cluster_id']}, MemberID: {h['member_id']}, RaftTerm: {h['raft_term']}")
@@ -20,7 +34,7 @@ def etcd_endpoint_health(buffer=None):
     """
     from . import print_table
 
-    data = json.loads(buffer)
+    data, err = _load_buffer_as_json(buffer)
     print_table(data=data)
 
 
@@ -37,7 +51,7 @@ def etcd_endpoint_status(buffer=None):
             num /= 1024.0
         return ("%.1f %s%s" % (num, 'Yi', suffix))
 
-    data = json.loads(buffer)
+    data, err = _load_buffer_as_json(buffer)
     headers_map = [
         "ENDPOINT", "ID", "VERSION", "DB SIZE", "IS LEADER",
         "IS LEARNER", "RAFT TERM", "RAFT INDEX", "RAFT APPLIED INDEX",
