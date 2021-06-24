@@ -4,21 +4,39 @@ import sys
 import yaml
 
 CONFIG_FILE = os.getenv("HOME") + "/.omgconfig"
+SESSION_FILE = os.getenv("PWD") + "/.omgsession"
 
 
 class Config:
     path = None
     project = None
+    session = False
 
-    def __init__(self, fail_if_no_path=True):
-        if os.path.exists(CONFIG_FILE):
-            with open(CONFIG_FILE, "r") as cf:
+    def __init__(self, fail_if_no_path=True, session=False):
+        """
+        Initialize Config from global config file or local session file.
+        Session file (.omgsession) resides on directory that the program
+        was called, in general same of must-gather. Sessions allow run
+        multiple runtimes without needing to run 'omg use' every time to
+        overwrite global config. Sessions has precedence than global config,
+        to remove a session just remove the .omgsession file.
+        """
+        def setup_config(path):
+            with open(path, 'r') as cf:
                 c = yaml.safe_load(cf)
                 if c is not None:
-                    if "path" in c:
-                        Config.path = c["path"]
-                    if "project" in c:
-                        Config.project = c["project"]
+                    if 'path' in c:
+                        Config.path = c['path']
+                    if 'project' in c:
+                        Config.project = c['project']
+
+        self.session = session
+        if os.path.exists(SESSION_FILE):
+            setup_config(SESSION_FILE)
+            self.session = True
+        elif os.path.exists(CONFIG_FILE):
+            setup_config(CONFIG_FILE)
+
         if fail_if_no_path:
             if Config.path is None:
                 print("[ERROR] You have not selected a must-gather")
@@ -52,7 +70,11 @@ class Config:
         else:
             c["project"] = Config.project
         try:
-            with open(CONFIG_FILE, "w") as cf:
+            if self.session:
+                current_config = SESSION_FILE
+            else:
+                current_config = CONFIG_FILE
+            with open(current_config, 'w') as cf:
                 yaml.dump(c, cf, default_flow_style=False)
         except IOError:
-            print("[ERROR] Could not write config file:", CONFIG_FILE)
+            print("[ERROR] Could not write config file:", current_config)

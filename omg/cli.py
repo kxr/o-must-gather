@@ -42,7 +42,7 @@ def cli():
     type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False),
 )
 @click.option("--cwd", is_flag=True)
-@click.option("--session", "-s")
+@click.option("--session", "-s", is_flag=True, type=bool, help="Use session file config.")
 def use_cmd(mg_path, cwd, session):
     """
     Select the must-gather to use
