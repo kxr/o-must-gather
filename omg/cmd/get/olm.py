@@ -112,7 +112,41 @@ def op_out(*args):
 
 
 def opcatsrc_out(*args):
-    print("WIP")
+    """
+    Operator CatalogSources parser.
+    """
+    ns = args[1]
+    show_labels = args[5]
+
+    output_res = _build_output_res(*args, fields=[
+        "NAME",
+        "DISPLAY",
+        "TYPE",
+        "PUBLISHER",
+        "AGE"
+    ])
+
+    for r in args[2]: # resource
+        rs = r["res"]
+        row = []
+
+        if ns == "_all":
+            row.append(rs["metadata"]["namespace"])
+
+        row.append(rs["metadata"]["name"])
+        row.append(rs["spec"]["displayName"])
+        row.append(rs["spec"]["sourceType"])
+        row.append(rs["spec"]["publisher"])
+        row.append(age(rs["metadata"]["creationTimestamp"], r["gen_ts"]))
+
+        if show_labels:
+            row.append(extract_labels(rs))
+
+        output_res.append(row)
+
+    print(tabulate(output_res, tablefmt="plain"))
+
+
 
 
 def opgrp_out(*args):
@@ -121,7 +155,7 @@ def opgrp_out(*args):
 
 def opsub_out(*args):
     """
-    Operator InstallPlans parser.
+    Operator Subscriptions parser.
     """
     ns = args[1]
     show_labels = args[5]
