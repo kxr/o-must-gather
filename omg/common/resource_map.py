@@ -496,7 +496,7 @@ map = [
         "aliases": ["operators"],
         "need_ns": False,
         "get_func": from_yaml,
-        "getout_func": get_olm.op_out,
+        "getout_func": simple_out,
         "yaml_loc": "cluster-scoped-resources/operators.coreos.com/operators",
     },
     {

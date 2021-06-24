@@ -6,6 +6,14 @@ from omg.common.helper import age, extract_labels
 def _build_output_res(*args, fields=[]):
     """
     Build common output response header.
+
+    Helper to positional args #:
+    0: t
+    1: ns
+    2: res
+    3: output
+    4: show_type
+    5: show_labels
     """
     ns = args[1]
     show_labels = args[5]
@@ -25,14 +33,6 @@ def _build_output_res(*args, fields=[]):
 def opcsv_out(*args):
     """
     Operator ClusterServiceVersions parser.
-
-    # Positional args #:
-    # 0: t
-    # 1: ns
-    # 2: res
-    # 3: output
-    # 4: show_type
-    # 5: show_labels
     """
     ns = args[1]
     show_labels = args[5]
@@ -105,10 +105,6 @@ def opip_out(*args):
             output_res.append(row)
 
     print(tabulate(output_res, tablefmt="plain"))
-
-
-def op_out(*args):
-    print("TODO")
 
 
 def opcatsrc_out(*args):
@@ -209,4 +205,3 @@ def opsub_out(*args):
         output_res.append(row)
 
     print(tabulate(output_res, tablefmt="plain"))
-
