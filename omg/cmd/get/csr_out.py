@@ -33,14 +33,21 @@ def csr_out(t, ns, res, output, show_type, show_labels):
         row.append(requestor)
         # conditions
         condition = ""
-        conds = csr["status"]["conditions"]
-        for c in conds:
-            if c["type"] == "Approved":
-                condition = "Approved,Issued"
-            elif c["type"] == "Pending":
-                condition = "Pending"
-            else:
-                condition = "Unknown"
+        # empty status block means this request is still pending
+        if csr.get("status", {}) == {}:
+            condition = "Pending"
+        else:
+            conds = csr["status"]["conditions"]
+            for c in conds:
+                if c["type"] == "Approved":
+                    condition = "Approved,Issued"
+                elif c["type"] == "Denied":
+                    condition = "Denied"
+                elif c["type"] == "Failed":
+                    condition = "Failed"
+                else:
+                    condition = "Unknown"
+
         row.append(condition)
 
         output_res.append(row)
