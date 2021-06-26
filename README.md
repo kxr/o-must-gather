@@ -116,6 +116,21 @@ two ways:
 
           # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5 --show-contents
 
+### `omg parse`
+
+This feature assist you to view files exported by must-gather when it is not a standard `oc` command.
+
+To show available files mapped to be parsed, you can use:
+~~~
+# omg parser -s
+~~~
+
+To inspect a file, for example, etcd endpoint status (`path of file on MG: etcd_info/endpoint_status.json`):
+
+~~~
+# omg parser etcd-endpoint-status
+~~~
+
 ## Development and Contribution
 
 Contributions are most welcomed. Please refer [here](./CONTRIBUTING.md) for instructions on setting up development
