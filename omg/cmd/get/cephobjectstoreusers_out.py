@@ -9,7 +9,7 @@ def cephobjectstoreusers_out(t, ns, res, output, show_type, show_labels):
     # header
     header = []
     if ns == "_all":
-        header.append("NAMESPACE")
+        output_res[0].append("NAMESPACE")
     if show_labels:
         output_res[0].extend(["NAME", "AGE", "LABELS"])
     else:
