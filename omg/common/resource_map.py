@@ -3,6 +3,10 @@ import os
 
 from omg.cmd.get.bc_out import bc_out
 from omg.cmd.get.build_out import build_out
+from omg.cmd.get.cephclusters_out import cephclusters_out
+from omg.cmd.get.cephfilesystems_out import cephfilesystems_out
+from omg.cmd.get.cephobjectstores_out import cephobjectstores_out
+from omg.cmd.get.cephobjectstoreusers_out import cephobjectstoreusers_out
 from omg.cmd.get.cj_out import cj_out
 from omg.cmd.get.cm_out import cm_out
 from omg.cmd.get.co_out import co_out
@@ -84,6 +88,38 @@ map = [
         "get_func": from_yaml,
         "getout_func": bc_out,
         "yaml_loc": "namespaces/%s/build.openshift.io/buildconfigs.yaml",
+    },
+    {
+        "type": "cephclusters",
+        "aliases": ["cephclusters"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephclusters_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephclusters",
+    },
+    {
+        "type": "cephfilesystems",
+        "aliases": ["cephfilesystems"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephfilesystems_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephfilesystems",
+    },
+    {
+        "type": "cephobjectstores",
+        "aliases": ["cephobjectstores"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephobjectstores_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephobjectstores",
+    },
+    {
+        "type": "cephobjectstoreusers",
+        "aliases": ["cephobjectstoreusers"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephobjectstoreusers_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephobjectstoreusers",
     },
     {
         "type": "certificatesigningrequest",
