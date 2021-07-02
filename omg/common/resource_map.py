@@ -3,10 +3,16 @@ import os
 
 from omg.cmd.get.bc_out import bc_out
 from omg.cmd.get.build_out import build_out
+from omg.cmd.get.cephclusters_out import cephclusters_out
+from omg.cmd.get.cephfilesystems_out import cephfilesystems_out
+from omg.cmd.get.cephobjectstores_out import cephobjectstores_out
+from omg.cmd.get.cephobjectstoreusers_out import cephobjectstoreusers_out
 from omg.cmd.get.cj_out import cj_out
 from omg.cmd.get.cm_out import cm_out
 from omg.cmd.get.co_out import co_out
 from omg.cmd.get.crd_out import crd_out
+from omg.cmd.get.csidrivers_out import csidrivers_out
+from omg.cmd.get.csinodes_out import csinodes_out
 from omg.cmd.get.csr_out import csr_out
 from omg.cmd.get.cv_out import cv_out
 from omg.cmd.get.dc_out import dc_out
@@ -39,6 +45,7 @@ from omg.cmd.get.secret_out import secret_out
 from omg.cmd.get.service_out import service_out
 from omg.cmd.get.simple_out import simple_out
 from omg.cmd.get.ss_out import ss_out
+from omg.cmd.get.va_out import va_out
 from omg.cmd.get.vwhc_out import vwhc_out
 import omg.cmd.get.olm as get_olm
 from omg.common.config import Config
@@ -81,6 +88,38 @@ map = [
         "get_func": from_yaml,
         "getout_func": bc_out,
         "yaml_loc": "namespaces/%s/build.openshift.io/buildconfigs.yaml",
+    },
+    {
+        "type": "cephclusters",
+        "aliases": ["cephclusters"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephclusters_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephclusters",
+    },
+    {
+        "type": "cephfilesystems",
+        "aliases": ["cephfilesystems"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephfilesystems_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephfilesystems",
+    },
+    {
+        "type": "cephobjectstores",
+        "aliases": ["cephobjectstores"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephobjectstores_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephobjectstores",
+    },
+    {
+        "type": "cephobjectstoreusers",
+        "aliases": ["cephobjectstoreusers"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephobjectstoreusers_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephobjectstoreusers",
     },
     {
         "type": "certificatesigningrequest",
@@ -129,6 +168,22 @@ map = [
         "get_func": from_yaml,
         "getout_func": cj_out,
         "yaml_loc": "namespaces/%s/batch/cronjobs.yaml",
+    },
+    {
+        "type": "csidrivers",
+        "aliases": ["csidrivers"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": csidrivers_out,
+        "yaml_loc": "cluster-scoped-resources/storage.k8s.io/csidrivers",
+    },
+    {
+        "type": "csinodes",
+        "aliases": ["csinodes"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": csinodes_out,
+        "yaml_loc": "cluster-scoped-resources/storage.k8s.io/csinodes",
     },
     {
         "type": "customresourcedefinition",
@@ -531,6 +586,14 @@ map = [
         "get_func": from_yaml,
         "getout_func": get_olm.opsub_out,
         "yaml_loc": "namespaces/%s/operators.coreos.com/subscriptions",
+    },
+    {
+        "type": "volumeattachments",
+        "aliases": ["volumeattachments"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": va_out,
+        "yaml_loc": "cluster-scoped-resources/storage.k8s.io/volumeattachments",
     },
 ]
 
