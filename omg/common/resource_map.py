@@ -3,6 +3,7 @@ import os
 
 from omg.cmd.get.bc_out import bc_out
 from omg.cmd.get.build_out import build_out
+from omg.cmd.get.cephblockpools_out import cephblockpools_out
 from omg.cmd.get.cephclusters_out import cephclusters_out
 from omg.cmd.get.cephfilesystems_out import cephfilesystems_out
 from omg.cmd.get.cephobjectstores_out import cephobjectstores_out
@@ -88,6 +89,14 @@ map = [
         "get_func": from_yaml,
         "getout_func": bc_out,
         "yaml_loc": "namespaces/%s/build.openshift.io/buildconfigs.yaml",
+    },
+    {
+        "type": "cephblockpools",
+        "aliases": ["cephblockpools"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": cephblockpools_out,
+        "yaml_loc": "ceph/namespaces/%s/ceph.rook.io/cephblockpools",
     },
     {
         "type": "cephclusters",
