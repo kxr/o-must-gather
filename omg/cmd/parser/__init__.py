@@ -105,39 +105,6 @@ def help():
     print(tabulate(output_res, tablefmt="plain"))
 
 
-def _load_buffer_as_json(buffer):
-    """
-    wrapper function to open a json from a given buffer.
-    Return json object and error
-    """
-    try:
-        data = json.loads(buffer)
-        return data, False
-    except json.decoder.JSONDecodeError:
-        return "JSONDecodeError", True
-    except Exception as e:
-        return e, True
-
-
-def file_reader(path):
-    """
-    Read a file to be parsed and return raw buffer.
-    """
-    try:
-        full_path = os.path.join(Config().path, path)
-        with open(full_path, 'r') as f:
-            return f.read(), False
-    except IsADirectoryError as e:
-        print("WANING: ignoring file reader; Is a directory")
-        return "", True
-    except FileNotFoundError as e:
-        print(f"ERROR: file [{path}] not found")
-        return "", True
-    except Exception as e:
-        print(f"ERROR: Unknow error opening file {path}")
-        return "", True
-
-
 def print_table(data=None, headers=[], rows=[], fmt="psql"):
     """
     Print a generic table. When headers and rows are defined, it will
@@ -179,7 +146,7 @@ def parser_main(command=None, show=None):
 
     try:
         cmd = command[0]
-        buffer, err = file_reader(parser_map[cmd]['file_in'])
+        buffer, err = load_file(parser_map[cmd]['file_in'])
         if err:
             if 'ignore_err' in parser_map[cmd]:
                 if not (parser_map[cmd]['ignore_err']):
