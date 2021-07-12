@@ -1,13 +1,18 @@
 import os
+import json
 from tabulate import tabulate
 
 from omg.common.config import Config
-from .etcd_out import etcd_member_list
-from .etcd_out import etcd_endpoint_health
-from .etcd_out import etcd_endpoint_status
-from .etcd_out import etcd_show_all
-from .alerts_out import alerts_summary
-from .alerts_out import alerts_firing
+from .etcd_out import (
+    etcd_member_list,
+    etcd_endpoint_health,
+    etcd_endpoint_status,
+    etcd_show_all
+)
+from .alerts_out import (
+    alerts_summary, alerts_firing
+)
+from . import prometheus_out as prom_out
 
 
 parser_map = {
@@ -53,6 +58,30 @@ parser_map = {
             "helper": "Parser alerts firing exported by must-gather monitoring/alerts.json",
             "file_in": "monitoring/alerts.json",
             "fn_out": alerts_firing
+        },
+    "prometheus-status-tsdb":
+        {
+            "command": "prometheus-status-tsdb",
+            "helper": "Parser TSDB status exported by must-gather monitoring/prometheus/status/tsdb.json",
+            "file_in": "",
+            "ignore_err": True,
+            "fn_out": prom_out.prom_status_tsdb
+        },
+    "prometheus-runtime-build-info":
+        {
+            "command": "prometheus-runtime-build-info",
+            "helper": "Parser Runtime and Build info exported by must-gather monitoring/prometheus/status/{runtime,buildinfo}.json",
+            "file_in": "",
+            "ignore_err": True,
+            "fn_out": prom_out.prom_status_runtime_buildinfo
+        },
+    "prometheus-status-config-diff":
+        {
+            "command": "prometheus-status-config-diff",
+            "helper": "Compare the configuration from both replicas exported by must-gather monitoring/prometheus/status/config.json",
+            "file_in": "",
+            "ignore_err": True,
+            "fn_out": prom_out.prom_status_config_diff
         }
 }
 
@@ -74,6 +103,20 @@ def help():
         output_res.append(row)
 
     print(tabulate(output_res, tablefmt="plain"))
+
+
+def _load_buffer_as_json(buffer):
+    """
+    wrapper function to open a json from a given buffer.
+    Return json object and error
+    """
+    try:
+        data = json.loads(buffer)
+        return data, False
+    except json.decoder.JSONDecodeError:
+        return "JSONDecodeError", True
+    except Exception as e:
+        return e, True
 
 
 def file_reader(path):
