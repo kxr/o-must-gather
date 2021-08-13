@@ -81,6 +81,10 @@ def get_main(objects, output, namespace, all_namespaces, show_labels):
                             indent=4,
                         )
                     )
+            # Print names if -o name
+            elif output == "name":
+                for cp in res:
+                    print(cp["res"]["kind"].lower() + "/" + cp["res"]["metadata"]["name"])
             # Call the respective output function if -o is not set or -o wide
             elif output in [None, "wide"]:
                 # If we displaying more than one resource_type,
