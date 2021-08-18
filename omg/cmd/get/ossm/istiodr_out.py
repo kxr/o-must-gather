@@ -1,4 +1,3 @@
-from dateutil.parser import parse
 from tabulate import tabulate
 
 from omg.common.helper import age, extract_labels
