@@ -372,7 +372,7 @@ map = [
     },
     {
         "type": "node",
-        "aliases": ["nodes"],
+        "aliases": ["nodes", "no"],
         "need_ns": False,
         "get_func": from_yaml,
         "getout_func": node_out,
