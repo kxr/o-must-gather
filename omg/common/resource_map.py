@@ -172,7 +172,7 @@ map = [
     },
     {
         "type": "cronjob",
-        "aliases": ["cronjobs"],
+        "aliases": ["cronjobs", "cj"],
         "need_ns": True,
         "get_func": from_yaml,
         "getout_func": cj_out,
@@ -300,7 +300,7 @@ map = [
     },
     {
         "type": "ingress",
-        "aliases": ["ingresses"],
+        "aliases": ["ingresses", "ing"],
         "need_ns": False,
         "get_func": from_yaml,
         "getout_func": simple_out,
@@ -364,7 +364,7 @@ map = [
     },
     {
         "type": "networkpolicy",
-        "aliases": ["networkpolicies"],
+        "aliases": ["networkpolicies", "netpol"],
         "need_ns": True,
         "get_func": from_yaml,
         "getout_func": networkpolicy_out,
@@ -485,7 +485,7 @@ map = [
     },
     {
         "type": "statefulset",
-        "aliases": ["statefulsets"],
+        "aliases": ["statefulsets", "sts"],
         "need_ns": True,
         "get_func": from_yaml,
         "getout_func": ss_out,
@@ -550,7 +550,7 @@ map = [
     # OLM
     {
         "type": "clusterserviceversion",
-        "aliases": ["clusterserviceversions", "csv"],
+        "aliases": ["clusterserviceversions", "csv", "csvs"],
         "need_ns": True,
         "get_func": from_yaml,
         "getout_func": get_olm.opcsv_out,
