@@ -15,6 +15,21 @@ class TestGetCompletion(unittest.TestCase):
         expected = ["service"]
         results = generate_completions((), "servi", None)
         self.assertEqual(expected, results)
+        
+    def testTypeCompletion(self):
+        expected = ["servicemeshcontrolplane"]
+        results = generate_completions((), "servicemeshc", None)
+        self.assertEqual(expected, results)
+        
+    def testTypeCompletion(self):
+        expected = ["servicemeshmemberroll"]
+        results = generate_completions((), "servicemeshm", None)
+        self.assertEqual(expected, results)
+        
+    def testTypeCompletion(self):
+        expected = ["serviceentry"]
+        results = generate_completions((), "serviceen", None)
+        self.assertEqual(expected, results)
 
     def testNoTypeCompletion(self):
         expected = []
