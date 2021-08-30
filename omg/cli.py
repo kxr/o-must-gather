@@ -41,7 +41,7 @@ def cli():
 @click.argument(
     "mg_path",
     required=False,
-    type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False),
+    type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False),
 )
 @click.option("--cwd", is_flag=True)
 def use_cmd(mg_path, cwd):

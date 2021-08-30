@@ -18,6 +18,10 @@ Point it to an extracted must-gather:
 
     $ omg use </path/to/must-gather/>
 
+Or you can point directly to the file, omg will validate and uncompress it for you:
+
+    $ omg use <must-gather-tar-file>
+
 Use it like oc:
 
     # omg get clusterVersion
@@ -83,6 +87,11 @@ Use it like oc:
             Cluster API URL: ['https://api.ocpprod.example.com:6443']
            Cluster Platform: ['None']
 
+- You can now point the omg command to a file and it will uncompress it for you, but **only** if is a valid file. What is a 
+  valid file?:
+  - It is a tar file, we use tarfile module to validate that, not just by extension.
+  - It have only one root directory inside the tar file and the name starts with "must-gather".
+  Once it match this criteria the file is uncompressed on the current directory and it move 
 ### `omg machine-config`
 
 This feature assist you in exploring the MachineConfigs in a more human-friendly way. You can use it in the following
