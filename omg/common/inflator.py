@@ -1,16 +1,6 @@
 import os
 import tarfile
 
-__supported_extensions = [
-    '.tar.gz',
-    '.tar.bz2',
-    '.tar.xz',
-    '.tgz',
-    '.tbz',
-    '.tbz2',
-    '.txz',
-]
-
 
 def __get_rootdir_info(inflator):
     finfo_list = inflator.getmembers()
@@ -29,9 +19,9 @@ def __get_rootdir_info(inflator):
 def inflate_file(filename, path_to_extract='./'):
     print('Trying to uncompress:', filename, 'to', path_to_extract)
     if not tarfile.is_tarfile(filename):
-        print('[ERROR] This is not a valid TAR file.')
+        print('[ERROR] This is not a valid .tar.{gz,bz2,xz} / .t{gz,bz,bz2,xz} file.')
         return None
-    print('File looks ok!, opening now.')
+    print('File looks like a .tar, opening now and checking content structure.')
     inflator = tarfile.open(filename, 'r')
     rootdir = __get_rootdir_info(inflator)
     if not rootdir:
@@ -49,7 +39,7 @@ def inflate_file(filename, path_to_extract='./'):
         )
         return None
     # Extract all the files:
-    print('Extracting files')
+    print('Looks like a must-gather tar file, extracting')
     inflator.extractall(path_to_extract)
     # return the name of the extracted path
     return rootdir.name

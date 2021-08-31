@@ -91,7 +91,9 @@ Use it like oc:
   valid file?:
   - It is a tar file, we use tarfile module to validate that, not just by extension.
   - It have only one root directory inside the tar file and the name starts with "must-gather".
-  Once it match this criteria the file is uncompressed on the current directory and it move 
+  Once it match this criteria the file is uncompressed on the current directory and it move to the standard 'omg use' flow.
+
+
 ### `omg machine-config`
 
 This feature assist you in exploring the MachineConfigs in a more human-friendly way. You can use it in the following
