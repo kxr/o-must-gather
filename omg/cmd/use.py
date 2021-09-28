@@ -23,10 +23,13 @@ def use(mg_path, cwd):
                 from omg.cmd.get_main import get_resources
 
                 infra = get_resources("Infrastructure")
+                network = get_resources("Network")
                 apiServerURL = [i["res"]["status"]["apiServerURL"] for i in infra]
                 platform = [i["res"]["status"]["platform"] for i in infra]
+                sdn = [n["res"]["status"]["networkType"] for n in network]
                 print("    Cluster API URL: %s" % str(apiServerURL))
                 print("   Cluster Platform: %s" % str(platform))
+                print(" Cluster SDN Plugin: %s" % str(sdn))
             except:
                 print("[ERROR] Unable to determine cluster API URL and Platform.")
     else:
