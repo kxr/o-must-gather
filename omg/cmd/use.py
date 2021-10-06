@@ -2,7 +2,7 @@
 import os
 
 from omg.common.config import Config
-
+from omg.common.inflator import inflate_file
 
 def use(mg_path, cwd):
     if mg_path is None:
@@ -21,7 +21,6 @@ def use(mg_path, cwd):
             print("    Current Project: %s" % project)
             try:
                 from omg.cmd.get_main import get_resources
-
                 infra = get_resources("Infrastructure")
                 network = get_resources("Network")
                 apiServerURL = [i["res"]["status"]["apiServerURL"] for i in infra]
@@ -35,6 +34,15 @@ def use(mg_path, cwd):
     else:
         c = Config(fail_if_no_path=False)
         p = mg_path
+        # Check if the 'path' is a file:
+        if os.path.isfile(p):
+            # So, if is a file, try to inflate it:
+            real_p = inflate_file(p)
+            if not real_p:
+                return
+            # If is all ok, we now set the uncompress directory as the new 'p'
+            #  and we let the "use" flow continue:
+            p = real_p
         # We traverse up to 3 levels to find the must-gather
         # At each leve if it has only one dir and we check inside it
         # When we see see the dir /namespaces and /cluster-scoped-resources, we assume it
