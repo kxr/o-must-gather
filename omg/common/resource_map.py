@@ -48,6 +48,13 @@ from omg.cmd.get.simple_out import simple_out
 from omg.cmd.get.ss_out import ss_out
 from omg.cmd.get.va_out import va_out
 from omg.cmd.get.vwhc_out import vwhc_out
+from omg.cmd.get.ossm.smcp_out import smcp_out
+from omg.cmd.get.ossm.smmr_out import smmr_out
+from omg.cmd.get.ossm.istiogw_out import istiogw_out
+from omg.cmd.get.ossm.istiosidecar_out import istiosidecar_out
+from omg.cmd.get.ossm.istiovs_out import istiovs_out
+from omg.cmd.get.ossm.istiose_out import istiose_out
+from omg.cmd.get.ossm.istiodr_out import istiodr_out
 import omg.cmd.get.olm as get_olm
 from omg.common.config import Config
 
@@ -603,6 +610,62 @@ map = [
         "get_func": from_yaml,
         "getout_func": va_out,
         "yaml_loc": "cluster-scoped-resources/storage.k8s.io/volumeattachments",
+    },
+    {
+        "type": "servicemeshcontrolplanes",
+        "aliases": ["smcp", "servicemeshcontrolplanes", "servicemeshcontrolplane"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": smcp_out,
+        "yaml_loc": "namespaces/%s/maistra.io/servicemeshcontrolplanes/",
+    },
+    {
+        "type": "servicemeshmemberroll",
+        "aliases": ["smmr", "servicemeshmemberroll"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": smmr_out,
+        "yaml_loc": "namespaces/%s/maistra.io/servicemeshmemberrolls/",
+    },
+    {
+        "type": "gateway",
+        "aliases": ["gw", "gateway"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": istiogw_out,
+        "yaml_loc": "namespaces/%s/networking.istio.io/gateways/",
+    },
+    {
+        "type": "virtualservice",
+        "aliases": ["vs", "virtualservices"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": istiovs_out,
+        "yaml_loc": "namespaces/%s/networking.istio.io/virtualservices/",
+    },
+    {
+        "type": "destinationrules",
+        "aliases": ["dr", "destinationrules"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": istiodr_out,
+        "yaml_loc": "namespaces/%s/networking.istio.io/destinationrules/",
+    },
+    {
+        "type": "sidecar",
+        "aliases": ["sidecar"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": istiosidecar_out,
+        "yaml_loc": "namespaces/%s/networking.istio.io/sidecars/",
+    },
+    {
+        "type": "serviceentry",
+        "aliases": ["serviceentry","se"],
+        "need_ns": True,
+        "get_func": from_yaml,
+        "getout_func": istiose_out,
+        "yaml_loc": "namespaces/%s/networking.istio.io/serviceentries/",
     },
 ]
 
