@@ -48,6 +48,8 @@ from omg.cmd.get.simple_out import simple_out
 from omg.cmd.get.ss_out import ss_out
 from omg.cmd.get.va_out import va_out
 from omg.cmd.get.vwhc_out import vwhc_out
+from omg.cmd.get.netnamespaces_out import netnamespaces_out
+from omg.cmd.get.hostsubnets_out import hostsubnets_out
 import omg.cmd.get.olm as get_olm
 from omg.common.config import Config
 
@@ -603,6 +605,22 @@ map = [
         "get_func": from_yaml,
         "getout_func": va_out,
         "yaml_loc": "cluster-scoped-resources/storage.k8s.io/volumeattachments",
+    },
+    {
+        "type": "netnamespaces",
+        "aliases": ["netnamespaces"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": netnamespaces_out,
+        "yaml_loc": "cluster-scoped-resources/network.openshift.io/netnamespaces",
+    },
+    {
+        "type": "hostsubnets",
+        "aliases": ["hostsubnets"],
+        "need_ns": False,
+        "get_func": from_yaml,
+        "getout_func": hostsubnets_out,
+        "yaml_loc": "cluster-scoped-resources/network.openshift.io/hostsubnets",
     },
 ]
 
