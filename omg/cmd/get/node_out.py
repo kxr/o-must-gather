@@ -81,9 +81,9 @@ def node_out(t, ns, res, output, show_type, show_labels):
             e_ip = "<none>"
             addresses = n["status"]["addresses"]
             for a in addresses:
-                if a["type"] == "InternalIP":
+                if a["type"] == "InternalIP" and i_ip == "<none>":
                     i_ip = a["address"]
-                if a["type"] == "ExternalIP":
+                if a["type"] == "ExternalIP" and e_ip == "<none>":
                     e_ip = a["address"]
             row.append(i_ip)
             row.append(e_ip)
