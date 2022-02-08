@@ -1,18 +1,8 @@
 import json
-
-
-def _load_buffer_as_json(buffer):
-    """
-    wrapper function to open a json from a given buffer.
-    Return json object and error
-    """
-    try:
-        data = json.loads(buffer)
-        return data, False
-    except json.decoder.JSONDecodeError :
-        return "JSONDecodeError", True
-    except Exception as e:
-        return e, True
+from omg.common.helper import (
+    load_file,
+    load_json_file
+)
 
 
 def etcd_member_list(buffer=None):
@@ -21,7 +11,7 @@ def etcd_member_list(buffer=None):
     """
     from . import print_table
 
-    data, err = _load_buffer_as_json(buffer)
+    data, err = load_json_buffer(buffer)
     h = data['header']
 
     print(f"\nClusterID: {h['cluster_id']}, MemberID: {h['member_id']}, RaftTerm: {h['raft_term']}")
@@ -34,7 +24,7 @@ def etcd_endpoint_health(buffer=None):
     """
     from . import print_table
 
-    data, err = _load_buffer_as_json(buffer)
+    data, err = load_json_buffer(buffer)
     print_table(data=data)
 
 
@@ -51,7 +41,7 @@ def etcd_endpoint_status(buffer=None):
             num /= 1024.0
         return ("%.1f %s%s" % (num, 'Yi', suffix))
 
-    data, err = _load_buffer_as_json(buffer)
+    data, err = load_json_buffer(buffer)
     headers_map = [
         "ENDPOINT", "ID", "VERSION", "DB SIZE", "IS LEADER",
         "IS LEARNER", "RAFT TERM", "RAFT INDEX", "RAFT APPLIED INDEX",
@@ -93,7 +83,7 @@ def etcd_show_all(buffer=None):
     Show all etcd commands.
     """
     from . import (
-        parser_map, file_reader 
+        parser_map
     )
 
     etcd_cmds = []
@@ -105,7 +95,7 @@ def etcd_show_all(buffer=None):
         etcd_cmds.append(parser_map[cmd])
 
     for cmd in etcd_cmds:
-        buffer, err = file_reader(cmd['file_in'])
+        buffer, err = load_file(cmd['file_in'])
         parser_map[cmd['command']]["fn_out"](buffer)
     
     return

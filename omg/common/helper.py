@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import os
 import sys
+import json
 from datetime import datetime, timedelta
 from dateutil.parser import parse
 from dateutil.relativedelta import relativedelta
@@ -132,3 +133,78 @@ def extract_labels(o):
             return "<error parsing labels>"
     else:
         return "<none>"
+
+
+# Helper to format outputs
+def fmt_sizeof(num, suffix='B'):
+    for unit in ['','Ki','Mi','Gi','Ti','Pi','Ei','Zi']:
+        if abs(num) < 1024.0:
+            return ("%3.1f %s%s" % (num, unit, suffix))
+        num /= 1024.0
+    return ("%.1f %s%s" % (num, 'Yi', suffix))
+
+
+def fmt_countof(num, suffix=''):
+    for unit in ['','K','M','G','T','P','E','Z']:
+        if abs(num) < 1000.0:
+            return ("%3.3f %s%s" % (num, unit, suffix))
+        num /= 1000.0
+    return ("%.3f %s%s" % (num, 'Yi', suffix))
+
+
+def fmt_date_from_ts(ts):
+    from datetime import datetime
+    return str(datetime.fromtimestamp(ts / 1e3).strftime("%Y-%m-%d %H:%M:%S"))
+
+
+# File handlers
+def load_file(path):
+    """
+    Read a file to be parsed and return raw buffer.
+    """
+    try:
+        full_path = os.path.join(Config().path, path)
+        with open(full_path, 'r') as f:
+            return f.read(), False
+    except IsADirectoryError as e:
+        print("WANING: ignoring file reader; Is a directory")
+        return "", True
+    except FileNotFoundError as e:
+        print(f"ERROR: file [{path}] not found")
+        return "", True
+    except Exception as e:
+        print(f"ERROR: Unknow error opening file {path}")
+        return "", True
+
+
+def load_json_buffer(buffer):
+    """
+    wrapper function to open a json from a given buffer.
+    Return json object and error
+    """
+    try:
+        data = json.loads(buffer)
+        return data, False
+    except json.decoder.JSONDecodeError:
+        return "JSONDecodeError", True
+    except Exception as e:
+        return e, True
+
+
+# File handlers
+def load_json_file(path):
+    """
+    wrapper function to open a json from a given buffer.
+    Return json object and error
+    """
+    try:
+        buffer, err = load_file(path)
+        if err:
+            print(f"ERROR: reading file {path}")
+            return
+        data = json.loads(buffer)
+        return data, False
+    except json.decoder.JSONDecodeError:
+        return "JSONDecodeError", True
+    except Exception as e:
+        return e, True
