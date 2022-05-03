@@ -1,150 +1,16 @@
-# O Must Gather (omg)
+# O Must Gather (omg) v2 (WORK IN PROGRESS)
 
-oc like tool that works with must-gather rather than OpenShift API
+With the previous (v1) implementation of omg, there were some major limitations. A major restructuring is being done to implement some advance features that are necessary, for example:
 
-![GitHub release (latest by date)](https://img.shields.io/github/v/release/kxr/o-must-gather)
-![PyPI - Python Version](https://img.shields.io/pypi/pyversions/o-must-gather)
-![GitHub](https://img.shields.io/github/license/kxr/o-must-gather?color=blue)
+- **Multi directory support**:  Often times a single must-gather is not enough to capture all the components that are being investigated hence multiple must-gathers (or combination of must-gathes and oc-adm-inspect) are collected. omg needs to be able to look at them at once (using v1 omg we have to switch to these directories individually, which is very inconvenient).
 
-## Installation
+- **Dynamic CRDs**: The CRDs in OpenShift are huge in number and growing. In the current implementation of omg, every CRD needs to be "handled" manually for omg to recoginze it. A [resource map](https://github.com/kxr/o-must-gather/blob/172f84afc2b81ab523edf78eb6d4a0e64d34cd32/omg/common/resource_map.py#L62-L625) to handle each CRD is hard to scale and fails to pick any new/undefined CRDs. In the newer implementation, CRDs will be automatically detected and recognized. This idea was orignally pitched by Robert Bost [here](https://github.com/kxr/o-must-gather/issues/34).
 
-Simply run:
+- **API Groups**: Handling API Groups for each CRD is important. For example to differentiate between `oc get config.operator` and `oc get config.imageregistry`.
 
-    $ pip3 install o-must-gather --user
+- **Components Output**: Provide an easy way to see outputs of other components like elasticsearch and ceph when component specific must-gathers are collected (ODF, Logging, CNV, etc.)
 
-## Usage
+- **High Level Summary**: A high level summary of a must-gather would be very useful. For exmaple `omg show summary` and `omg show issues`. 
 
-Point it to an extracted must-gather:
+- **Console Logging**: A proper console logging library [loguru](https://github.com/Delgan/loguru) is being used that supports standard/debug output and can separate standard and error outputs.
 
-    $ omg use </path/to/must-gather/>
-
-Or you can point directly to the file, omg will validate and uncompress it for you:
-
-    $ omg use <must-gather-tar-file>
-
-Use it like oc:
-
-    # omg get clusterVersion
-    # omg get clusterOperators
-    # omg project openshift-ingress
-    # omg get pods -o wide
-
-## Additional Features
-
-### Shell Autocompletion
-
-- `omg` has shell autocompletion (huge thanks to @bostrt). It can auto complete both, the commands (e.g, `get`
-  , `project` etc.) and the objects present in the selected must-gather. Currently autocompletion is only available
-  for `bash` shell however the support for `zsh` and `fish` shells should come soon.
-
-  You can enable the autocompletion functionality in a bash shell by running:
-
-        # eval "$(omg completion bash)"
-
-  To make it permanent, append this line to `~/.bashrc` (if installed on system level) or to the activation script (if
-  installed in venv):
-
-        # If installed on system level
-        # echo 'eval "$(omg completion bash)"' >> ~/.bashrc
-
-        # If installed in a venv
-        # echo 'eval "$(omg completion bash)"' >> /path/to/vevn/bin/activate
-
-### `omg use`
-
-- When run without any arguments i.e, just `omg use`, omg will show you the details of the currently selected
-  must-gather. For example:
-
-        # omg use ./must-gather.local.2723199189299891619
-        Now using project "openshift-monitoring" on must-gather "/home/knaeem/Downloads/must-gather.local.2723199189299891619/quay-io-openshift-release-dev-ocp-v4-0-art-dev-sha256-d7c882054a4528eda72e69a7988c5931b5a1643913b11bfd2575a78a8620808f"
-
-        # omg use
-        Current must-gather: /home/knaeem/Downloads/must-gather.local.2723199189299891619/quay-io-openshift-release-dev-ocp-v4-0-art-dev-sha256-d7c882054a4528eda72e69a7988c5931b5a1643913b11bfd2575a78a8620808f
-            Current Project: openshift-monitoring
-            Cluster API URL: ['https://api.ocp4.aidemo.local:6443']
-           Cluster Platform: ['oVirt']
-
-- To facilitate users working with multiple must-gathers, you can now set the current working directory to be used as
-  the must-gather path. In this case, simply switching the current working directory to the desired must-gather will be
-  enough to start using that must-gather. To use this mode, simply run `omg use --cwd`. For example:
-
-        # omg use --cwd
-        Using your current working directory
-
-        # cd /home/knaeem/Downloads/must-gather.local.2723199189299891619/quay-io-openshift-release-dev-ocp-v4-0-art-dev-sha256-d7c882054a4528eda72e69a7988c5931b5a1643913b11bfd2575a78a8620808f
-
-        # omg use
-        Current must-gather: .
-            Current Project: openshift-monitoring
-            Cluster API URL: ['https://api.ocp4.aidemo.local:6443']
-           Cluster Platform: ['oVirt']
-
-        # cd /home/knaeem/Downloads/must-gather.local.7890185621691109993/quay-io-openshift-release-dev-ocp-v4-0-art-dev-sha256-549bd48582a9fa615b8728bc6e1d66f3a9c829f415d9ddd58f95eb978be50274
-
-        # omg use
-        Current must-gather: .
-            Current Project: openshift-monitoring
-            Cluster API URL: ['https://api.ocpprod.example.com:6443']
-           Cluster Platform: ['None']
-
-- You can now point the omg command to a file and it will uncompress it for you, but **only** if is a valid file. What is a 
-  valid file?:
-  - It is a tar file, we use tarfile module to validate that, not just by extension.
-  - It have only one root directory inside the tar file and the name starts with "must-gather".
-  Once it match this criteria the file is uncompressed on the current directory and it move to the standard 'omg use' flow.
-
-
-### `omg machine-config`
-
-This feature assist you in exploring the MachineConfigs in a more human-friendly way. You can use it in the following
-two ways:
-
-- `omg machine-config extract [MachineConfig1 MachineConfig2 ...]`
-
-  This will "extract" the MachineConfigs and place them under `<must-gather>/extracted-machine-configs`. The encoded
-  files are decoded so they can be examined in a better way. If no MachineConfigs are passed (e.g, you simply
-  run `omg machine-config extract`), all the MachineConfigs are extracted. Example usage:
-
-  - Extract all MachineConfigs
-
-          # omg machine-config extract
-
-  - Extract specific MachineConfig
-
-          # omg machine-config extract rendered-worker-261eed0b6fe6793c8b609de8e77958fa
-
-- `omg machine-config compare MachineConfig1 MachineConfig2 [--show-contents]`
-
-  This allows you to compare two MachineConfigs. It will list all the changes, addition and deletion in the two
-  MachineConfigs. If `--show-contents` is passed it will show the `diff` between the contents as well (diff will be on
-  deocded content if the content is encoded). Example usage:
-
-  - Compare two MachineConfigs on a high level
-
-          # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5
-
-  - Compare two MachineConfigs with while also showing the diff of changed content
-
-          # omg machine-config compare rendered-worker-261eed0b6fe6793c8b609de8e77958fa rendered-worker-f9020f5c66ce72eee5f02a58b3c816c5 --show-contents
-
-### `omg parse`
-
-This feature assist you to view files exported by must-gather when it is not a standard `oc` command.
-
-To show available files mapped to be parsed, you can use:
-~~~
-# omg parser -s
-~~~
-
-To inspect a file, for example, etcd endpoint status (`path of file on MG: etcd_info/endpoint_status.json`):
-
-~~~
-# omg parser etcd-endpoint-status
-~~~
-
-## Development and Contribution
-
-Contributions are most welcomed. Please refer [here](./CONTRIBUTING.md) for instructions on setting up development
-environment and learning more about the internal architecture of o-must-gather.
-
-This project is licensed under GPLv3.
