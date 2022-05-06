@@ -24,10 +24,26 @@ def scan_mg(tdirs):
                 wdir = scan_q.pop()
                 subdirs = [d for d in os.listdir(wdir)
                            if os.path.isdir(os.path.join(wdir, d))]
-                if ('cluster-scoped-resources' in subdirs
-                   or 'namespaces' in subdirs):
+                if ("cluster-scoped-resources" in subdirs or "namespaces" in subdirs):
                     lg.debug('Valid dir found: ' + str(wdir))
                     vdirs.append(os.path.abspath(wdir))
+
+                    # if there are any other subdirs we will scan those as well
+                    try:
+                        subdirs.remove("cluster-scoped-resources")
+                    except ValueError:
+                        pass
+                    try:
+                        subdirs.remove("namespaces")
+                    except ValueError:
+                        pass
+                    for sd in subdirs:
+                        scan_q.append(os.path.join(wdir, sd))
+
+                    # if namespaces/all/namespaces exists we will mark it valid as well
+                    if os.path.isdir(os.path.join(wdir, "namespaces", "all", "namespaces")):
+                        vdirs.append(os.path.abspath(os.path.join(wdir, "namespaces", "all")))
+
                 else:
                     lg.debug('Not valid dir scanning deeper: ' + str(wdir))
                     scan_q.extend([os.path.join(wdir, d) for d in subdirs])

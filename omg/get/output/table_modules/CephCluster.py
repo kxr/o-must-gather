@@ -19,7 +19,7 @@ def _col_message(res):
 
 
 def _col_health(res):
-    return dget(res, ["res", "status", "ceph", "helth"], "Unknown")
+    return dget(res, ["res", "status", "ceph", "health"], "Unknown")
 
 
 def _col_external(res):
