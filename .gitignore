@@ -3,6 +3,9 @@
 dist/
 build/
 *.egg-info/
-
+.pytest_cache/
 .tox/
 .coverage
+.vscode
+
+venv/

@@ -1,145 +1,146 @@
-# -*- coding: utf-8 -*-
 import click
 import os
 import subprocess
 
 from omg import version
-from omg.cmd.describe import describe
-from omg.cmd.get.complete_get import complete_get
-from omg.cmd.get_main import get_main
-from omg.cmd.log import log, complete_pods, complete_containers
-from omg.cmd.machine_config.machine_config import machine_config, complete_mc
-from omg.cmd.project import project, projects, complete_projects
-from omg.cmd.use import use
-from omg.cmd.whoami import whoami
-from omg.completion import bash
-from omg.cmd.parser import parser_main
+from omg.config import logging, config
+from omg.use import use
+from omg.project import project, projects
+from omg.project.complete import complete_projects
+from omg.get import get
+from omg.get.complete import complete_get
+from omg.log.complete import complete_pods, complete_containers
+from omg.whoami import whoami
+from omg.log import log
+# from omg import machine_config
 
 
-CONTEXT_SETTINGS = dict(help_option_names=["-h", "--help"])
+# Common Options used by multiple subcommands
+o_filtered_path = click.option(
+    "-p", "--path", type=int, default=0)
 
-# Namespace related options shared by a few commands
-_global_namespace_options = [
-    click.option("--namespace", "-n", required=False, autocompletion=complete_projects),
-    click.option("--all-namespaces", "-A", required=False, is_flag=True),
-]
+o_log_level = click.option(
+    "-l", "--loglevel", type=click.Choice(["normal", "info", "debug", "trace"]))
 
+o_namespace = click.option(
+    "--namespace", "-n", required=False, autocompletion=complete_projects)
 
-# Decorator lets us use namespace related options above
-def global_namespace_options(func):
-    for option in reversed(_global_namespace_options):
-        func = option(func)
-    return func
+o_all_namespaces = click.option(
+    "--all-namespaces", "-A", required=False, is_flag=True)
 
 
-@click.group(context_settings=CONTEXT_SETTINGS)
-def cli():
-    pass
+# Main click group
+@click.group()
+@o_log_level
+@o_filtered_path
+@o_namespace
+@o_all_namespaces
+def cli(loglevel, path, namespace, all_namespaces):
+    logging.setup_logging(loglevel)
+    config.filtered_path = path
+    if namespace:
+        config.namespace = namespace
+    if all_namespaces:
+        config.all_namespaces = all_namespaces
 
 
+# omg *use*
 @cli.command("use")
-@click.argument(
-    "mg_path",
-    required=False,
-    type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False),
-)
+@click.argument("mg_paths", nargs=-1, required=False, type=click.Path(
+                    exists=True, file_okay=False, resolve_path=True, allow_dash=False))
 @click.option("--cwd", is_flag=True)
-def use_cmd(mg_path, cwd):
+def use_cmd(mg_paths, cwd):
     """
-    Select the must-gather to use
+    Select one or more must-gather(s) to use
     """
-    use(mg_path, cwd)
+    use.cmd(mg_paths, cwd)
 
 
+# omg *project*
 @cli.command("project")
-@click.argument("name", required=False, autocompletion=complete_projects)
+@click.argument("name", required=False,
+                autocompletion=complete_projects)
 def project_cmd(name):
     """
-    Display information about the current active project and existing projects
+    Switch to another project
     """
-    project(name)
+    project.cmd(name)
 
 
+# omg *projects*
 @cli.command("projects")
 def projects_cmd():
     """
-    Display information about the current active project and existing projects
+    Display existing projects
     """
-    projects()
+    projects.cmd()
 
 
+# omg *get*
 @cli.command("get")
 @click.argument("objects", nargs=-1, autocompletion=complete_get)
 @click.option("--output", "-o", type=click.Choice(["yaml", "json", "wide", "name"]))
-@click.option(
-    "--show-labels",
-    is_flag=True,
-    type=bool,
-    help="When printing, show all labels as the last column (default hide labels column)",
-)
-@global_namespace_options
-def get_cmd(objects, output, namespace, all_namespaces, show_labels):
+@click.option("--show-labels", is_flag=True, type=bool)
+@o_namespace
+@o_all_namespaces
+def get_cmd(objects, output, show_labels, namespace, all_namespaces):
     """
     Display one or many resources
     """
-    get_main(objects, output, namespace, all_namespaces, show_labels)
+    if namespace:
+        config.namespace = namespace
+    if all_namespaces:
+        config.all_namespaces = all_namespaces
+    get.cmd(objects, output, show_labels)
 
 
-@cli.command("describe")
-@click.argument("objects", nargs=-1)
-@global_namespace_options
-def describe_cmd(objects, namespace, all_namespaces):
-    """
-    This command joins many API calls together to form a detailed description of a given resource.
-    """
-    describe(None)
-
-
+# omg *log*
 @cli.command("logs")
 @click.argument("resource", autocompletion=complete_pods)
 @click.option("--container", "-c", autocompletion=complete_containers)
 @click.option("--previous", "-p", is_flag=True)
-@global_namespace_options  # TODO: Only support -n
-def logs_cmd(resource, container, previous, namespace, all_namespaces):
+@o_namespace
+def logs_cmd(resource, container, previous, namespace):
     """
-    Display logs
+    Print the logs for a container in a pod
     """
-    log(resource, container, previous, namespace, False)
+    if namespace:
+        config.namespace = namespace
+    log.cmd(resource, container, previous)
 
 
+# omg *whoami*
 @cli.command("whoami")
 def whoami_cmd():
     """
-    Display who you are
+    Tell you who you are
     """
-    whoami(None)
+    whoami.cmd()
 
 
+# omg *version*
 @cli.command("version")
 def version_cmd():
     """
-    Display omg version
+    Prints the version of o-must-gather
     """
-    print("omg version " + version + " (https://github.com/kxr/o-must-gather)")
+    print()
+    print("omg version " + str(version) + " (https://github.com/kxr/o-must-gather)")
+    print()
 
 
 @cli.command("completion")
-@click.argument("shell", nargs=1, type=click.Choice(["bash"]))  # TODO: zsh, fish
+@click.argument("shell", nargs=1, type=click.Choice(["bash", "zsh", "fish"]))
 def completion(shell):
     """
-    Output shell completion code for bash.
-
-    \b
-    For example:
-      # omg completion bash > omg-completion.sh
-      # source omg-completion.sh
+    Output shell completion code for the specified shell (bash or zsh)
     """
-    if shell == "bash":
-        print(bash.SCRIPT)
-    else:
-        print("Unsupported shell")
+    newenv = os.environ.copy()
+    newenv["_OMG_COMPLETE"] = "{}_source".format(shell)
+    subprocess.run("omg", env=newenv)
 
 
+# Click group for machine-config
 @cli.group("machine-config")
 def mc_cmd():
     """
@@ -148,30 +149,25 @@ def mc_cmd():
     pass
 
 
-@mc_cmd.command("extract")
-@click.argument("mc_names", nargs=-1, autocompletion=complete_mc)
-def extract_mc_cmd(mc_names):
-    """
-    Extract a Machine Config
-    """
-    machine_config("extract", mc_names, False)
+# # omg machine-config *extract*
+# @mc_cmd.command("extract")
+# @click.argument("mc_names", nargs=-1, autocompletion=complete_mc)
+# @click.option("--yaml-loc", "-y", required=False,
+#               type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False))
+# @click.option('--out-dir', '-d',  required=False,
+#                 type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False)) # noqa
+# def extract_mc_cmd(mc_names):
+#     machine_config("extract", mc_names, False, yaml_loc, out_dir)
 
 
-@mc_cmd.command("compare")
-@click.argument("mc_names", nargs=2, autocompletion=complete_mc)
-@click.option("--show-contents", is_flag=True)
-def compare_mc_cmd(mc_names, show_contents):
-    """
-    Compare Machine Configs
-    """
-    machine_config("compare", mc_names, show_contents)
-
-
-@cli.command("parser")
-@click.argument("command", nargs=-1)
-@click.option("--show", "-s", is_flag=True, type=bool, help="Show available commands.")
-def parser_cmd(command, show):
-    """
-    Display parser commands that is available on MG and is not parte of 'oc'
-    """
-    parser_main(command=command, show=show)
+# # omg machine-config *compare*
+# @mc_cmd.command("compare")
+# @click.argument("mc_names", nargs=2, autocompletion=complete_mc)
+# @click.option('--yaml-loc', '-y', required=False,
+#                 type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False))
+# @click.option("--show-contents", is_flag=True)
+# def compare_mc_cmd(mc_names, show_contents):
+#     """
+#     Compare Machine Configs
+#     """
+#     machine_config("compare", mc_names, show_contents, yaml_loc, None)

@@ -1,3 +1,2 @@
-# -*- coding: utf-8 -*-
-version_info = (1, 2, 6)
-version = ".".join(str(c) for c in version_info)
+version_info = (2, 0, 0)
+version = '.'.join(str(c) for c in version_info)
