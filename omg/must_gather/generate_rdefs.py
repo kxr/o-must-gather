@@ -3,10 +3,9 @@ import yaml
 from loguru import logger as lg
 from omg.utils.dget import dget
 from omg.must_gather.load_resources import load_res
-from omg.must_gather.exceptions import FailedGeneratingRdefFile
 
 
-def generate_rdefs(path, dest=None):
+def generate_rdefs(path):
     """Generate resource definitions from the crds present in path
 
     Args:
@@ -17,19 +16,21 @@ def generate_rdefs(path, dest=None):
     """
     lg.debug("FUNC_INIT: {}".format(locals()))
 
-    if dest is None:
-        rdef_file = os.path.join(path, ".rdefs.yaml")
-    else:
-        rdef_file = os.path.join(dest, ".rdefs.yaml")
+    rdefs_f = os.path.join(os.getenv("HOME"), ".omg.rdefs")
 
-    lg.debug("Generating rdef: {}".format(rdef_file))
+    lg.debug("Generating rdef: {}".format(rdefs_f))
 
     rdefs = []
+    # Load existing rdefs
+    if os.path.isfile(rdefs_f):
+        try:
+            with open(rdefs_f, "r") as r_f:
+                rdefs.extend(yaml.safe_load(r_f))
+        except Exception:
+            pass
+
     try:
         crds = load_res(path, "crd")
-
-        # if not crds:
-        #     raise Exception("No crds found in {}".format(path))
 
         if crds:
             for crd in crds:
@@ -37,26 +38,20 @@ def generate_rdefs(path, dest=None):
                 res = dget(crd, ["res"])
 
                 rdef = {}
-                rdef["kind"] = dget(
-                    res, ["spec", "names", "kind"])
-                rdef["singular"] = dget(
-                    res, ["spec", "names", "singular"])
-                rdef["plural"] = dget(
-                    res, ["spec", "names", "plural"])
-                rdef["group"] = dget(
-                    res, ["spec", "group"])
-                rdef["scope"] = dget(
-                    res, ["spec", "scope"])
-                rdef["shortNames"] = dget(
-                    res, ["spec", "names", "shortNames"], [])
-                lg.trace("Adding new rdef: {}".format(rdef))
+                rdef["kind"] = dget(res, ["spec", "names", "kind"])
+                rdef["singular"] = dget(res, ["spec", "names", "singular"])
+                rdef["plural"] = dget(res, ["spec", "names", "plural"])
+                rdef["group"] = dget(res, ["spec", "group"])
+                rdef["scope"] = dget(res, ["spec", "scope"])
+                rdef["shortNames"] = dget(res, ["spec", "names", "shortNames"], [])
 
-                rdefs.append(rdef)
+                if rdef not in rdefs:
+                    rdefs.append(rdef)
 
-            with open(rdef_file, "w") as rdf:
+            with open(rdefs_f, "w") as rdf:
                 yaml.dump(rdefs, rdf, default_flow_style=False)
-                lg.debug("{} rdefs written to: {}".format(len(rdefs), rdef_file))
+                lg.debug("{} rdefs written to: {}".format(len(rdefs), rdefs_f))
 
-    except Exception as e:
-        # lg.warning("Unable to generate rdef file {}: {}".format(rdef_file, e))
-        raise FailedGeneratingRdefFile(e)
+    except Exception:
+        # lg.warning("Unable to generate rdef file {}: {}".format(rdefs_f, e))
+        pass

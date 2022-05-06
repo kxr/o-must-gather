@@ -135,7 +135,7 @@ def locate_yamls(path, r_type, ns=None):
         }
     # r_type != project
     else:
-        rdef = get_rdef(r_type, path)
+        rdef = get_rdef(r_type)
         if not rdef:
             raise UnkownResourceType("Unknown resource type: {}".format(r_type))
 

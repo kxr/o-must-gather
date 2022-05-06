@@ -1,7 +1,7 @@
 from omg.must_gather.generate_rdefs import generate_rdefs
 from loguru import logger as lg
 from omg.config import config
-from omg.must_gather.exceptions import NoValidMgFound, FailedGeneratingRdefFile
+from omg.must_gather.exceptions import NoValidMgFound
 from omg.use.show_mg_info import show_mg_info
 from omg.must_gather.scan_mg import scan_mg
 
@@ -48,8 +48,9 @@ def cmd(mg_paths=None, cwd=False, cfile=None):
         for path in valid_mg_paths:
             try:
                 generate_rdefs(path)
-            except FailedGeneratingRdefFile as e:
-                lg.warning("Failed generating rdef for {}: {}".format(path, e))
+            except Exception:
+                # lg.warning("Failed generating rdef for {}: {}".format(path, e))
+                pass
 
         # Save paths in config
         config.save(paths=valid_mg_paths, cfile=cfile)

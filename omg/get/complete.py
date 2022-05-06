@@ -1,5 +1,5 @@
 from omg.must_gather.RDEFS import RDEFS
-from omg.must_gather.get_rdef import get_rdefs_from_path
+from omg.must_gather.get_rdef import get_generated_rdefs
 from omg.get.get_resources import get_all_resource_names
 from omg.get.parse import parse_get_args, ParseError
 from omg.config import config
@@ -13,15 +13,7 @@ def _suggest_type(incomplete_type):
     """
     all_rdefs = []
     all_rdefs.extend(RDEFS)
-
-    cfg = config.get()
-    c_paths = dget(cfg, ["paths"])
-
-    if c_paths:
-        for path in c_paths:
-            rdef_path = get_rdefs_from_path(path)
-            if rdef_path:
-                all_rdefs.extend(rdef_path)
+    all_rdefs.extend(get_generated_rdefs())
 
     all_types = set()
     for rdef in all_rdefs:

@@ -31,10 +31,3 @@ class NamespaceDirWithoutYaml(Exception):
     Error raised namespace directory is present without its yaml
     """
     pass
-
-
-class FailedGeneratingRdefFile(Exception):
-    """
-    Error raised when generating rdef file fails
-    """
-    pass

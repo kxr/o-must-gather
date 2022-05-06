@@ -46,9 +46,7 @@ def _match_rdef(r_type, rdef):
         if "." in r_type:
             r_type_kind = r_type.split(".")[0]
             r_type_group_list = r_type.split(".")[1:]
-            # print(r_type_group_list)
             r_def_group_list = group.split(".")
-            # print(r_def_group_list)
             if r_type_kind.lower() in [str(singular), str(plural)]:
                 for rtgl in r_type_group_list:
                     if rtgl != r_def_group_list[r_type_group_list.index(rtgl)]:
@@ -72,41 +70,21 @@ def _find_rdef(r_type, rdefs):
     return None
 
 
-def get_rdefs_from_path(path):
-    lg.debug("FUNC_INIT: {}".format(locals()))
+def get_generated_rdefs():
+    rdefs_f = os.path.join(os.getenv("HOME") or "/tmp/", ".omg.rdefs")
 
-    # Lookup rdef in must-gather's .rdef.yaml
-    rdef_file = os.path.join(path, ".rdefs.yaml")
-
-    lg.debug("rdef_file: {}".format(rdef_file))
-
-    # This block will generate if rdef file is missing (e.g, cwd mode)
-    # If the generation fails (e.g, mg dir not writable), it will generate
-    # a rdef file in /tmp and use that
-    if not os.path.isfile(rdef_file):
-        from omg.must_gather.generate_rdefs import generate_rdefs
-        from omg.must_gather.exceptions import FailedGeneratingRdefFile
-        try:
-            generate_rdefs(path)
-        except FailedGeneratingRdefFile as e:
-            lg.warning(
-                "Failed generating rdef file: {} Reason: {}".format(rdef_file, e))
-            lg.warning("Generating temporary rdef file in /tmp")
-            generate_rdefs(path, dest="/tmp")
-            rdef_file = "/tmp/.rdefs.yaml"
-
-    rdefs_y = []
     try:
-        if os.path.isfile(rdef_file):
-            rdefs_y = load_yaml(rdef_file)
+        if os.path.isfile(rdefs_f):
+            rdefs_y = load_yaml(rdefs_f)
+            if rdefs_y and type(rdefs_y) is list:
+                return rdefs_y
     except FileNotFoundError:
-        lg.warning("Unable to load .rdefs file from {}".format(path))
-        return []
-    else:
-        return rdefs_y
+        lg.warning("Unable to load rdefs file from {}".format(rdefs_f))
+
+    return []
 
 
-def get_rdef(r_type, path):
+def get_rdef(r_type):
     """Find Resource Definition (rdef) for a resource type.
 
     Args:
@@ -129,9 +107,9 @@ def get_rdef(r_type, path):
         r_type
     ))
 
-    # Find rdefs from generated rdefs in path
-    rdefs_y = get_rdefs_from_path(path)
-    rdef = _find_rdef(r_type, rdefs_y)
+    # Find rdefs from generated rdefs file
+
+    rdef = _find_rdef(r_type, get_generated_rdefs())
 
     if rdef:
         lg.debug("rdef for {} found in generated rdef: {}".format(r_type, rdef))
