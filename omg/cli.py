@@ -12,6 +12,7 @@ from omg.get.complete import complete_get
 from omg.log.complete import complete_pods, complete_containers
 from omg.whoami import whoami
 from omg.log import log
+from omg.components.ceph import ceph
 # from omg import machine_config
 
 
@@ -138,6 +139,28 @@ def completion(shell):
     newenv = os.environ.copy()
     newenv["_OMG_COMPLETE"] = "{}_source".format(shell)
     subprocess.run("omg", env=newenv)
+
+
+# omg *ceph*
+@cli.command("ceph", context_settings={"ignore_unknown_options": True})
+@click.argument("ceph_args", nargs=-1)
+@click.option("--output", "--format", "-o", type=click.Choice(["json", "json-pretty"]))
+def ceph_cmd(ceph_args, output):
+    ceph.cmd(ceph_args, output, com="ceph")
+
+
+# omg *rados*
+@cli.command("rados", context_settings={"ignore_unknown_options": True})
+@click.argument("ceph_args", nargs=-1)
+def rados_cmd(ceph_args):
+    ceph.cmd(ceph_args, None, com="rados")
+
+
+# omg *rbd*
+@cli.command("rbd", context_settings={"ignore_unknown_options": True})
+@click.argument("ceph_args", nargs=-1)
+def rbd_cmd(ceph_args):
+    ceph.cmd(ceph_args, None, com="rbd")
 
 
 # Click group for machine-config
