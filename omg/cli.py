@@ -10,9 +10,10 @@ from omg.project.complete import complete_projects
 from omg.get import get
 from omg.get.complete import complete_get
 from omg.log.complete import complete_pods, complete_containers
-from omg.whoami import whoami
 from omg.log import log
+from omg.whoami import whoami
 from omg.components.ceph import ceph
+from omg.components.etcdctl import etcdctl
 # from omg import machine_config
 
 
@@ -161,6 +162,14 @@ def rados_cmd(ceph_args):
 @click.argument("ceph_args", nargs=-1)
 def rbd_cmd(ceph_args):
     ceph.cmd(ceph_args, None, com="rbd")
+
+
+# omg *etcdctl*
+@cli.command("etcdctl", context_settings={"ignore_unknown_options": True})
+@click.option("--output", "--write-out", "-o", type=click.Choice(["json", "table", "simple"]))
+@click.argument("etcdctl_args", nargs=-1)
+def etcdctl_cmd(etcdctl_args, output):
+    etcdctl.cmd(etcdctl_args, output)
 
 
 # Click group for machine-config

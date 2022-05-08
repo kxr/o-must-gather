@@ -37,9 +37,6 @@ def cmd(ceph_args, output, com):
             if len(mg_paths) > 1:
                 lg.opt(colors=True).success("^^^<e>[{}]</>^^^\n".format(i))
     else:
-        lg.error("Command output not found in any of the"
-                 " {} must-gather paths".format(len(mg_paths)))
-
         suggestions = []
         for p in mg_paths:
             try:
@@ -53,3 +50,8 @@ def cmd(ceph_args, output, com):
         if suggestions:
             lg.success("\nNote: Output of following commands are available:")
             lg.success("\n".join(suggestions))
+        else:
+            lg.error(
+                "Command output not found in any of the"
+                " {} must-gather paths".format(len(mg_paths))
+            )
