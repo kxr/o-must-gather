@@ -30,7 +30,7 @@ def etcdctl_out(j_data, output):
                 dget(jd, ["Status", "raftTerm"], "?"),
                 dget(jd, ["Status", "raftIndex"], "?"),
                 dget(jd, ["Status", "raftAppliedIndex"], "?"),
-                dget(jd, ["Status", "errors"]),
+                dget(jd, ["Status", "errors"], ""),
             ])
         if output == "table":
             print(tabulate(body, head, tablefmt="psql"))
