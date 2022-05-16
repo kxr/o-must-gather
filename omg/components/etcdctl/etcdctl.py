@@ -10,6 +10,9 @@ def cmd(etcdctl_args, output):
     cfg = config.get()
     mg_paths = cfg["paths"]
 
+    if output is None:
+        output = "table"
+
     command = "_".join(etcdctl_args)
     etcd_file = os.path.join(
         "etcd_info", "{}.json".format(command))
@@ -39,19 +42,26 @@ def cmd(etcdctl_args, output):
             if len(mg_paths) > 1:
                 lg.opt(colors=True).success("^^^<e>[{}]</>^^^\n".format(i))
     else:
-        suggestions = []
+        suggestions = {}
+        i = 1
         for p in mg_paths:
             try:
                 files = os.listdir(os.path.join(p, "etcd_info"))
                 file_match = "_".join(etcdctl_args)
-                suggestions.extend([
+                sugg = []
+                sugg.extend([
                     "omg etcdctl " + f.replace("_", " ").replace(".json", "")
                     for f in files if f.startswith(file_match)])
+                if sugg:
+                    suggestions[i] = sugg
             except Exception:
                 pass
+            i += 1
         if suggestions:
-            lg.success("\nNote: Output of following commands are available:")
-            lg.success("\n".join(suggestions))
+            lg.success("\nNote: Output of following commands are available:\n")
+            for i, sugg in suggestions.items():
+                lg.success("\n".join(sugg))
+                lg.opt(colors=True).success("^^^<e>[{}]</>^^^\n".format(i))
         else:
             lg.error(
                 "Command output not found in any of the"

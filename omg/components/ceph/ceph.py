@@ -15,9 +15,11 @@ def cmd(ceph_args, output, com):
         commands_dir = "must_gather_commands"
         json_add = ""
 
-    ceph_file = os.path.join(
-        "ceph", commands_dir,
-        "{}_{}{}".format(com, "_".join(ceph_args), json_add))
+    file_name = "{}_{}{}".format(com, "_".join(ceph_args), json_add)
+    if file_name.startswith("ceph_config_show_"):
+        file_name = file_name.replace("ceph_config_show_", "config_")
+
+    ceph_file = os.path.join("ceph", commands_dir, file_name)
 
     lg.debug("ceph_file: {}".format(ceph_file))
 
@@ -37,19 +39,31 @@ def cmd(ceph_args, output, com):
             if len(mg_paths) > 1:
                 lg.opt(colors=True).success("^^^<e>[{}]</>^^^\n".format(i))
     else:
-        suggestions = []
+        suggestions = {}
+        i = 1
         for p in mg_paths:
             try:
                 files = os.listdir(os.path.join(p, "ceph", "must_gather_commands"))
                 file_match = "{}_{}".format(com, "_".join(ceph_args))
-                suggestions.extend([
+                sugg = []
+                sugg.extend([
                     "omg " + f.replace("_", " ")
                     for f in files if f.startswith(file_match)])
-            except Exception:
+                sugg.extend([
+                    "omg ceph config show {}".format(f.replace("config_", ""))
+                    for f in files if f.startswith("config_")
+                ])
+                if sugg:
+                    suggestions[i] = sugg
+            except Exception as e:
+                lg.debug(e)
                 pass
+            i += 1
         if suggestions:
-            lg.success("\nNote: Output of following commands are available:")
-            lg.success("\n".join(suggestions))
+            lg.success("\nNote: Output of following commands are available:\n")
+            for i, sugg in suggestions.items():
+                lg.success("\n".join(sugg))
+                lg.opt(colors=True).success("^^^<e>[{}]</>^^^\n".format(i))
         else:
             lg.error(
                 "Command output not found in any of the"

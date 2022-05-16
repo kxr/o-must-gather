@@ -19,7 +19,7 @@ from omg.components.etcdctl import etcdctl
 
 # Common Options used by multiple subcommands
 o_filtered_path = click.option(
-    "-p", "--path", type=int, default=0)
+    "-P", "--path", type=int, default=0)
 
 o_log_level = click.option(
     "-l", "--loglevel", type=click.Choice(["normal", "info", "debug", "trace"]))
@@ -39,7 +39,8 @@ o_all_namespaces = click.option(
 @o_all_namespaces
 def cli(loglevel, path, namespace, all_namespaces):
     logging.setup_logging(loglevel)
-    config.filtered_path = path
+    if path:
+        config.filtered_path = path
     if namespace:
         config.namespace = namespace
     if all_namespaces:
@@ -51,10 +52,16 @@ def cli(loglevel, path, namespace, all_namespaces):
 @click.argument("mg_paths", nargs=-1, required=False, type=click.Path(
                     exists=True, file_okay=False, resolve_path=True, allow_dash=False))
 @click.option("--cwd", is_flag=True)
-def use_cmd(mg_paths, cwd):
+@o_log_level
+@o_filtered_path
+def use_cmd(mg_paths, cwd, loglevel, path):
     """
     Select one or more must-gather(s) to use
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     use.cmd(mg_paths, cwd)
 
 
@@ -62,19 +69,31 @@ def use_cmd(mg_paths, cwd):
 @cli.command("project")
 @click.argument("name", required=False,
                 autocompletion=complete_projects)
-def project_cmd(name):
+@o_log_level
+@o_filtered_path
+def project_cmd(name, loglevel, path):
     """
     Switch to another project
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     project.cmd(name)
 
 
 # omg *projects*
 @cli.command("projects")
-def projects_cmd():
+@o_log_level
+@o_filtered_path
+def projects_cmd(path, loglevel):
     """
     Display existing projects
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     projects.cmd()
 
 
@@ -83,12 +102,18 @@ def projects_cmd():
 @click.argument("objects", nargs=-1, autocompletion=complete_get)
 @click.option("--output", "-o", type=click.Choice(["yaml", "json", "wide", "name"]))
 @click.option("--show-labels", is_flag=True, type=bool)
+@o_log_level
 @o_namespace
 @o_all_namespaces
-def get_cmd(objects, output, show_labels, namespace, all_namespaces):
+@o_filtered_path
+def get_cmd(objects, output, show_labels, loglevel, namespace, all_namespaces, path):
     """
     Display one or many resources
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     if namespace:
         config.namespace = namespace
     if all_namespaces:
@@ -101,11 +126,17 @@ def get_cmd(objects, output, show_labels, namespace, all_namespaces):
 @click.argument("resource", autocompletion=complete_pods)
 @click.option("--container", "-c", autocompletion=complete_containers)
 @click.option("--previous", "-p", is_flag=True)
+@o_log_level
+@o_filtered_path
 @o_namespace
-def logs_cmd(resource, container, previous, namespace):
+def logs_cmd(resource, container, previous, namespace, loglevel, path):
     """
     Print the logs for a container in a pod
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     if namespace:
         config.namespace = namespace
     log.cmd(resource, container, previous)
@@ -146,21 +177,39 @@ def completion(shell):
 @cli.command("ceph", context_settings={"ignore_unknown_options": True})
 @click.argument("ceph_args", nargs=-1)
 @click.option("--output", "--format", "-o", type=click.Choice(["json", "json-pretty"]))
-def ceph_cmd(ceph_args, output):
+@o_log_level
+@o_filtered_path
+def ceph_cmd(ceph_args, output, loglevel, path):
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     ceph.cmd(ceph_args, output, com="ceph")
 
 
 # omg *rados*
 @cli.command("rados", context_settings={"ignore_unknown_options": True})
 @click.argument("ceph_args", nargs=-1)
-def rados_cmd(ceph_args):
+@o_log_level
+@o_filtered_path
+def rados_cmd(ceph_args, loglevel, path):
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     ceph.cmd(ceph_args, None, com="rados")
 
 
 # omg *rbd*
 @cli.command("rbd", context_settings={"ignore_unknown_options": True})
 @click.argument("ceph_args", nargs=-1)
-def rbd_cmd(ceph_args):
+@o_log_level
+@o_filtered_path
+def rbd_cmd(ceph_args, loglevel, path):
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     ceph.cmd(ceph_args, None, com="rbd")
 
 
@@ -168,7 +217,13 @@ def rbd_cmd(ceph_args):
 @cli.command("etcdctl", context_settings={"ignore_unknown_options": True})
 @click.option("--output", "--write-out", "-o", type=click.Choice(["json", "table", "simple"]))
 @click.argument("etcdctl_args", nargs=-1)
-def etcdctl_cmd(etcdctl_args, output):
+@o_log_level
+@o_filtered_path
+def etcdctl_cmd(etcdctl_args, output, loglevel, path):
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     etcdctl.cmd(etcdctl_args, output)
 
 
