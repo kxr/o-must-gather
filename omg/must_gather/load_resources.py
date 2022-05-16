@@ -55,7 +55,7 @@ def load_res_from_yaml(yfile, rdef=None):
     # List in yaml (kind: List)
     if "items" in ydata:
         lg.debug("'items' in ydata (we got a list)")
-        lg.debug("len of items: {}".format(len(ydata["items"])))
+        lg.debug("len of items: {}".format(len(ydata["items"] or [])))
 
         if ydata["items"] is not None and len(ydata["items"]) > 0:
             res.extend(
