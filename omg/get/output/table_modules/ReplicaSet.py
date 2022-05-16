@@ -31,7 +31,7 @@ def _col_images(res):
 
 
 def _col_selector(res):
-    labels = dget(res, ["res", "spec", "selector", "matchLabels"])
+    labels = dget(res, ["res", "spec", "selector", "matchLabels"], {})
     selector = []
     for k, v in labels.items():
         selector.append("{}={}".format(k, v))
