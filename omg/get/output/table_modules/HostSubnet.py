@@ -33,7 +33,6 @@ DEFAULT_COLUMNS = {
     "SUBNET": _col_subnet,
     "EGRESS CIDRS": _col_cidrs,
     "EGRESS IPS": _col_egress_ips,
-    "AGE": None,
 }
 
 # Wide columns (with -o wide)
