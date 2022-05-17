@@ -27,27 +27,6 @@ def _col_endpoints(res):
             )
             break
     return ep_string
-    # tags = [
-    #     tag["tag"]
-    #     for tag in
-    #     dget(res, ["res", "status", "tags"], [])
-    #     if "tag" in tag
-    # ]
-    # tag_string = ""
-    # while len(tags) > 0:
-    #     t = tags.pop()
-    #     if len(tag_string) + len(t) <= 30:
-    #         if tag_string:
-    #             tag_string = ",".join([tag_string, t])
-    #         else:
-    #             tag_string = t
-    #     else:
-    #         tag_string = "{} + {} more...".format(
-    #             tag_string,
-    #             len(tags) + 1
-    #         )
-    #         break
-    # return tag_string
 
 
 # Default columns (without -o wide)
