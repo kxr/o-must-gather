@@ -101,7 +101,8 @@ def build_table(res, ns, output, show_type, show_labels):
         for hf in head_f:
             try:
                 row.append(hf(r))
-            except Exception:
+            except Exception as e:
+                lg.debug("table cell execption: {}".format(e))
                 row.append("?Unknown?")
         body.append(row)
 
