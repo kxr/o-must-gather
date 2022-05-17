@@ -49,7 +49,8 @@ def get_all_resources(parsed_objects, ns=None):
                 lg.error(e)
                 raise SystemExit(1)
             except UnkownResourceType:
-                continue
+                lg.error("Unknow resource type: {}".format(r_type))
+                raise SystemExit(1)
             else:
                 resd[r_type] = res
         # resd_from_paths.append(resd)
