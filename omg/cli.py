@@ -25,7 +25,7 @@ o_log_level = click.option(
     "-l", "--loglevel", type=click.Choice(["normal", "info", "debug", "trace"]))
 
 o_namespace = click.option(
-    "--namespace", "-n", required=False, autocompletion=complete_projects)
+    "--namespace", "-n", required=False, shell_complete=complete_projects)
 
 o_all_namespaces = click.option(
     "--all-namespaces", "-A", required=False, is_flag=True)
@@ -68,7 +68,7 @@ def use_cmd(mg_paths, cwd, loglevel, path):
 # omg *project*
 @cli.command("project")
 @click.argument("name", required=False,
-                autocompletion=complete_projects)
+                shell_complete=complete_projects)
 @o_log_level
 @o_filtered_path
 def project_cmd(name, loglevel, path):
@@ -99,7 +99,7 @@ def projects_cmd(path, loglevel):
 
 # omg *get*
 @cli.command("get")
-@click.argument("objects", nargs=-1, autocompletion=complete_get)
+@click.argument("objects", nargs=-1, shell_complete=complete_get)
 @click.option("--output", "-o", type=click.Choice(["yaml", "json", "wide", "name"]))
 @click.option("--show-labels", is_flag=True, type=bool)
 @o_log_level
@@ -123,8 +123,8 @@ def get_cmd(objects, output, show_labels, loglevel, namespace, all_namespaces, p
 
 # omg *log*
 @cli.command("logs")
-@click.argument("resource", autocompletion=complete_pods)
-@click.option("--container", "-c", autocompletion=complete_containers)
+@click.argument("resource", shell_complete=complete_pods)
+@click.option("--container", "-c", shell_complete=complete_containers)
 @click.option("--previous", "-p", is_flag=True)
 @o_log_level
 @o_filtered_path
@@ -238,7 +238,7 @@ def mc_cmd():
 
 # # omg machine-config *extract*
 # @mc_cmd.command("extract")
-# @click.argument("mc_names", nargs=-1, autocompletion=complete_mc)
+# @click.argument("mc_names", nargs=-1, shell_complete=complete_mc)
 # @click.option("--yaml-loc", "-y", required=False,
 #               type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False))
 # @click.option('--out-dir', '-d',  required=False,
@@ -249,7 +249,7 @@ def mc_cmd():
 
 # # omg machine-config *compare*
 # @mc_cmd.command("compare")
-# @click.argument("mc_names", nargs=2, autocompletion=complete_mc)
+# @click.argument("mc_names", nargs=2, shell_complete=complete_mc)
 # @click.option('--yaml-loc', '-y', required=False,
 #                 type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False))
 # @click.option("--show-contents", is_flag=True)
