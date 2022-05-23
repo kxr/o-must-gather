@@ -2,7 +2,6 @@ import difflib
 from loguru import logger as lg
 
 from omg.get.get_resources import get_all_resources
-from omg.utils.dget import dget
 from omg.machine_config.decode_content import decode
 
 
