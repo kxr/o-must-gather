@@ -2,6 +2,7 @@ import difflib
 from loguru import logger as lg
 
 from omg.get.get_resources import get_all_resources
+from omg.utils.dget import dget
 from omg.machine_config.decode_content import decode
 
 
@@ -17,7 +18,7 @@ def mc_compare(m, show_contents):
     try:
         two_mcs = []
         for mc_name in m:
-            all_mcs = get_all_resources({"mc": mc_name})
+            all_mcs = get_all_resources({"mc": [mc_name]})
             matched_mcs = []
             for i, mc_res in all_mcs.items():
                 for _, mc_data_l in mc_res.items():

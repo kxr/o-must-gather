@@ -240,10 +240,16 @@ def mc_cmd():
 # omg machine-config *extract*
 @mc_cmd.command("extract")
 @click.argument("mc_names", nargs=-1)
-def extract_mc_cmd(mc_names):
+@o_log_level
+@o_filtered_path
+def extract_mc_cmd(mc_names, loglevel, path):
     """
     Extract Machine Configs
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     mc_extract(mc_names)
 
 
@@ -251,8 +257,14 @@ def extract_mc_cmd(mc_names):
 @mc_cmd.command("compare")
 @click.argument("mc_names", nargs=2)
 @click.option("--show-contents", is_flag=True)
-def compare_mc_cmd(mc_names, show_contents):
+@o_log_level
+@o_filtered_path
+def compare_mc_cmd(mc_names, show_contents, loglevel, path):
     """
     Compare Machine Configs
     """
+    if loglevel:
+        logging.setup_logging(loglevel)
+    if path:
+        config.filtered_path = path
     mc_compare(mc_names, show_contents)
