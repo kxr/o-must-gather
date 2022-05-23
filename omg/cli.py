@@ -14,7 +14,8 @@ from omg.log import log
 from omg.whoami import whoami
 from omg.components.ceph import ceph
 from omg.components.etcdctl import etcdctl
-# from omg import machine_config
+from omg.machine_config.compare import mc_compare
+from omg.machine_config.extract import mc_extract
 
 
 # Common Options used by multiple subcommands
@@ -236,25 +237,22 @@ def mc_cmd():
     pass
 
 
-# # omg machine-config *extract*
-# @mc_cmd.command("extract")
-# @click.argument("mc_names", nargs=-1, shell_complete=complete_mc)
-# @click.option("--yaml-loc", "-y", required=False,
-#               type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False))
-# @click.option('--out-dir', '-d',  required=False,
-#                 type=click.Path(exists=True, file_okay=False, resolve_path=True, allow_dash=False)) # noqa
-# def extract_mc_cmd(mc_names):
-#     machine_config("extract", mc_names, False, yaml_loc, out_dir)
+# omg machine-config *extract*
+@mc_cmd.command("extract")
+@click.argument("mc_names", nargs=-1)
+def extract_mc_cmd(mc_names):
+    """
+    Extract Machine Configs
+    """
+    mc_extract(mc_names)
 
 
-# # omg machine-config *compare*
-# @mc_cmd.command("compare")
-# @click.argument("mc_names", nargs=2, shell_complete=complete_mc)
-# @click.option('--yaml-loc', '-y', required=False,
-#                 type=click.Path(exists=True, file_okay=True, resolve_path=True, allow_dash=False))
-# @click.option("--show-contents", is_flag=True)
-# def compare_mc_cmd(mc_names, show_contents):
-#     """
-#     Compare Machine Configs
-#     """
-#     machine_config("compare", mc_names, show_contents, yaml_loc, None)
+# omg machine-config *compare*
+@mc_cmd.command("compare")
+@click.argument("mc_names", nargs=2)
+@click.option("--show-contents", is_flag=True)
+def compare_mc_cmd(mc_names, show_contents):
+    """
+    Compare Machine Configs
+    """
+    mc_compare(mc_names, show_contents)
