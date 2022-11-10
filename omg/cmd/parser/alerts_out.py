@@ -12,6 +12,8 @@ def alerts_summary(buffer=None):
     alerts = []
     for g in data['data']['groups']:
         for r in g['rules']:
+            if (r['type'] != "alerting"):
+                continue
             alerts.append({
                 "GroupName": g['name'],
                 "Name": r['name'],
@@ -33,7 +35,7 @@ def alerts_firing(buffer=None):
     for g in data['data']['groups']:
 
         for r in g['rules']:
-            if len(r['alerts']) <= 0:
+            if (r['type'] != "alerting") and (r['state'] != "firing"):
                 continue
 
             for a in r['alerts']:

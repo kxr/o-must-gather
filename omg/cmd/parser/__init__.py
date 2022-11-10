@@ -43,15 +43,15 @@ parser_map = {
     "alerts":
         {
             "command": "alerts",
-            "helper": "Parser alerts exported by must-gather monitoring/alerts.json",
-            "file_in": "monitoring/alerts.json",
+            "helper": "Parser alerts exported by must-gather monitoring/prometheus/rules.json",
+            "file_in": "monitoring/prometheus/rules.json",
             "fn_out": alerts_summary
         },
     "alerts-firing":
         {
             "command": "alerts-firing",
-            "helper": "Parser alerts firing exported by must-gather monitoring/alerts.json",
-            "file_in": "monitoring/alerts.json",
+            "helper": "Parser alerts firing exported by must-gather monitoring/prometheus/rules.json",
+            "file_in": "monitoring/prometheus/rules.json",
             "fn_out": alerts_firing
         }
 }
