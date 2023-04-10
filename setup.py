@@ -5,7 +5,7 @@ from setuptools import find_packages, setup
 import omg
 
 #dependencies = ['tabulate', 'pyyaml', 'python-dateutil', 'cryptography>=2.5,<=3.3.2', 'click==7.1.2']
-dependencies = ['tabulate', 'pyyaml', 'python-dateutil', 'cryptography>=2.5,<=3.3.2', 'click==8.0.1', 'loguru==0.6.0']
+dependencies = ['tabulate', 'pyyaml', 'python-dateutil', 'cryptography>=2.5', 'click==8.0.1', 'loguru==0.6.0']
 
 setup(
     name='o-must-gather',
