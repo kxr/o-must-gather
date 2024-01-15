@@ -30,7 +30,7 @@ def load_yaml(yfile):
         lg.debug("Opened yaml file: " + yfile)
         y_d = y_f.read()
         try:
-            ydata = yaml.load(y_d, Loader=SafeLoader)
+            ydata = yaml.load(y_d, Loader=yaml.BaseLoader)
         except (yaml.scanner.ScannerError, yaml.parser.ParserError):
             # yaml load/parse failed
             # try skipping lines from the bottom
@@ -43,7 +43,7 @@ def load_yaml(yfile):
                 y_d = y_d[:y_d.rfind("\n")]
                 lines_skipped += 1
                 try:
-                    ydata = yaml.load(y_d, Loader=SafeLoader)
+                    ydata = yaml.load(y_d, Loader=yaml.BaseLoader)
                 except (yaml.scanner.ScannerError, yaml.parser.ParserError):
                     pass
                 else:
