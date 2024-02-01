@@ -20,7 +20,7 @@ def test_use_simple_must_gather(caplog, omgconfig, simple_must_gather):
         cfile=omgconfig
     )
     with open(omgconfig, "r") as omgcfg:
-        cfg = yaml.load(omgcfg.read(), Loader=yaml.SafeLoader)
+        cfg = yaml.load(omgcfg.read(), Loader=yaml.BaseLoader)
     for path in cfg["paths"]:
         assert os.path.isdir(path)
         assert (
