@@ -26,12 +26,14 @@ def generate_rdefs(path):
         try:
             with open(rdefs_f, "r") as r_f:
                 rdefs.extend(yaml.safe_load(r_f))
-        except Exception:
-            pass
+        except Exception as e:
+            lg.error("Error loading existing rdefs: {}".format(e))
+    else:
+        lg.info("{} file does not exist. It will be created.".format(rdefs_f))
 
     try:
         crds = load_res(path, "crd")
-
+        lg.trace("load path {} successfully".format(path))
         if crds:
             for crd in crds:
 
@@ -47,11 +49,14 @@ def generate_rdefs(path):
 
                 if rdef not in rdefs:
                     rdefs.append(rdef)
+            try:
+                with open(rdefs_f, "w") as rdf:
+                    yaml.safe_dump(rdefs, rdf, default_flow_style=False)
+                    lg.debug("{} rdefs written to: {}".format(len(rdefs), rdefs_f))
+            except yaml.YAMLError as exc:
+                lg.error("YAML error while writing {}: {}".format(rdefs_f, exc))
+            except Exception as exc:
+                lg.error("Error writing {}: {}".format(rdefs_f, exc))
 
-            with open(rdefs_f, "w") as rdf:
-                yaml.dump(rdefs, rdf, default_flow_style=False)
-                lg.debug("{} rdefs written to: {}".format(len(rdefs), rdefs_f))
-
-    except Exception:
-        # lg.warning("Unable to generate rdef file {}: {}".format(rdefs_f, e))
-        pass
+    except Exception as e:
+        lg.error("Unable to generate rdef file {}: {}".format(rdefs_f, e))
